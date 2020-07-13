@@ -1,4 +1,2 @@
-pyppeteer
-asyncio
+msal
 requests
-pandas
