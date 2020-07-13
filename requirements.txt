@@ -1,0 +1,4 @@
+pyppeteer
+asyncio
+requests
+pandas
