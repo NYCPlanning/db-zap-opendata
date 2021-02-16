@@ -21,7 +21,7 @@ class Runner:
         )
         self.name = name
         self.output_dir = f".output/{name}"
-        self.output_file = f"{self.output_dir}/output.csv"
+        self.output_file = f"{self.output_dir}/{self.name}.csv"
         self.headers = self.c.request_header
         self.engine = PG(ZAP_ENGINE).engine
 
@@ -50,16 +50,32 @@ class Runner:
 
     def combine(self):
         files = os.listdir(self.output_dir)
+        self.engine.execute(
+            """
+            BEGIN; DROP TABLE IF EXISTS %(name)s; 
+            ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
+            """
+            % {"name": self.name, "newname": self.name + "_"}
+        )
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
-            df = pd.DataFrame(data["value"])
-            if os.path.isfile(self.output_file):
-                df.to_csv(self.output_file, mode="a", header=False, index=False)
-            else:
-                df.to_csv(self.output_file, mode="w", header=True, index=False)
-
+            df = pd.DataFrame(data["value"], dtype=str)
+            df.to_sql(
+                name=self.name,
+                con=self.engine,
+                index=False,
+                if_exists="append",
+                method=psql_insert_copy,
+            )
             os.remove(f"{self.output_dir}/{_file}")
+
+        # fmt:off
+        self.engine.execute(
+            "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" 
+            % {"name": self.name + "_"}
+        )
+        # fmt:on
 
     def clean(self):
         if os.path.isdir(self.output_dir):
@@ -68,15 +84,10 @@ class Runner:
                 os.remove(f"{self.output_dir}/{_file}")
 
     def export(self):
-        print(f"exporting {self.name} to postgres ...")
-        df = pd.read_csv(self.output_file, index_col=False, low_memory=False)
-        df.to_sql(
-            name=self.name,
-            con=self.engine,
-            index=False,
-            if_exists="replace",
-            method=psql_insert_copy,
+        df = pd.read_sql(
+            "select * from %(name)s" % {"name": self.name}, con=self.engine
         )
+        df.to_csv(self.output_file, index=False)
 
     def __call__(self):
         self.clean()
