@@ -52,7 +52,7 @@ class Runner:
         files = os.listdir(self.output_dir)
         self.engine.execute(
             """
-            BEGIN; DROP TABLE IF EXISTS %(name)s; 
+            BEGIN; DROP TABLE IF EXISTS %(newname)s; 
             ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
             """
             % {"name": self.name, "newname": self.name + "_"}
