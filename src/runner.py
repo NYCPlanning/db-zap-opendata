@@ -5,8 +5,10 @@ import sys
 import pandas as pd
 import requests
 
-from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN
+from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
 from .client import Client
+from .copy import psql_insert_copy
+from .pg import PG
 
 
 class Runner:
@@ -21,6 +23,7 @@ class Runner:
         self.output_dir = f".output/{name}"
         self.output_file = f"{self.output_dir}/output.csv"
         self.headers = self.c.request_header
+        self.engine = PG(ZAP_ENGINE).engine
 
     def create_output_dir(self):
         if not os.path.isdir(self.output_dir):
@@ -64,10 +67,22 @@ class Runner:
             for _file in files:
                 os.remove(f"{self.output_dir}/{_file}")
 
+    def export(self):
+        print(f"exporting {self.name} to postgres ...")
+        df = pd.read_csv(self.output_file, index_col=False, low_memory=False)
+        df.to_sql(
+            name=self.name,
+            con=self.engine,
+            index=False,
+            if_exists="replace",
+            method=psql_insert_copy,
+        )
+
     def __call__(self):
         self.clean()
         self.download()
         self.combine()
+        self.export()
 
 
 if __name__ == "__main__":

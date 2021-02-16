@@ -10,6 +10,7 @@ TENANT_ID = os.environ["TENANT_ID"]
 ZAP_DOMAIN = os.environ["ZAP_DOMAIN"]
 CLIENT_ID = os.environ["CLIENT_ID"]
 SECRET = os.environ["SECRET"]
+ZAP_ENGINE = os.environ["ZAP_ENGINE"]
 
 base_path = ".output"
 if not os.path.isdir(base_path):
