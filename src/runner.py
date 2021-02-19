@@ -48,15 +48,26 @@ class Runner:
             f.write(content)
         return os.path.isfile(f"{self.output_dir}/{filename}")
 
+    def check_table_existence(self, name):
+        r = self.engine.execute(
+            """
+            select * from information_schema.tables 
+            where table_name='%(name)s'
+            """
+            % {"name": name}
+        )
+        return bool(r.rowcount)
+
     def combine(self):
         files = os.listdir(self.output_dir)
-        self.engine.execute(
-            """
-            BEGIN; DROP TABLE IF EXISTS %(newname)s; 
-            ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
-            """
-            % {"name": self.name, "newname": self.name + "_"}
-        )
+        if self.check_table_existence(self.name):
+            self.engine.execute(
+                """
+                BEGIN; DROP TABLE IF EXISTS %(newname)s; 
+                ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
+                """
+                % {"name": self.name, "newname": self.name + "_"}
+            )
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
