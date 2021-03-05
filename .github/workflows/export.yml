@@ -9,6 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    env:
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      SECRET: ${{ secrets.SECRET }}
+      TENANT_ID: ${{ secrets.TENANT_ID }}
+      ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
+      ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
     strategy:
       matrix:
         entity:
@@ -26,10 +32,4 @@ jobs:
           
       - name: Get ${{ matrix.entity }}
         run: python3 -m src.runner ${{ matrix.entity }}
-          
-          
-          
-          
-          
-          
           
