@@ -25,6 +25,9 @@ jobs:
           - dcp_projects
           - dcp_projectactions
           - dcp_projectbbls
+          - dcp_projectmilestones
+          - dcp_projectactionbbls
+          - dcp_communityboarddispositions
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
