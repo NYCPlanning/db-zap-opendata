@@ -1,4 +1,4 @@
-name: Regular Export
+name: Daily Export
 
 on:
   schedule:
