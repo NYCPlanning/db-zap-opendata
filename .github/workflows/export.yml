@@ -1,0 +1,35 @@
+name: Regular Export
+
+on:
+  push:
+    paths:
+      - .github/workflows/export.yml
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        entity:
+          - dcp_projects
+          - dcp_projectactions
+          - dcp_projectbbls
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9' 
+          
+      - name: Install Dependencies
+        run: python3 -m pip install .        
+          
+      - name: Get ${{ matrix.entity }}
+        run: python3 -m src.runner ${{ matrix.entity }}
+          
+          
+          
+          
+          
+          
+          
