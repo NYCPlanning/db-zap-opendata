@@ -21,8 +21,6 @@ jobs:
       matrix:
         entity:
           - dcp_projects
-          - dcp_projectmilestones
-          - dcp_projectdispositions
           - dcp_projectactions
           - dcp_projectbbls
     steps:
