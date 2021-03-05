@@ -1,6 +1,8 @@
 name: Regular Export
 
 on:
+  schedule:
+    - cron: 0 0 * * *
   push:
     paths:
       - .github/workflows/export.yml
@@ -19,6 +21,8 @@ jobs:
       matrix:
         entity:
           - dcp_projects
+          - dcp_projectmilestones
+          - dcp_projectdispositions
           - dcp_projectactions
           - dcp_projectbbls
     steps:
