@@ -19,6 +19,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
       AWS_S3_BUCKET: edm-recipes
     strategy:
+      fail-fast: false
       matrix:
         entity:
           - dcp_projects
