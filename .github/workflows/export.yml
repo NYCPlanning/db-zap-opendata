@@ -50,7 +50,7 @@ jobs:
             -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
             -v $(pwd)/templates:/templates\
             -v $(pwd)/.output:/.output\
-            nycplanning/library:ubuntu-latest library archive -f /templates/${{ matrix.entity }}.yml -s -l -o pgdump --compress
+            nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -s -l -o pgdump --compress
           
       - name: Archive to data library - CSV
         run: |
@@ -62,4 +62,4 @@ jobs:
             -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
             -v $(pwd)/templates:/templates\
             -v $(pwd)/.output:/.output\
-            nycplanning/library:ubuntu-latest library archive -f /templates/${{ matrix.entity }}.yml -s -l -o csv --compress
+            nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -s -l -o csv --compress
