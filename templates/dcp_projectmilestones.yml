@@ -22,7 +22,74 @@ dataset:
       - "OVERWRITE=YES"
       - "PRECISION=NO"
     fields: []
-    sql: null
+    sql: >
+    SELECT _odata_etag
+    ,dcp_milestonesequence
+    ,dcp_milestonetype
+    ,statuscode
+    ,createdon
+    ,dcp_isadhocprojectmilestone
+    ,importsequencenumber
+    ,dcp_endofprecertification
+    ,statecode
+    ,dcp_name
+    ,dcp_parallelmilestone
+    ,dcp_legalduration
+    ,_ownerid_value
+    ,modifiedon
+    ,dcp_plannedstartdate
+    ,versionnumber
+    ,_dcp_milestone_value
+    ,dcp_plannedcompletiondate
+    ,timezoneruleversionnumber
+    ,dcp_goaldurationcalculated
+    ,_modifiedby_value
+    ,dcp_enableholidaycalendar
+    ,_dcp_project_value
+    ,_modifiedonbehalfby_value
+    ,_owningteam_value
+    ,dcp_sequence
+    ,dcp_goalduration
+    ,dcp_isreviewmeetingdateoverridden
+    ,_createdby_value
+    ,dcp_reviewmeetingdate
+    ,_owningbusinessunit_value
+    ,dcp_override
+    ,dcp_projectmilestoneid
+    ,dcp_milestonephase
+    ,dcp_actualstartdate
+    ,dcp_legalenddate
+    ,dcp_warningdurationcalcutated
+    ,dcp_remainingplanneddayscalculated
+    ,_owninguser_value
+    ,dcp_migratedlastceqrstatusupdateddate
+    ,_dcp_nextceqrmilestone_value
+    ,dcp_actualnumbersofreviews
+    ,dcp_prefix
+    ,dcp_actualdurationasoftoday
+    ,dcp_migratedlaststatusupdateddate
+    ,dcp_timerflag
+    ,_dcp_milestoneoutcome_value
+    ,dcp_numberofrevisions
+    ,dcp_actualenddate
+    ,_dcp_projectaction_value
+    ,dcp_sharepointabsoluteurl
+    ,utcconversiontimezonecode
+    ,_createdonbehalfby_value
+    ,dcp_actualduration
+    ,dcp_goaldate
+    ,_dcp_precedingmilestone_value
+    ,dcp_remainingplanneddays
+    ,_dcp_nextlumilestone_value
+    ,dcp_projecttype
+    ,_dcp_cpcmeeting_value
+    ,overriddencreatedon
+    ,dcp_dmsourceid
+    ,dcp_goalduration2
+    ,dcp_goalduration3
+    ,dcp_spabsoluteurl
+    ,dcp_warningduration
+    FROM @filename
 
   info:
     description: |

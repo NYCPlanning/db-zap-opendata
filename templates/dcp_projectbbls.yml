@@ -22,7 +22,44 @@ dataset:
       - "OVERWRITE=YES"
       - "PRECISION=NO"
     fields: []
-    sql: null
+    sql: >
+    SELECT _odata_etag
+    ,statecode
+    ,statuscode
+    ,createdon
+    ,dcp_name
+    ,dcp_developmentsite
+    ,dcp_userinputborough
+    ,dcp_userinputlot
+    ,dcp_bblvalidateddate
+    ,_ownerid_value
+    ,dcp_bblnumber
+    ,modifiedon
+    ,dcp_userinputblock
+    ,versionnumber
+    ,timezoneruleversionnumber
+    ,dcp_validatedborough
+    ,_modifiedby_value
+    ,_dcp_project_value
+    ,dcp_bblvalidated
+    ,dcp_projectbblid
+    ,dcp_partiallot
+    ,dcp_validatedlot
+    ,dcp_validatedblock
+    ,_createdby_value
+    ,_owningbusinessunit_value
+    ,_owninguser_value
+    ,overriddencreatedon
+    ,importsequencenumber
+    ,dcp_responsewarning
+    ,_modifiedonbehalfby_value
+    ,dcp_bblgeometry
+    ,utcconversiontimezonecode
+    ,dcp_responseerror
+    ,_createdonbehalfby_value
+    ,dcp_dmsourceid
+    ,_owningteam_value
+    FROM @filename
 
   info:
     description: |

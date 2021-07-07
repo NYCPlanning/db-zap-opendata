@@ -22,7 +22,65 @@ dataset:
       - "OVERWRITE=YES"
       - "PRECISION=NO"
     fields: []
-    sql: null
+    sql: >
+    SELECT _odata_etag
+    ,_owningbusinessunit_value
+    ,_dcp_action_value
+    ,dcp_borough
+    ,dcp_date
+    ,statuscode
+    ,dcp_actionhierarchy
+    ,_createdby_value
+    ,dcp_name
+    ,_dcp_project_value
+    ,dcp_dmsourceid
+    ,_ownerid_value
+    ,dcp_ulurpnumber
+    ,modifiedon
+    ,_owninguser_value
+    ,_modifiedby_value
+    ,versionnumber
+    ,dcp_ulurpnonulurp
+    ,createdon
+    ,statecode
+    ,dcp_projectactionid
+    ,dcp_zrmodifyingzrtxt
+    ,dcp_cpcreportlink
+    ,dcp_boroughboardrecommendationslink
+    ,dcp_citycouncilvoteoutcome
+    ,dcp_citymaplink
+    ,_dcp_trdstaff_value
+    ,dcp_isthistheleadaction
+    ,dcp_actiongeometry
+    ,dcp_boroughpresidentrecommendationslink
+    ,_dcp_boroughstaff_value
+    ,overriddencreatedon
+    ,dcp_sharepointabsoluteurl
+    ,dcp_ulurpfee
+    ,importsequencenumber
+    ,dcp_spabsoluteurl
+    ,_modifiedonbehalfby_value
+    ,dcp_sketchmaplink
+    ,dcp_communityboardrecommendationslink
+    ,dcp_migratedlastupdateddate
+    ,dcp_historiczoningresolutionsectionnumber
+    ,dcp_actiongeometrysource
+    ,_dcp_zoningresolution_value
+    ,dcp_docket
+    ,_dcp_modifyingzr_value
+    ,utcconversiontimezonecode
+    ,dcp_prefix
+    ,dcp_projectactionstatusdate
+    ,dcp_location
+    ,dcp_citycouncilreportlink
+    ,_dcp_counsel_value
+    ,_createdonbehalfby_value
+    ,dcp_ccresolutionnumber
+    ,dcp_cityclerknumber
+    ,dcp_comment
+    ,_owningteam_value
+    ,timezoneruleversionnumber
+    FROM @filename
 
   info:
     description: |
