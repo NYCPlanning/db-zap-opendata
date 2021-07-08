@@ -94,11 +94,17 @@ class Runner:
             for _file in files:
                 os.remove(f"{self.output_dir}/{_file}")
 
+    @property
+    def columns(self):
+        with open(f'../schemas/{self.name}.json') as f:
+            schema = json.load(f)
+        return [s['name'] for s in schema]
+
     def export(self):
         df = pd.read_sql(
             "select * from %(name)s" % {"name": self.name}, con=self.engine
         )
-        df.to_csv(self.output_file, index=False)
+        df[[self.columns]].to_csv(self.output_file, index=False)
 
     def __call__(self):
         self.clean()
