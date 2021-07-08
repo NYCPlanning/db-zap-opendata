@@ -22,32 +22,7 @@ dataset:
       - "OVERWRITE=YES"
       - "PRECISION=NO"
     fields: []
-    sql: >
-    SELECT _odata_etag
-    ,dcp_projectactionbblid
-    ,_owningbusinessunit_value
-    ,statecode
-    ,statuscode
-    ,_createdby_value
-    ,_dcp_projectaction_value
-    ,dcp_dmsourceid
-    ,_ownerid_value
-    ,modifiedon
-    ,_owninguser_value
-    ,_modifiedby_value
-    ,versionnumber
-    ,_dcp_projectbbl_value
-    ,createdon
-    ,overriddencreatedon
-    ,importsequencenumber
-    ,_modifiedonbehalfby_value
-    ,dcp_bblgeometry
-    ,utcconversiontimezonecode
-    ,_createdonbehalfby_value
-    ,_owningteam_value
-    ,dcp_name
-    ,timezoneruleversionnumber
-    FROM @filename
+    sql: null
 
   info:
     description: |

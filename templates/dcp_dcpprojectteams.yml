@@ -22,37 +22,8 @@ dataset:
       - "OVERWRITE=YES"
       - "PRECISION=NO"
     fields: []
-    sql: >
-    SELECT _odata_etag
-    ,statecode
-    ,statuscode
-    ,dcp_dcpprojectteamid
-    ,createdon
-    ,dcp_name
-    ,overriddencreatedon
-    ,_ownerid_value
-    ,modifiedon
-    ,versionnumber
-    ,dcp_dmsourceid
-    ,timezoneruleversionnumber
-    ,dcp_status
-    ,dcp_division
-    ,_modifiedby_value
-    ,_dcp_project_value
-    ,dcp_isupdated
-    ,dcp_projectrole
-    ,_createdby_value
-    ,_owningbusinessunit_value
-    ,_dcp_user_value
-    ,_owninguser_value
-    ,dcp_projectteamrolecomplexity
-    ,importsequencenumber
-    ,_modifiedonbehalfby_value
-    ,utcconversiontimezonecode
-    ,_createdonbehalfby_value
-    ,_owningteam_value
-    FROM @filename
-
+    sql: null
+    
   info:
     description: |
       ## dcp_dcpprojectteams
