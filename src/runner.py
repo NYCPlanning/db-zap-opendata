@@ -3,6 +3,7 @@ import os
 import sys
 
 import pandas as pd
+from pathlib import Path
 import requests
 
 from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
@@ -96,7 +97,7 @@ class Runner:
 
     @property
     def columns(self):
-        with open(f'../schemas/{self.name}.json') as f:
+        with open(f'{Path(__file__).parent.parent}/schemas/{self.name}.json') as f:
             schema = json.load(f)
         return [s['name'] for s in schema]
 
