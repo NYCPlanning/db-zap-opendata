@@ -1,11 +1,6 @@
 [
   {
     "mode": "NULLABLE",
-    "name": "_odata_etag",
-    "type": "STRING"
-  },
-  {
-    "mode": "NULLABLE",
     "name": "_dcp_leadaction_value",
     "type": "STRING"
   },

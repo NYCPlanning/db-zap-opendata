@@ -105,7 +105,7 @@ class Runner:
         df = pd.read_sql(
             "select * from %(name)s" % {"name": self.name}, con=self.engine
         )
-        df[[self.columns]].to_csv(self.output_file, index=False)
+        df[self.columns].to_csv(self.output_file, index=False)
 
     def __call__(self):
         self.clean()
