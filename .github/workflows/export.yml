@@ -47,6 +47,31 @@ jobs:
           DATE=$(date +%Y%m%d)
           echo "::set-output name=version::$DATE"
 
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
+          service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Archive to BigQuery
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          location=US
+          dataset=${{ matrix.entity }}
+          tablename=$dataset.$VERSION
+          bq show $dataset || bq mk --location=$location --dataset $dataset
+          bq show $dataset || bq mk $tablename
+          bq load \
+              --location=$location\
+              --source_format=CSV\
+              --quote '"' \
+              --skip_leading_rows 1\
+              --replace\
+              --allow_quoted_newlines\
+              $tablename .output/$dataset/$dataset.csv schemas/$dataset.json
+      
       - name: Archive to data library - PGdump
         env: 
           VERSION: ${{ steps.version.outputs.version }}
@@ -74,35 +99,3 @@ jobs:
             -v $(pwd)/templates:/templates\
             -v $(pwd)/.output:/.output\
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o csv --compress
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
-          service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
-          export_default_credentials: true
-
-      - name: Archive to BigQuery
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          location=US
-          dataset=${{ matrix.entity }}
-          tablename=$dataset.$VERSION
-          bq mk --location=$location --dataset $dataset
-          bq mk --location=$location --dataset zap
-          bq mk $tablename
-          bq load \
-              --location=$location\
-              --source_format=CSV\
-              --quote '"' \
-              --skip_leading_rows 1\
-              --replace\
-              --allow_quoted_newlines\
-              $tablename .output/$dataset/$dataset.csv schemas/$dataset.json
-          bq mk zap.$dataset
-          bq query \
-            --location=$location\
-            --replace\
-            --destination_table zap.$dataset \
-            --use_legacy_sql=false "SELECT * FROM \`$tablename\`;"
