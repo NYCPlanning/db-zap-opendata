@@ -53,24 +53,31 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
           service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
           export_default_credentials: true
-
+          
       - name: Archive to BigQuery
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          location=US
-          dataset=${{ matrix.entity }}
-          tablename=$dataset.$VERSION
-          bq show $dataset || bq mk --location=$location --dataset $dataset
-          bq show $tablename || bq mk $tablename
+          LOCATION=US
+          VERSION=${{ steps.version.outputs.version }}
+          NAME=${{ matrix.entity }}
+          TABLENAME=$NAME.$VERSION
+          FILEPATH=gs://zap-crm-export/datasets/$NAME/$VERSION/$NAME.csv
+          
+          # Upload to GCS
+          gsutil cp .output/$NAME/$NAME.csv $FILEPATH
+
+          # Import to BQ
+          bq show $NAME || bq mk --location=$LOCATION --dataset $NAME
+          bq show $TABLENAME || bq mk $TABLENAME
           bq load \
-              --location=$location\
+              --location=$LOCATION\
               --source_format=CSV\
               --quote '"' \
               --skip_leading_rows 1\
               --replace\
               --allow_quoted_newlines\
-              $tablename .output/$dataset/$dataset.csv schemas/$dataset.json
+              $TABLENAME\
+              $FILEPATH \ 
+              schemas/$NAME.json
       
       - name: Archive to data library - PGdump
         env: 
