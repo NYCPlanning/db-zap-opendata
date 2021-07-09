@@ -55,29 +55,9 @@ jobs:
           export_default_credentials: true
           
       - name: Archive to BigQuery
-        run: |
-          LOCATION=US
-          VERSION=${{ steps.version.outputs.version }}
-          NAME=${{ matrix.entity }}
-          TABLENAME=$NAME.$VERSION
-          FILEPATH=gs://zap-crm-export/datasets/$NAME/$VERSION/$NAME.csv
-          
-          # Upload to GCS
-          gsutil cp .output/$NAME/$NAME.csv $FILEPATH
-
-          # Import to BQ
-          bq show $NAME || bq mk --location=$LOCATION --dataset $NAME
-          bq show $TABLENAME || bq mk $TABLENAME
-          bq load \
-              --location=$LOCATION\
-              --source_format=CSV\
-              --quote '"' \
-              --skip_leading_rows 1\
-              --replace\
-              --allow_quoted_newlines\
-              $TABLENAME\
-              $FILEPATH \ 
-              schemas/$NAME.json
+        env: 
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ./zap.sh upload ${{ matrix.entity }} $VERSION
       
       - name: Archive to data library - PGdump
         env: 
