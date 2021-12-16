@@ -73,6 +73,7 @@ class Runner:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
             df = pd.DataFrame(data["value"], dtype=str)
+            df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
             df.to_sql(
                 name=self.name,
                 con=self.engine,
@@ -97,9 +98,9 @@ class Runner:
 
     @property
     def columns(self):
-        with open(f'{Path(__file__).parent.parent}/schemas/{self.name}.json') as f:
+        with open(f"{Path(__file__).parent.parent}/schemas/{self.name}.json") as f:
             schema = json.load(f)
-        return [s['name'] for s in schema]
+        return [s["name"] for s in schema]
 
     def export(self):
         df = pd.read_sql(
