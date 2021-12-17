@@ -24,4 +24,11 @@ case $1 in
             $FILEPATH \
             schemas/$dataset.json
     ;;
+    upload_do )
+        FILENAME=$2
+        DATE=$(date "+%Y-%m-%d")
+        SPACES='? asked Amanda, gotta figure this out'
+        mc cp --atr acl=privte -r output $SPACES/$DATE
+
+
 esac
