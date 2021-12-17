@@ -22,7 +22,7 @@ class Runner:
         )
         self.name = name
         self.output_dir = f".output/{name}"
-        self.output_file = f"{self.output_dir}/{self.name}.csv"
+        self.output_file = f"{self.output_dir}/{self.name}"
         self.headers = self.c.request_header
         self.engine = PG(ZAP_ENGINE).engine
 
@@ -73,7 +73,7 @@ class Runner:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
             df = pd.DataFrame(data["value"], dtype=str)
-            df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
+            self.open_data_cleaning(df)
             df.to_sql(
                 name=self.name,
                 con=self.engine,
@@ -89,6 +89,28 @@ class Runner:
             % {"name": self.name + "_"}
         )
         # fmt:on
+        self.make_open_data_table()
+
+    def make_open_data_table(self):
+        if self.name == "dcp_projects":
+            self.engine.execute(
+                """BEGIN;
+            CREATE TABLE dcp_projects_visible as 
+            (SELECT * from dcp_projects where dcp_visibility = '717170003');
+             COMMIT;"""
+            )
+        if self.name == "dcp_projectbbbls":
+            self.engine.execute(
+                """BEGIN;
+                CREATE TABLE dpc_projectbbls_visible as 
+                (SELECT dcp_projectbbls.* from dcp_projectbbls INNER JOIN dcp_projects 
+                on dcp_projectbbls.something = dcp_projects.something);
+                COMMIT;"""
+            )
+
+    def open_data_cleaning(self, df):
+        if self.name == "dcp_visibility":  # To-do: figure out better design for this
+            df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
 
     def clean(self):
         if os.path.isdir(self.output_dir):
@@ -103,10 +125,15 @@ class Runner:
         return [s["name"] for s in schema]
 
     def export(self):
+        self.sql_to_csv(self.name, self.output_file)
+        if self.name in ["dcp_projects", "dcp_projectbbls"]:
+            self.sql_to_csv(f"{self.name}_visible", f"{self.output_file}_visible")
+
+    def sql_to_csv(self, table_name, output_file):
         df = pd.read_sql(
-            "select * from %(name)s" % {"name": self.name}, con=self.engine
+            "select * from %(name)s" % {"name": table_name}, con=self.engine
         )
-        df[self.columns].to_csv(self.output_file, index=False)
+        df[self.columns].to_csv(f"{output_file}.csv", index=False)
 
     def __call__(self):
         self.clean()
