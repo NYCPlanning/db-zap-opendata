@@ -25,10 +25,11 @@ case $1 in
             schemas/$dataset.json
     ;;
     upload_do )
-        FILENAME=$2
+        dataset=$2
         DATE=$(date "+%Y-%m-%d")
-        SPACES='? asked Amanda, gotta figure this out'
-        mc cp --atr acl=privte -r output $SPACES/$DATE
+        SPACES="spaces/edm-publishing/db-zap/"
+        visible_filename= "${dataset}_visible.csv"
+        mc cp output/$dataset/$visible_filename $SPACES/$DATE/$dataset
 
 
 esac
