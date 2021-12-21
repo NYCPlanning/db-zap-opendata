@@ -7,10 +7,6 @@ on:
 
   
 jobs:
-
-  setup:
-    runs-on: ubuntu-20.04
-
   build:
     runs-on: ubuntu-20.04
     env:
@@ -38,6 +34,7 @@ jobs:
         include:
           - entity: ['dcp_projects', 'dcp_projectbbls']
             open: true
+
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
