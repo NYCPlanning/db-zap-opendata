@@ -7,7 +7,7 @@ on:
       VERSION:
         required: true
         type: string
-      AWS_BUCKET:
+      AWS_S3_BUCKET:
         required: true
         type: string
 jobs:
