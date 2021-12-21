@@ -36,8 +36,8 @@ jobs:
           - dcp_communityboarddispositions
           - dcp_dcpprojectteams
         include:
-          -entity: ['dcp_projects', 'dcp_projectbbls']
-          -open: true
+          - entity: ['dcp_projects', 'dcp_projectbbls']
+          - open: true
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
