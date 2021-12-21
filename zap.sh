@@ -26,7 +26,7 @@ case $1 in
     ;;
     upload_do )
         dataset=$2
-        DATE=$(date "+%Y-%m-%d")
+        VERSION=$3
         SPACES="spaces/edm-publishing/db-zap"
         visible_filename="${dataset}_visible.csv"
         mc cp .output/$dataset/$visible_filename $SPACES/$DATE/$dataset/${dataset}.csv

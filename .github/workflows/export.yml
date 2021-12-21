@@ -22,13 +22,13 @@ jobs:
       fail-fast: false
       matrix:
         entity:
-          - dcp_projects
-          - dcp_projectactions
-          - dcp_projectbbls
-          - dcp_projectmilestones
-          - dcp_projectactionbbls
-          - dcp_communityboarddispositions
-          - dcp_dcpprojectteams
+          # - dcp_projects
+          # - dcp_projectactions
+          # - dcp_projectbbls
+          # - dcp_projectmilestones
+          # - dcp_projectactionbbls
+          # - dcp_communityboarddispositions
+          # - dcp_dcpprojectteams
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -86,3 +86,9 @@ jobs:
             -v $(pwd)/templates:/templates\
             -v $(pwd)/.output:/.output\
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o csv --compress
+      
+  export_visible: Archive visible projects to digital ocean
+    uses: ./.github/workflows/export_visible.yml
+    with: 
+      VERSION: ${{ steps.version.outputs.version }}
+      AWS_S3_BUCKET: edm-publishing
