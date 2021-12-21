@@ -88,7 +88,7 @@ jobs:
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o csv --compress
       
   export_visible:
-    uses: ./.github/workflows/export_visible.yml@v1
+    uses: NYCPlanning/zap-open-data/.github/workflows/export_visible.yml@v1
     with: 
       VERSION: ${{ steps.version.outputs.version }}
       AWS_S3_BUCKET: edm-publishing
