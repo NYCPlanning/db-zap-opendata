@@ -31,6 +31,8 @@ jobs:
           - dcp_projectactionbbls
           - dcp_communityboarddispositions
           - dcp_dcpprojectteams
+        open:
+          - false
         include:
           - entity: ['dcp_projects', 'dcp_projectbbls']
             open: true
