@@ -27,9 +27,10 @@ case $1 in
     upload_do )
         dataset=$2
         DATE=$(date "+%Y-%m-%d")
-        SPACES="spaces/edm-publishing/db-zap/"
-        visible_filename= "${dataset}_visible.csv"
-        mc cp .output/$dataset/$visible_filename $SPACES/$DATE/$dataset/$visible_filename
+        SPACES="spaces/edm-publishing/db-zap"
+        visible_filename="${dataset}_visible.csv"
+        mc cp .output/$dataset/$visible_filename $SPACES/$DATE/$dataset/${dataset}.csv
+        mc cp .output/$dataset/$visible_filename $SPACES/latest/$dataset/${dataset}.csv
 
 
 esac

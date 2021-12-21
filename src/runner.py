@@ -95,16 +95,18 @@ class Runner:
         if self.name == "dcp_projects":
             self.engine.execute(
                 """BEGIN;
+                DROP TABLE IF EXISTS dcp_projects_visible;
             CREATE TABLE dcp_projects_visible as 
             (SELECT * from dcp_projects where dcp_visibility = '717170003');
              COMMIT;"""
             )
-        if self.name == "dcp_projectbbbls":
+        if self.name == "dcp_projectbbls":
             self.engine.execute(
                 """BEGIN;
-                CREATE TABLE dpc_projectbbls_visible as 
+                DROP TABLE IF EXISTS dcp_projectbbls_visible;
+                CREATE TABLE dcp_projectbbls_visible as 
                 (SELECT dcp_projectbbls.* from dcp_projectbbls INNER JOIN dcp_projects 
-                on dcp_projectbbls.something = dcp_projects.something);
+                on SUBSTRING(dcp_projectbbls.dcp_name, 0,10) = dcp_projects.dcp_name);
                 COMMIT;"""
             )
 
