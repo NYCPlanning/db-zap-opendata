@@ -33,11 +33,11 @@ jobs:
           - dcp_dcpprojectteams
         open:
           - false
-        include:
-          - entity: 
-            - 'dcp_projects'
-            - 'dcp_projectbbls'
-            open: true
+        # include:
+        #   - entity: 
+        #     - 'dcp_projects'
+        #     - 'dcp_projectbbls'
+        #     open: true
 
     steps:
       - uses: actions/checkout@v2
