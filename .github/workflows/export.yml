@@ -34,7 +34,9 @@ jobs:
         open:
           - false
         include:
-          - entity: ['dcp_projects', 'dcp_projectbbls']
+          - entity: 
+            - 'dcp_projects'
+            - 'dcp_projectbbls'
             open: true
 
     steps:
