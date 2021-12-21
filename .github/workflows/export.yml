@@ -98,9 +98,9 @@ jobs:
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o csv --compress
       
       - name: Export open data to edm-publishing 
-      run: |
-        if [${{ matrix.open }}]
-        then
-        ./zap.sh upload_do ${{ matrix.entity }} $VERSION
-        fi
+        run: |
+          if [${{ matrix.open }}]
+          then
+          ./zap.sh upload_do ${{ matrix.entity }} $VERSION
+          fi
     
