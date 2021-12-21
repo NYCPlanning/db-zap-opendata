@@ -7,6 +7,10 @@ on:
 
   
 jobs:
+
+  setup:
+    runs-on: ubuntu-20.04
+
   build:
     runs-on: ubuntu-20.04
     env:
@@ -18,19 +22,22 @@ jobs:
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
-      AWS_S3_BUCKET: edm-recipes
+      AWS_S3_LIBRARY_BUCKET: edm-recipes
       VERSION: $(date +%Y%m%d)
     strategy:
       fail-fast: false
       matrix:
         entity:
           - dcp_projects
-          # - dcp_projectactions
+          - dcp_projectactions
           - dcp_projectbbls
-          # - dcp_projectmilestones
-          # - dcp_projectactionbbls
-          # - dcp_communityboarddispositions
-          # - dcp_dcpprojectteams
+          - dcp_projectmilestones
+          - dcp_projectactionbbls
+          - dcp_communityboarddispositions
+          - dcp_dcpprojectteams
+        include:
+          -entity: ['dcp_projects', 'dcp_projectbbls']
+          -open: true
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -49,17 +56,17 @@ jobs:
       #     DATE=$(date +%Y%m%d)
       #     echo "::set-output name=version::$DATE"
 
-      # - name: Set up Cloud SDK
-      #   uses: google-github-actions/setup-gcloud@master
-      #   with:
-      #     project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
-      #     service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
-      #     export_default_credentials: true
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
+          service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
+          export_default_credentials: true
           
-      # - name: Archive to BigQuery
-      #   env: 
-      #     VERSION: ${{ steps.version.outputs.version }}
-      #   run: ./zap.sh upload ${{ matrix.entity }} $VERSION
+      - name: Archive to BigQuery
+        env: 
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ./zap.sh upload ${{ matrix.entity }} $VERSION
       
       - name: Archive to data library - PGdump
         # env: 
@@ -70,7 +77,7 @@ jobs:
             -e AWS_S3_ENDPOINT=AWS_S3_ENDPOINT\
             -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
             -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
-            -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
+            -e AWS_S3_BUCKET=$AWS_S3_LIBRARY_BUCKET\
             -v $(pwd)/templates:/templates\
             -v $(pwd)/.output:/.output\
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o pgdump --compress
@@ -84,16 +91,15 @@ jobs:
             -e AWS_S3_ENDPOINT=AWS_S3_ENDPOINT\
             -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
             -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
-            -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
+            -e AWS_S3_BUCKET=$AWS_S3_LIBRARY_BUCKET\
             -v $(pwd)/templates:/templates\
             -v $(pwd)/.output:/.output\
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o csv --compress
       
-  export_visible:
-    uses: NYCPlanning/db-zap-opendata/.github/workflows/export_visible.yml@9-Open-Data
-    with: 
-      # AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-      # AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-      # AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
-      VERSION: $(date +%Y%m%d)
-      AWS_S3_BUCKET: edm-publishing
+      - name: Export open data to edm-publishing 
+      run: |
+        if [${{ matrix.open }}]
+        then
+        ./zap.sh upload_do ${{ matrix.entity }} $VERSION
+        fi
+    
