@@ -5,21 +5,21 @@ on:
     - cron: 0 0 * * *
   workflow_dispatch:
 
-env:
-  CLIENT_ID: ${{ secrets.CLIENT_ID }}
-  SECRET: ${{ secrets.SECRET }}
-  TENANT_ID: ${{ secrets.TENANT_ID }}
-  ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
-  ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
-  AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
-  AWS_S3_BUCKET: edm-recipes
-  VERSION: $(date +%Y%m%d)
   
 jobs:
   build:
     runs-on: ubuntu-20.04
+    env:
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      SECRET: ${{ secrets.SECRET }}
+      TENANT_ID: ${{ secrets.TENANT_ID }}
+      ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
+      ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+      VERSION: $(date +%Y%m%d)
     strategy:
       fail-fast: false
       matrix:
@@ -67,7 +67,7 @@ jobs:
         run: |
           echo "exporting ${{ matrix.entity }}.sql"
           docker run --rm \
-            -e AWS_S3_ENDPOINT=${{ env.AWS_S3_ENDPOINT }}\
+            -e AWS_S3_ENDPOINT=AWS_S3_ENDPOINT\
             -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
             -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
             -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
@@ -81,7 +81,7 @@ jobs:
         run: |
           echo "exporting ${{ matrix.entity }}.csv"
           docker run --rm \
-            -e AWS_S3_ENDPOINT=${{ env.AWS_S3_ENDPOINT }}\
+            -e AWS_S3_ENDPOINT=AWS_S3_ENDPOINT\
             -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
             -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
             -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
@@ -92,5 +92,8 @@ jobs:
   export_visible:
     uses: NYCPlanning/db-zap-opendata/.github/workflows/export_visible.yml@9-Open-Data
     with: 
-      VERSION: ${{ env.VERSION }}
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      VERSION: $(date +%Y%m%d)
       AWS_S3_BUCKET: edm-publishing
