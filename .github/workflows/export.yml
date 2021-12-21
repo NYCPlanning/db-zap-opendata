@@ -5,19 +5,21 @@ on:
     - cron: 0 0 * * *
   workflow_dispatch:
 
+env:
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  SECRET: ${{ secrets.SECRET }}
+  TENANT_ID: ${{ secrets.TENANT_ID }}
+  ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
+  ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+  AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+  AWS_S3_BUCKET: edm-recipes
+  VERSION: $(date +%Y%m%d)
+  
 jobs:
+  runs-on: ubuntu-20.04
   build:
-    runs-on: ubuntu-20.04
-    env:
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      SECRET: ${{ secrets.SECRET }}
-      TENANT_ID: ${{ secrets.TENANT_ID }}
-      ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
-      ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
-      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
-      AWS_S3_BUCKET: edm-recipes
     strategy:
       fail-fast: false
       matrix:
@@ -41,11 +43,11 @@ jobs:
       - name: Get ${{ matrix.entity }}
         run: python3 -m src.runner ${{ matrix.entity }}
           
-      - name: Set Version info
-        id: version
-        run: |
-          DATE=$(date +%Y%m%d)
-          echo "::set-output name=version::$DATE"
+      # - name: Set Version info
+      #   id: version
+      #   run: |
+      #     DATE=$(date +%Y%m%d)
+      #     echo "::set-output name=version::$DATE"
 
       # - name: Set up Cloud SDK
       #   uses: google-github-actions/setup-gcloud@master
@@ -60,12 +62,12 @@ jobs:
       #   run: ./zap.sh upload ${{ matrix.entity }} $VERSION
       
       - name: Archive to data library - PGdump
-        env: 
-          VERSION: ${{ steps.version.outputs.version }}
+        # env: 
+        #   VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "exporting ${{ matrix.entity }}.sql"
           docker run --rm \
-            -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
+            -e AWS_S3_ENDPOINT=${{ env.AWS_S3_ENDPOINT }}\
             -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
             -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
             -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
@@ -74,12 +76,12 @@ jobs:
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o pgdump --compress
           
       - name: Archive to data library - CSV
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
+        # env:
+        #   VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "exporting ${{ matrix.entity }}.csv"
           docker run --rm \
-            -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
+            -e AWS_S3_ENDPOINT=${{ env.AWS_S3_ENDPOINT }}\
             -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
             -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
             -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
@@ -90,5 +92,5 @@ jobs:
   export_visible:
     uses: NYCPlanning/db-zap-opendata/.github/workflows/export_visible.yml@9-Open-Data
     with: 
-      VERSION: ${{ steps.version.outputs.version }}
+      VERSION: ${{ env.VERSION }}
       AWS_S3_BUCKET: edm-publishing
