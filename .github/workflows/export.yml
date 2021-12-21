@@ -22,9 +22,9 @@ jobs:
       fail-fast: false
       matrix:
         entity:
-          # - dcp_projects
+          - dcp_projects
           # - dcp_projectactions
-          # - dcp_projectbbls
+          - dcp_projectbbls
           # - dcp_projectmilestones
           # - dcp_projectactionbbls
           # - dcp_communityboarddispositions
@@ -47,17 +47,17 @@ jobs:
           DATE=$(date +%Y%m%d)
           echo "::set-output name=version::$DATE"
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
-          service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
-          export_default_credentials: true
+      # - name: Set up Cloud SDK
+      #   uses: google-github-actions/setup-gcloud@master
+      #   with:
+      #     project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
+      #     service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
+      #     export_default_credentials: true
           
-      - name: Archive to BigQuery
-        env: 
-          VERSION: ${{ steps.version.outputs.version }}
-        run: ./zap.sh upload ${{ matrix.entity }} $VERSION
+      # - name: Archive to BigQuery
+      #   env: 
+      #     VERSION: ${{ steps.version.outputs.version }}
+      #   run: ./zap.sh upload ${{ matrix.entity }} $VERSION
       
       - name: Archive to data library - PGdump
         env: 
