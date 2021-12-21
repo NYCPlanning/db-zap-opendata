@@ -29,7 +29,7 @@ case $1 in
         DATE=$(date "+%Y-%m-%d")
         SPACES="spaces/edm-publishing/db-zap/"
         visible_filename= "${dataset}_visible.csv"
-        mc cp output/$dataset/$visible_filename $SPACES/$DATE/$dataset
+        mc cp .output/$dataset/$visible_filename $SPACES/$DATE/$dataset/$visible_filename
 
 
 esac
