@@ -1,6 +1,7 @@
 name: Export Visible
 #Ultimate goal is to have this run when called by export.yml
 on:
+  push:
   workflow_dispatch: 
 jobs:
   build:
