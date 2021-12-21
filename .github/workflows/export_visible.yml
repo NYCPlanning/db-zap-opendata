@@ -7,6 +7,9 @@ on:
       VERSION:
         required: true
         type: string
+      AWS_BUCKET:
+        required: true
+        type: string
 jobs:
   build:
     runs-on: ubuntu-20.04
