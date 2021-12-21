@@ -18,8 +18,8 @@ env:
   VERSION: $(date +%Y%m%d)
   
 jobs:
-  runs-on: ubuntu-20.04
   build:
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
