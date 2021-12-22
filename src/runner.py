@@ -74,7 +74,7 @@ class Runner:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
             df = pd.DataFrame(data["value"], dtype=str)
-            self.open_data_cleaning(df)
+            df = self.open_data_cleaning(df)
             df.to_sql(
                 name=self.name,
                 con=self.engine,
@@ -114,12 +114,14 @@ class Runner:
     def open_data_cleaning(self, df):
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
+            return df
         if self.name == "dcp_projectbbls":
             df["timezoneruleversionnumber"] = (
                 df["timezoneruleversionnumber"]
                 .str.split(".", expand=True)[0]
                 .astype(int, errors="ignore")
             )
+            return df
 
     def clean(self):
         if os.path.isdir(self.output_dir):
