@@ -118,7 +118,7 @@ class Runner:
             df["timezoneruleversionnumber"] = (
                 df["timezoneruleversionnumber"]
                 .str.split(".", expand=True)[0]
-                .astype(int, error="ignore")
+                .astype(int, errors="ignore")
             )
 
     def clean(self):
