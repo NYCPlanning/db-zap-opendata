@@ -74,7 +74,7 @@ jobs:
       - name: Archive to BigQuery
         env: 
           VERSION: ${{ steps.version.outputs.version }}
-        run: ./zap.sh upload ${{ matrix.entity }} $VERSION
+        run: ./zap.sh upload_bq ${{ matrix.entity }} $VERSION
       
       - name: Archive to data library - PGdump
         env: 

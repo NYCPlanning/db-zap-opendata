@@ -4,7 +4,7 @@ case $1 in
     download ) 
         python3 -m src.runner $2
     ;;
-    upload )
+    upload_bq )
         location=US
         dataset=$2
         VERSION=${3:-$VERSION}
