@@ -21,11 +21,10 @@ jobs:
       AWS_S3_LIBRARY_BUCKET: edm-recipes
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         entity:
-          # - dcp_projects
           - dcp_projectactions
-          # - dcp_projectbbls
           - dcp_projectmilestones
           - dcp_projectactionbbls
           - dcp_communityboarddispositions
