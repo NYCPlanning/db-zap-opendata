@@ -29,8 +29,8 @@ case $1 in
         VERSION=$3
         SPACES="spaces/edm-publishing/db-zap"
         visible_filename="${dataset}_visible.csv"
-        mc cp .output/$dataset/$visible_filename $SPACES/$VERSION/$dataset/${dataset}.csv
-        mc cp .output/$dataset/$visible_filename $SPACES/latest/$dataset/${dataset}.csv
+        mc cp .output/$dataset/$visible_filename $SPACES/$VERSION/$dataset/$dataset.csv
+        mc cp .output/$dataset/$visible_filename $SPACES/latest/$dataset/$dataset.csv
 
 
 esac
