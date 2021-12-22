@@ -111,8 +111,12 @@ class Runner:
             )
 
     def open_data_cleaning(self, df):
-        if self.name == "dcp_visibility":  # To-do: figure out better design for this
+        if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
+        if self.name == "dcp_projectbbls":
+            df["timezoneruleversionnumber"] = df["timezoneruleversionnumber"].astype(
+                int
+            )
 
     def clean(self):
         if os.path.isdir(self.output_dir):
