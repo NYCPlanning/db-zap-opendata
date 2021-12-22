@@ -70,6 +70,7 @@ class Runner:
                 % {"name": self.name, "newname": self.name + "_"}
             )
         for _file in files:
+            print(f"iterated to {_file}")
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
             df = pd.DataFrame(data["value"], dtype=str)
@@ -114,8 +115,10 @@ class Runner:
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
         if self.name == "dcp_projectbbls":
-            df["timezoneruleversionnumber"] = df["timezoneruleversionnumber"].astype(
-                int
+            df["timezoneruleversionnumber"] = (
+                df["timezoneruleversionnumber"]
+                .str.split(".", expand=True)[0]
+                .astype(int, error="ignore")
             )
 
     def clean(self):
