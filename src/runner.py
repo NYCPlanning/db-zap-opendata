@@ -121,7 +121,7 @@ class Runner:
                 .str.split(".", expand=True)[0]
                 .astype(int, errors="ignore")
             )
-            return df
+        return df
 
     def clean(self):
         if os.path.isdir(self.output_dir):
