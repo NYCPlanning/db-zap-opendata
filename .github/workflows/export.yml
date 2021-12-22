@@ -100,7 +100,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          if [${{ matrix.open }}]
+          if ${{ matrix.open }};
           then
           ./zap.sh upload_do ${{ matrix.entity }} $VERSION
           fi
