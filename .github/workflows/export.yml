@@ -19,14 +19,13 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
       AWS_S3_LIBRARY_BUCKET: edm-recipes
-      VERSION: $(date +%Y%m%d)
     strategy:
       fail-fast: false
       matrix:
         entity:
-          - dcp_projects
+          # - dcp_projects
           - dcp_projectactions
-          - dcp_projectbbls
+          # - dcp_projectbbls
           - dcp_projectmilestones
           - dcp_projectactionbbls
           - dcp_communityboarddispositions
@@ -53,11 +52,11 @@ jobs:
       - name: Get ${{ matrix.entity }}
         run: python3 -m src.runner ${{ matrix.entity }}
           
-      # - name: Set Version info
-      #   id: version
-      #   run: |
-      #     DATE=$(date +%Y%m%d)
-      #     echo "::set-output name=version::$DATE"
+      - name: Set Version info
+        id: version
+        run: |
+          DATE=$(date +%Y%m%d)
+          echo "::set-output name=version::$DATE"
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
@@ -72,8 +71,8 @@ jobs:
         run: ./zap.sh upload ${{ matrix.entity }} $VERSION
       
       - name: Archive to data library - PGdump
-        # env: 
-        #   VERSION: ${{ steps.version.outputs.version }}
+        env: 
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "exporting ${{ matrix.entity }}.sql"
           docker run --rm \
@@ -86,8 +85,8 @@ jobs:
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o pgdump --compress
           
       - name: Archive to data library - CSV
-        # env:
-        #   VERSION: ${{ steps.version.outputs.version }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "exporting ${{ matrix.entity }}.csv"
           docker run --rm \
@@ -100,6 +99,8 @@ jobs:
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o csv --compress
       
       - name: Export open data to edm-publishing 
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           if [${{ matrix.open }}]
           then
