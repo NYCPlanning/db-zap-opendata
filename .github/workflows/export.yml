@@ -36,6 +36,8 @@ jobs:
         include:
           - entity: 
             - 'dcp_projects'
+            open: true
+          - entity:
             - 'dcp_projectbbls'
             open: true
 
@@ -75,7 +77,7 @@ jobs:
         run: |
           echo "exporting ${{ matrix.entity }}.sql"
           docker run --rm \
-            -e AWS_S3_ENDPOINT=AWS_S3_ENDPOINT\
+            -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
             -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
             -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
             -e AWS_S3_BUCKET=$AWS_S3_LIBRARY_BUCKET\
@@ -89,7 +91,7 @@ jobs:
         run: |
           echo "exporting ${{ matrix.entity }}.csv"
           docker run --rm \
-            -e AWS_S3_ENDPOINT=AWS_S3_ENDPOINT\
+            -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
             -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
             -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
             -e AWS_S3_BUCKET=$AWS_S3_LIBRARY_BUCKET\
