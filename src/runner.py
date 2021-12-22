@@ -70,7 +70,6 @@ class Runner:
                 % {"name": self.name, "newname": self.name + "_"}
             )
         for _file in files:
-            print(f"iterated to {_file}")
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
             df = pd.DataFrame(data["value"], dtype=str)
@@ -115,12 +114,6 @@ class Runner:
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
             return df
-        if self.name == "dcp_projectbbls":
-            df["timezoneruleversionnumber"] = (
-                df["timezoneruleversionnumber"]
-                .str.split(".", expand=True)[0]
-                .astype(int, errors="ignore")
-            )
         return df
 
     def clean(self):
@@ -144,6 +137,13 @@ class Runner:
         df = pd.read_sql(
             "select * from %(name)s" % {"name": table_name}, con=self.engine
         )
+        if self.name == "dcp_projectbbls":
+            df["timezoneruleversionnumber"] = (
+                df["timezoneruleversionnumber"]
+                .str.split(".", expand=True)[0]
+                .astype(int, errors="ignore")
+            )
+            print(df["timezoneruleversionnumber"].unique())
         df[self.columns].to_csv(f"{output_file}.csv", index=False)
 
     def __call__(self):
