@@ -10,8 +10,7 @@ from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
 from .client import Client
 from .copy import psql_insert_copy
 from .pg import PG
-
-OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
+from .visible_projects import OPEN_DATA, make_open_data_table
 
 
 class Runner:
@@ -93,32 +92,13 @@ class Runner:
         )
         # fmt:on
         if self.open_dataset:
-            self.make_open_data_table()
+            make_open_data_table(self.engine, self.name)
 
     def open_data_cleaning(self, df):
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
             return df
         return df
-
-    def make_open_data_table(self):
-        if self.name == "dcp_projects":
-            self.engine.execute(
-                """BEGIN;
-                DROP TABLE IF EXISTS dcp_projects_visible;
-            CREATE TABLE dcp_projects_visible as 
-            (SELECT * from dcp_projects where dcp_visibility = '717170003');
-             COMMIT;"""
-            )
-        if self.name == "dcp_projectbbls":
-            self.engine.execute(
-                """BEGIN;
-                DROP TABLE IF EXISTS dcp_projectbbls_visible;
-                CREATE TABLE dcp_projectbbls_visible as 
-                (SELECT dcp_projectbbls.* from dcp_projectbbls INNER JOIN dcp_projects 
-                on SUBSTRING(dcp_projectbbls.dcp_name, 0,10) = dcp_projects.dcp_name);
-                COMMIT;"""
-            )
 
     def clean(self):
         if os.path.isdir(self.output_dir):
