@@ -113,20 +113,25 @@ class Runner:
         return [s["name"] for s in schema]
 
     def export(self):
-        self.sql_to_csv(self.name, self.output_file)
+        self.sql_to_csv(self.name, self.output_file, all_columns=False)
         if self.open_dataset:
-            self.sql_to_csv(f"{self.name}_visible", f"{self.output_file}_visible")
+            self.sql_to_csv(
+                f"{self.name}_visible", f"{self.output_file}_visible", all_columns=True
+            )
 
-    def sql_to_csv(self, table_name, output_file):
+    def sql_to_csv(self, table_name, output_file, all_columns):
         df = pd.read_sql(
             "select * from %(name)s" % {"name": table_name}, con=self.engine
         )
         df = self.export_cleaning(df)
-        df[self.columns].to_csv(f"{output_file}.csv", index=False)
+        if not all_columns:
+            df = df[self.columns]
+
+        df.to_csv(f"{output_file}.csv", index=False)
 
     def export_cleaning(self, df):
         """Written because sql int to csv writes with decimal and big query wants int"""
-        if self.name == "dcp_projectbbls":
+        if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
             df["timezoneruleversionnumber"] = (
                 df["timezoneruleversionnumber"]
                 .str.split(".", expand=True)[0]
