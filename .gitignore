@@ -131,3 +131,6 @@ dmypy.json
 .env
 
 /.output
+
+# MacOS automatically generated 
+.DS_Store

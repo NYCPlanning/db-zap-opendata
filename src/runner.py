@@ -10,6 +10,7 @@ from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
 from .client import Client
 from .copy import psql_insert_copy
 from .pg import PG
+from .visible_projects import OPEN_DATA, make_open_data_table
 
 
 class Runner:
@@ -22,9 +23,10 @@ class Runner:
         )
         self.name = name
         self.output_dir = f".output/{name}"
-        self.output_file = f"{self.output_dir}/{self.name}.csv"
+        self.output_file = f"{self.output_dir}/{self.name}"
         self.headers = self.c.request_header
         self.engine = PG(ZAP_ENGINE).engine
+        self.open_dataset = self.name in OPEN_DATA
 
     def create_output_dir(self):
         if not os.path.isdir(self.output_dir):
@@ -73,6 +75,7 @@ class Runner:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
             df = pd.DataFrame(data["value"], dtype=str)
+            df = self.open_data_cleaning(df)
             df.to_sql(
                 name=self.name,
                 con=self.engine,
@@ -88,6 +91,14 @@ class Runner:
             % {"name": self.name + "_"}
         )
         # fmt:on
+        if self.open_dataset:
+            make_open_data_table(self.engine, self.name)
+
+    def open_data_cleaning(self, df):
+        if self.name == "dcp_projects":  # To-do: figure out better design for this
+            df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
+            return df
+        return df
 
     def clean(self):
         if os.path.isdir(self.output_dir):
@@ -97,15 +108,36 @@ class Runner:
 
     @property
     def columns(self):
-        with open(f'{Path(__file__).parent.parent}/schemas/{self.name}.json') as f:
+        with open(f"{Path(__file__).parent.parent}/schemas/{self.name}.json") as f:
             schema = json.load(f)
-        return [s['name'] for s in schema]
+        return [s["name"] for s in schema]
 
     def export(self):
+        self.sql_to_csv(self.name, self.output_file, all_columns=False)
+        if self.open_dataset:
+            self.sql_to_csv(
+                f"{self.name}_visible", f"{self.output_file}_visible", all_columns=True
+            )
+
+    def sql_to_csv(self, table_name, output_file, all_columns):
         df = pd.read_sql(
-            "select * from %(name)s" % {"name": self.name}, con=self.engine
+            "select * from %(name)s" % {"name": table_name}, con=self.engine
         )
-        df[self.columns].to_csv(self.output_file, index=False)
+        df = self.export_cleaning(df)
+        if not all_columns:
+            df = df[self.columns]
+
+        df.to_csv(f"{output_file}.csv", index=False)
+
+    def export_cleaning(self, df):
+        """Written because sql int to csv writes with decimal and big query wants int"""
+        if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
+            df["timezoneruleversionnumber"] = (
+                df["timezoneruleversionnumber"]
+                .str.split(".", expand=True)[0]
+                .astype(int, errors="ignore")
+            )
+        return df
 
     def __call__(self):
         self.clean()

@@ -4,7 +4,7 @@ case $1 in
     download ) 
         python3 -m src.runner $2
     ;;
-    upload )
+    upload_bq )
         location=US
         dataset=$2
         VERSION=${3:-$VERSION}
@@ -24,4 +24,13 @@ case $1 in
             $FILEPATH \
             schemas/$dataset.json
     ;;
+    upload_do )
+        dataset=$2
+        VERSION=$3
+        SPACES="spaces/edm-publishing/db-zap"
+        visible_filename="${dataset}_visible.csv"
+        mc cp .output/$dataset/$visible_filename $SPACES/$VERSION/$dataset/$dataset.csv
+        mc cp .output/$dataset/$visible_filename $SPACES/latest/$dataset/$dataset.csv
+
+
 esac
