@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from typing import List
 
 import pandas as pd
 from pathlib import Path
@@ -113,23 +114,26 @@ class Runner:
         return [s["name"] for s in schema]
 
     def export(self):
-        self.sql_to_csv(self.name, self.output_file, all_columns=False)
+        self.sql_to_csv(self.name, self.output_file, all_columns=False, open_data=False)
         if self.open_dataset:
             self.sql_to_csv(
-                f"{self.name}_visible", f"{self.output_file}_visible", all_columns=True
+                f"{self.name}_visible",
+                f"{self.output_file}_visible",
+                all_columns=True,
+                open_data=True,
             )
 
-    def sql_to_csv(self, table_name, output_file, all_columns):
+    def sql_to_csv(self, table_name, output_file, all_columns, open_data):
         df = pd.read_sql(
             "select * from %(name)s" % {"name": table_name}, con=self.engine
         )
-        df = self.export_cleaning(df)
+        df = self.export_cleaning(df, open_data)
         if not all_columns:
             df = df[self.columns]
 
         df.to_csv(f"{output_file}.csv", index=False)
 
-    def export_cleaning(self, df):
+    def export_cleaning(self, df, open_data):
         """Written because sql int to csv writes with decimal and big query wants int"""
         if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
             df["timezoneruleversionnumber"] = (
@@ -137,6 +141,15 @@ class Runner:
                 .str.split(".", expand=True)[0]
                 .astype(int, errors="ignore")
             )
+        if open_data:
+            if self.name == "dcp_projectbbls":
+                df = self.timestamp_to_date(df, date_columns=["validated_date"])
+            if self.name == "dcp_projects":
+                print(df.columns)
+                df = self.timestamp_to_date(
+                    df, date_columns=["completed_date", "certified_referred"]
+                )
+
         return df
 
     def __call__(self):
@@ -144,6 +157,14 @@ class Runner:
         self.download()
         self.combine()
         self.export()
+
+    def timestamp_to_date(self, df: pd.DataFrame, date_columns: List) -> pd.DataFrame:
+        df[date_columns] = (
+            df[date_columns]
+            .apply(pd.to_datetime)
+            .apply(lambda x: x.dt.strftime("%Y-%M-%d"))
+        )
+        return df
 
 
 if __name__ == "__main__":
