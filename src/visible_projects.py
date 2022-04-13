@@ -22,7 +22,7 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
                 _dcp_applicant_customer_value as primary_applicant, 
                 dcp_applicanttype as dcp_applicanttype, 
                 dcp_borough as borough, 
-                dcp_validatedcitycouncildistricts as community_district,
+                dcp_validatedcommunitydistricts as community_district,
                 dcp_citycouncildistrict as cc_district, 
                 dcp_femafloodzonea as flood_zone_a,
                 dcp_femafloodzoneshadedx as flood_zone_shadedx, 
