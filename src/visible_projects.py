@@ -1,4 +1,25 @@
+from typing import Dict
+import pandas as pd
+import requests
+
 OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
+
+
+metadata_link = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet"
+
+recode_fields = {
+    "dcp_projects": [
+        "dcp_publicstatus",
+        "dcp_ulurp_nonulurp",
+        "dcp_ceqrtype",
+        "dcp_easeis",
+        "dcp_applicanttype",
+        "dcp_borough",
+        "dcp_citycouncildistrict",
+        "dcp_mihmappedbutnotproposed",
+    ],
+    "dcp_projectbbls": ["dcp_validatedborough", "dcp_userinputborough"],
+}
 
 
 def make_open_data_table(sql_engine, dataset_name) -> None:
@@ -63,3 +84,45 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
             on SUBSTRING(dcp_projectbbls.dcp_name, 0,10) = dcp_projects_visible.project_id);
             COMMIT;"""
         )
+
+
+def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFrame:
+
+    recoder = {}
+
+    if name == "dcp_projectbbls":
+        fields_to_lookup = ["dcp_borough"]
+    elif name == "dcp_projects":
+        fields_to_lookup = recode_fields[name]
+    else:
+        raise f"no recode written for {name}"
+
+    # Standardize integer representation
+    data[recode_fields[name]] = data[recode_fields[name]].apply(
+        func=lambda x: x.str.split(".").str[0], axis=1
+    )
+
+    # Get metadata
+    res = requests.get(metadata_link, headers=headers)
+    metadata = res.json()["value"]
+
+    # Construct list of just fields we want to recode
+    fields_to_recode = {}
+    for field in metadata:
+        if field["LogicalName"] in fields_to_lookup:
+            fields_to_recode[field["LogicalName"]] = field
+
+    for field_name, field_metadata in fields_to_recode.items():
+        field_recodes = {}
+        for category in field_metadata["OptionSet"]["Options"]:
+            field_recodes[str(category["Value"])] = category["Label"][
+                "LocalizedLabels"
+            ][0]["Label"]
+        if name == "dcp_projectbbls":
+            for field in recode_fields[name]:
+                recoder[field] = field_recodes
+        elif name == "dcp_projects":
+            recoder[field_name] = field_recodes
+
+    data.replace(to_replace=recoder, inplace=True)
+    return data
