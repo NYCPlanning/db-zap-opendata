@@ -5,10 +5,11 @@ import requests
 OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
 
 
-metadata_link = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet"
-
+PICKLIST_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet"
+STATUS_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet"
 recode_fields = {
     "dcp_projects": [
+        "statuscode",
         "dcp_publicstatus",
         "dcp_ulurp_nonulurp",
         "dcp_ceqrtype",
@@ -103,12 +104,14 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
     )
 
     # Get metadata
-    res = requests.get(metadata_link, headers=headers)
-    metadata = res.json()["value"]
+    metadata_values = []
+    for link in [PICKLIST_METADATA_LINK, STATUS_METADATA_LINK]:
+        res = requests.get(link, headers=headers)
+        metadata_values.extend(res.json()["value"])
 
     # Construct list of just fields we want to recode
     fields_to_recode = {}
-    for field in metadata:
+    for field in metadata_values:
         if field["LogicalName"] in fields_to_lookup:
             fields_to_recode[field["LogicalName"]] = field
 
