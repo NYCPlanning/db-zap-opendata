@@ -7,7 +7,7 @@ OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
 
 PICKLIST_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet"
 STATUS_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet"
-recode_fields = {
+RECODE_FIELDS = {
     "dcp_projects": [
         "statuscode",
         "dcp_publicstatus",
@@ -94,12 +94,12 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
     if name == "dcp_projectbbls":
         fields_to_lookup = ["dcp_borough"]
     elif name == "dcp_projects":
-        fields_to_lookup = recode_fields[name]
+        fields_to_lookup = RECODE_FIELDS[name]
     else:
         raise f"no recode written for {name}"
 
     # Standardize integer representation
-    data[recode_fields[name]] = data[recode_fields[name]].apply(
+    data[RECODE_FIELDS[name]] = data[RECODE_FIELDS[name]].apply(
         func=lambda x: x.str.split(".").str[0], axis=1
     )
 
@@ -122,7 +122,7 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
                 "LocalizedLabels"
             ][0]["Label"]
         if name == "dcp_projectbbls":
-            for field in recode_fields[name]:
+            for field in RECODE_FIELDS[name]:
                 recoder[field] = field_recodes
         elif name == "dcp_projects":
             recoder[field_name] = field_recodes
