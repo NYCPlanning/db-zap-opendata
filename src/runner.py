@@ -10,7 +10,7 @@ from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
 from .client import Client
 from .copy import psql_insert_copy
 from .pg import PG
-from .visible_projects import OPEN_DATA, make_open_data_table
+from .visible_projects import OPEN_DATA, make_open_data_table, open_data_recode
 
 
 class Runner:
@@ -97,7 +97,7 @@ class Runner:
     def open_data_cleaning(self, df):
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
-            return df
+        df = open_data_recode(self.name, df, self.headers)
         return df
 
     def clean(self):
