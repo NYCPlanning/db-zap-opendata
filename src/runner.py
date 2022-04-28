@@ -145,9 +145,17 @@ class Runner:
             if self.name == "dcp_projectbbls":
                 df = self.timestamp_to_date(df, date_columns=["validated_date"])
             if self.name == "dcp_projects":
-                print(df.columns)
                 df = self.timestamp_to_date(
-                    df, date_columns=["completed_date", "certified_referred"]
+                    df,
+                    date_columns=[
+                        "completed_date",
+                        "certified_referred",
+                        "current_milestone_date",
+                        "current_envmilestone_date",
+                        "app_filed_date",
+                        "noticed_date",
+                        "approval_date",
+                    ],
                 )
 
         return df
@@ -162,7 +170,7 @@ class Runner:
         df[date_columns] = (
             df[date_columns]
             .apply(pd.to_datetime)
-            .apply(lambda x: x.dt.strftime("%Y-%M-%d"))
+            .apply(lambda x: x.dt.strftime("%Y-%m-%d"))
         )
         return df
 
