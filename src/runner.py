@@ -99,7 +99,7 @@ class Runner:
     def open_data_cleaning(self, df):
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
-        df = open_data_recode(self.name, df, self.headers)
+
         return df
 
     def clean(self):
@@ -143,6 +143,7 @@ class Runner:
                 .astype(int, errors="ignore")
             )
         if open_data:
+            df = open_data_recode(self.name, df, self.headers)
             if self.name == "dcp_projectbbls":
                 df = self.timestamp_to_date(df, date_columns=["validated_date"])
             if self.name == "dcp_projects":
