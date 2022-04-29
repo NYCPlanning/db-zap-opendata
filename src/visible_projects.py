@@ -9,17 +9,17 @@ PICKLIST_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/Enti
 STATUS_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet"
 RECODE_FIELDS = {
     "dcp_projects": [
-        "statuscode",
-        "dcp_publicstatus",
-        "dcp_ulurp_nonulurp",
-        "dcp_ceqrtype",
-        "dcp_easeis",
-        "dcp_applicanttype",
-        "dcp_borough",
-        "dcp_citycouncildistrict",
-        "dcp_mihmappedbutnotproposed",
+        ("statuscode", "project_status"),
+        ("dcp_publicstatus", "public_status"),
+        ("dcp_ulurp_nonulurp", "ulurp_non"),
+        ("dcp_ceqrtype", "ceqr_type"),
+        ("dcp_easeis", "eas_eis"),
+        ("dcp_applicanttype", "dcp_applicanttype"),
+        ("dcp_borough", "borough"),
+        ("dcp_citycouncildistrict", "cc_district"),
+        ("dcp_mihmappedbutnotproposed", "mih_mapped_no_res"),
     ],
-    "dcp_projectbbls": ["dcp_validatedborough", "dcp_userinputborough"],
+    "dcp_projectbbls": ["validated_borough", "unverified_borough"],
 }
 
 
@@ -93,13 +93,16 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
 
     if name == "dcp_projectbbls":
         fields_to_lookup = ["dcp_borough"]
+        fields_to_rename = RECODE_FIELDS[name]
+
     elif name == "dcp_projects":
-        fields_to_lookup = RECODE_FIELDS[name]
+        fields_to_lookup = [t[0] for t in RECODE_FIELDS[name]]
+        fields_to_rename = [t[1] for t in RECODE_FIELDS[name]]
     else:
         raise f"no recode written for {name}"
 
     # Standardize integer representation
-    data[RECODE_FIELDS[name]] = data[RECODE_FIELDS[name]].apply(
+    data[fields_to_rename] = data[fields_to_rename].apply(
         func=lambda x: x.str.split(".").str[0], axis=1
     )
 
@@ -115,17 +118,18 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
         if field["LogicalName"] in fields_to_lookup:
             fields_to_recode[field["LogicalName"]] = field
 
-    for field_name, field_metadata in fields_to_recode.items():
+    for crm_name, local_name in zip(fields_to_lookup, fields_to_rename):
+        field_metadata = fields_to_recode[crm_name]
         field_recodes = {}
         for category in field_metadata["OptionSet"]["Options"]:
             field_recodes[str(category["Value"])] = category["Label"][
                 "LocalizedLabels"
             ][0]["Label"]
         if name == "dcp_projectbbls":
-            for field in RECODE_FIELDS[name]:
-                recoder[field] = field_recodes
+            recoder["validated_borough"] = field_recodes
+            recoder["unverified_borough"] = field_recodes
         elif name == "dcp_projects":
-            recoder[field_name] = field_recodes
-
+            recoder[local_name] = field_recodes
+    print(recoder)
     data.replace(to_replace=recoder, inplace=True)
     return data
