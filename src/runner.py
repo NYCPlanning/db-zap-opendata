@@ -76,7 +76,8 @@ class Runner:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
             df = pd.DataFrame(data["value"], dtype=str)
-            df = self.open_data_cleaning(df)
+            if self.open_dataset:
+                df = self.open_data_cleaning(df)
             df.to_sql(
                 name=self.name,
                 con=self.engine,
