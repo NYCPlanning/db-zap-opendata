@@ -107,10 +107,8 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
     )
 
     # Get metadata
-    metadata_values = []
-    for link in [PICKLIST_METADATA_LINK, STATUS_METADATA_LINK]:
-        res = requests.get(link, headers=headers)
-        metadata_values.extend(res.json()["value"])
+
+    metadata_values = get_metadata(headers)
 
     # Construct list of just fields we want to recode
     fields_to_recode = {}
@@ -133,3 +131,11 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
     print(recoder)
     data.replace(to_replace=recoder, inplace=True)
     return data
+
+
+def get_metadata(headers, metadata_values):
+    metadata_values = []
+    for link in [PICKLIST_METADATA_LINK, STATUS_METADATA_LINK]:
+        res = requests.get(link, headers=headers)
+        metadata_values.extend(res.json()["value"])
+    return metadata_values
