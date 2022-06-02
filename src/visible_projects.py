@@ -1,6 +1,7 @@
-from typing import Dict
+from typing import Dict, List
 import pandas as pd
 import requests
+import json
 
 OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
 
@@ -31,6 +32,7 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
         CREATE TABLE dcp_projects_visible as 
         (SELECT dcp_name as project_id,
                 dcp_projectname as project_name,
+                dcp_projectid as crm_project_id,
                 dcp_projectbrief as project_brief,
                 statuscode as project_status,
                 dcp_publicstatus as public_status,
@@ -91,15 +93,7 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
 
     recoder = {}
 
-    if name == "dcp_projectbbls":
-        fields_to_lookup = ["dcp_borough"]
-        fields_to_rename = RECODE_FIELDS[name]
-
-    elif name == "dcp_projects":
-        fields_to_lookup = [t[0] for t in RECODE_FIELDS[name]]
-        fields_to_rename = [t[1] for t in RECODE_FIELDS[name]]
-    else:
-        raise f"no recode written for {name}"
+    fields_to_lookup, fields_to_rename = get_fields(name)
 
     # Standardize integer representation
     data[fields_to_rename] = data[fields_to_rename].apply(
@@ -128,14 +122,120 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
             recoder["unverified_borough"] = field_recodes
         elif name == "dcp_projects":
             recoder[local_name] = field_recodes
-    print(recoder)
     data.replace(to_replace=recoder, inplace=True)
+
+    if name == "dcp_projects":
+        print(f"nrows in data passed to recode id {data.shape[0]}")
+        data = recode_id(data, headers, debug_rows=1000)
+        print(f"nrows in data return by recode id {data.shape[0]}")
+
     return data
 
 
-def get_metadata(headers, metadata_values):
+def get_fields(name):
+    if name == "dcp_projectbbls":
+        fields_to_lookup = ["dcp_borough"]
+        fields_to_rename = RECODE_FIELDS[name]
+
+    elif name == "dcp_projects":
+        fields_to_lookup = [t[0] for t in RECODE_FIELDS[name]]
+        fields_to_rename = [t[1] for t in RECODE_FIELDS[name]]
+    else:
+        raise f"no recode written for {name}"
+    return fields_to_lookup, fields_to_rename
+
+
+def recode_id(data, headers, debug_rows=False):
+    """Recode unique ID's from the CRM to human-readable"""
+    if debug_rows:
+        data = data.iloc[:debug_rows, :]
+    cleaned = data.apply(axis=1, func=recode_single_project, args=(headers,))
+    cleaned.drop(columns=["crm_project_id"], inplace=True)
+    return cleaned
+
+
+def recode_single_project(row, headers):
+    url = expand_url(row.crm_project_id)
+    res = requests.get(url, headers=headers)
+    if res.status_code != 200:
+        print(f"broken url {url} produced {res.status_code=}")
+    expanded_project_data = res.json()
+    row = convert_to_human_readable(
+        expanded=expanded_project_data,
+        row=row,
+        local_fieldname="primary_applicant",
+        metadata_field_names=[
+            "dcp_applicant_customer_account",
+            "dcp_applicant_customer_contact",
+        ],
+        metadata_keys={
+            "dcp_applicant_customer_account": ("name", "accountid"),
+            "dcp_applicant_customer_contact": ("fullname", "contactid"),
+        },
+    )
+    row = convert_to_human_readable(
+        expanded=expanded_project_data,
+        row=row,
+        local_fieldname="current_milestone",
+        metadata_field_names=["dcp_CurrentMilestone"],
+        metadata_keys={"dcp_CurrentMilestone": ("dcp_name", "dcp_projectmilestoneid")},
+    )
+    row = convert_to_human_readable(
+        expanded=expanded_project_data,
+        row=row,
+        local_fieldname="current_envmilestone",
+        metadata_field_names=["dcp_currentenvironmentmilestone"],
+        metadata_keys={
+            "dcp_currentenvironmentmilestone": ("dcp_name", "dcp_projectmilestoneid")
+        },
+    )
+    row = convert_to_human_readable(
+        expanded=expanded_project_data,
+        row=row,
+        local_fieldname="ceqr_leadagency",
+        metadata_field_names=["dcp_leadagencyforenvreview"],
+        metadata_keys={"dcp_leadagencyforenvreview": ("name", "accountid")},
+    )
+    return row
+
+
+def convert_to_human_readable(
+    expanded: dict,
+    row: pd.Series,
+    local_fieldname: str,
+    metadata_field_names: List[str],
+    metadata_keys: dict,
+):
+    field_dict = None
+    while metadata_field_names and field_dict is None:
+        metadata_field = metadata_field_names.pop()
+        field_dict = expanded[metadata_field]
+    metadata_hr_key, metadata_id_key = (
+        metadata_keys[metadata_field][0],
+        metadata_keys[metadata_field][1],
+    )
+    if field_dict is None:
+        if row[local_fieldname] is not None:
+            raise Exception(
+                f"data has {local_fieldname} of {row[local_fieldname]} but expanded of {json.dumps(expanded, indent=2)}"
+            )
+    else:
+        if field_dict[metadata_id_key] != row[local_fieldname]:
+            raise Exception(
+                f"Mismatch between {field_dict[metadata_id_key]} and {row[local_fieldname]}"
+            )
+
+        row[local_fieldname] = field_dict[metadata_hr_key]
+    return row
+
+
+def get_metadata(headers):
     metadata_values = []
     for link in [PICKLIST_METADATA_LINK, STATUS_METADATA_LINK]:
         res = requests.get(link, headers=headers)
         metadata_values.extend(res.json()["value"])
     return metadata_values
+
+
+def expand_url(project_id):
+    return f"https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/dcp_projects({project_id})?$select=_dcp_applicant_customer_value,_dcp_currentmilestone_value,dcp_name&$expand=dcp_CurrentMilestone($select=dcp_name),dcp_leadagencyforenvreview($select=name),dcp_applicant_customer_contact($select=fullname),dcp_currentenvironmentmilestone($select=dcp_name),dcp_applicant_customer_account($select=name)"
