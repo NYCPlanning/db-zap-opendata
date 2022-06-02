@@ -126,7 +126,7 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
 
     if name == "dcp_projects":
         print(f"nrows in data passed to recode id {data.shape[0]}")
-        data = recode_id(data, headers, debug_rows=1000)
+        data = recode_id(data, headers)
         print(f"nrows in data return by recode id {data.shape[0]}")
 
     return data
