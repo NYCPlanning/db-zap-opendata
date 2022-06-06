@@ -146,6 +146,7 @@ class Runner:
             df = open_data_recode(self.name, df, self.headers)
             if self.name == "dcp_projectbbls":
                 df = self.timestamp_to_date(df, date_columns=["validated_date"])
+                df["project_id"] = df["project_id"].str.split(" ").str[0]
             if self.name == "dcp_projects":
                 df = self.timestamp_to_date(
                     df,
