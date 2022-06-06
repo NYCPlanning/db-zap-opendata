@@ -51,7 +51,4 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          if ${{ matrix.open }};
-          then
-          ./zap.sh upload_do ${{ matrix.entity }} $VERSION
-          fi
+          ./zap.sh upload_do ${{  github.event.inputs.dataset }} $VERSION
