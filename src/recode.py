@@ -200,7 +200,6 @@ def convert_to_human_readable(
             field_dict[metadata_hr_key] != id_val
         ):
             message = f"Mismatch between {field_dict[metadata_id_key]}/{field_dict[metadata_hr_key]} and {id_val} for field {local_fieldname}"
-            # raise Exception( message)
             logger.info(message)
 
         logger.info(f"assinging {human_readable} to field {local_fieldname}")
