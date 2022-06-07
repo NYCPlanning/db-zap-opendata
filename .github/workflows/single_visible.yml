@@ -27,6 +27,7 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: "3.9"
+<<<<<<< HEAD
 
       - name: Install Dependencies
         run: python3 -m pip install .
@@ -52,3 +53,5 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           ./zap.sh upload_do ${{  github.event.inputs.dataset }} $VERSION
+=======
+>>>>>>> main
