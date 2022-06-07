@@ -58,7 +58,7 @@ def get_headers():
     return client.request_header
 
 
-class RecodeTracker:
+class ReuseTracker:
     def __init__(self) -> None:
         self.primary_applicant = {}
         self.ceqr_leadagency = {}
@@ -108,7 +108,7 @@ def recode_id(data, debug_rows=False):
     if debug_rows:
         data = data.sample(debug_rows)
         data.index = [x for x in range(data.shape[0])]
-    recode_tracker = RecodeTracker()
+    recode_tracker = ReuseTracker()
     cleaned = data.apply(
         axis=1,
         func=recode_single_project,
@@ -130,7 +130,7 @@ def recode_id(data, debug_rows=False):
 def recode_single_project(
     row: pd.Series,
     auth: AuthRefresher,
-    recode_tracker: RecodeTracker,
+    recode_tracker: ReuseTracker,
     logger: logging.Logger,
 ):
 
@@ -165,7 +165,7 @@ def convert_to_human_readable(
     expanded: dict,
     row: pd.Series,
     local_fieldname: str,
-    recode_tracker: RecodeTracker,
+    recode_tracker: ReuseTracker,
     logger=logging.Logger,
     metadata_field_names: List[str] = None,
     metadata_keys: dict = None,
