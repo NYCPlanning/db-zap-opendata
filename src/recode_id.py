@@ -6,7 +6,46 @@ import requests
 from .client import Client
 
 from .util import create_logger
-from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
+from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN
+
+RECODE_ID_FIELDS = [
+    "primary_applicant",
+    "ceqr_leadagency",
+    "current_milestone",
+    "current_envmilestone",
+]
+
+RECODE_METADATA = {
+    "primary_applicant": {
+        "metadata_field_names": [
+            "dcp_applicant_customer_account",
+            "dcp_applicant_customer_contact",
+        ],
+        "metadata_keys": {
+            "dcp_applicant_customer_account": ("name", "accountid"),
+            "dcp_applicant_customer_contact": ("fullname", "contactid"),
+        },
+    },
+    "ceqr_leadagency": {
+        "metadata_field_names": ["dcp_leadagencyforenvreview"],
+        "metadata_keys": {"dcp_leadagencyforenvreview": ("name", "accountid")},
+    },
+    "current_milestone": {
+        "metadata_field_names": ["dcp_CurrentMilestone"],
+        "metadata_keys": {
+            "dcp_CurrentMilestone": ("dcp_name", "dcp_projectmilestoneid")
+        },
+    },
+    "current_envmilestone": {
+        "metadata_field_names": ["dcp_currentenvironmentmilestone"],
+        "metadata_keys": {
+            "dcp_currentenvironmentmilestone": (
+                "dcp_name",
+                "dcp_projectmilestoneid",
+            )
+        },
+    },
+}
 
 
 def get_headers():
@@ -21,18 +60,12 @@ def get_headers():
 
 class RecodeTracker:
     def __init__(self) -> None:
-        self.recode_fields = [
-            "primary_applicant",
-            "ceqr_leadagency",
-            "current_milestone",
-            "current_envmilestone",
-        ]
         self.primary_applicant = {}
         self.ceqr_leadagency = {}
         self.current_milestone = {}
         self.current_envmilestone = {}
-        self.logger = create_logger("Recode Logger", "reused_summary.log")
-        self.reused_recodings = {f: 0 for f in self.recode_fields}
+        self.logger = create_logger("Reuse Summary Logger", "reused_summary.log")
+        self.reused_recodings = {f: 0 for f in RECODE_ID_FIELDS}
         self.total_records_recoded = 0
         self.count_unseen_ID = 0
 
@@ -42,7 +75,7 @@ class RecodeTracker:
     def find_recode(self, row):
         new_ID = False
         self.total_records_recoded += 1
-        for field in self.recode_fields:
+        for field in RECODE_ID_FIELDS:
             value = row[field]
             if value is not None:
                 if value in self.__getattribute__(field).keys():
@@ -74,6 +107,7 @@ def recode_id(data, debug_rows=False):
     auth_refresher = AuthRefresher()
     if debug_rows:
         data = data.sample(debug_rows)
+        data.index = [x for x in range(data.shape[0])]
     recode_tracker = RecodeTracker()
     cleaned = data.apply(
         axis=1,
@@ -115,56 +149,15 @@ def recode_single_project(
                 print(f"broken url {url} produced {res.status_code=}")
                 return row
         expanded_project_data = res.json()
-        # Potential upgrade: return field instead of entire row
-        row = convert_to_human_readable(
-            expanded=expanded_project_data,
-            row=row,
-            local_fieldname="primary_applicant",
-            metadata_field_names=[
-                "dcp_applicant_customer_account",
-                "dcp_applicant_customer_contact",
-            ],
-            metadata_keys={
-                "dcp_applicant_customer_account": ("name", "accountid"),
-                "dcp_applicant_customer_contact": ("fullname", "contactid"),
-            },
-            recode_tracker=recode_tracker,
-            logger=logger,
-        )
-        row = convert_to_human_readable(
-            expanded=expanded_project_data,
-            row=row,
-            local_fieldname="current_milestone",
-            metadata_field_names=["dcp_CurrentMilestone"],
-            metadata_keys={
-                "dcp_CurrentMilestone": ("dcp_name", "dcp_projectmilestoneid")
-            },
-            recode_tracker=recode_tracker,
-            logger=logger,
-        )
-        row = convert_to_human_readable(
-            expanded=expanded_project_data,
-            row=row,
-            local_fieldname="current_envmilestone",
-            metadata_field_names=["dcp_currentenvironmentmilestone"],
-            metadata_keys={
-                "dcp_currentenvironmentmilestone": (
-                    "dcp_name",
-                    "dcp_projectmilestoneid",
-                )
-            },
-            recode_tracker=recode_tracker,
-            logger=logger,
-        )
-        row = convert_to_human_readable(
-            expanded=expanded_project_data,
-            row=row,
-            local_fieldname="ceqr_leadagency",
-            metadata_field_names=["dcp_leadagencyforenvreview"],
-            metadata_keys={"dcp_leadagencyforenvreview": ("name", "accountid")},
-            recode_tracker=recode_tracker,
-            logger=logger,
-        )
+        for field_to_recode in RECODE_ID_FIELDS:
+            row[field_to_recode] = convert_to_human_readable(
+                expanded=expanded_project_data,
+                row=row,
+                local_fieldname=field_to_recode,
+                recode_tracker=recode_tracker,
+                logger=logger,
+            )
+
     return row
 
 
@@ -172,15 +165,21 @@ def convert_to_human_readable(
     expanded: dict,
     row: pd.Series,
     local_fieldname: str,
-    metadata_field_names: List[str],
-    metadata_keys: dict,
     recode_tracker: RecodeTracker,
     logger=logging.Logger,
+    metadata_field_names: List[str] = None,
+    metadata_keys: dict = None,
 ):
+    # Potential upgrade: return field instead of entire row
     id_val = row[local_fieldname]
     logger.info(
         f"Recoding record {row.name}: field {local_fieldname} has id of {id_val}"
     )
+    if metadata_field_names is None:
+        metadata_field_names = RECODE_METADATA[local_fieldname][
+            "metadata_field_names"
+        ].copy()
+        metadata_keys = RECODE_METADATA[local_fieldname]["metadata_keys"]
     field_dict = None
     while metadata_field_names and field_dict is None:
         metadata_field = metadata_field_names.pop()
@@ -194,6 +193,7 @@ def convert_to_human_readable(
             raise Exception(
                 f"data has {local_fieldname} of {id_val} but expanded of {json.dumps(expanded, indent=2)}"
             )
+        return id_val
     else:
         human_readable = field_dict[metadata_hr_key]
         if (field_dict[metadata_id_key] != id_val) and (
@@ -203,9 +203,9 @@ def convert_to_human_readable(
             logger.info(message)
 
         logger.info(f"assinging {human_readable} to field {local_fieldname}")
-        row[local_fieldname] = human_readable
+
         recode_tracker.new_recode(local_fieldname, {id_val: human_readable})
-    return row
+    return human_readable
 
 
 def expand_url(project_id):

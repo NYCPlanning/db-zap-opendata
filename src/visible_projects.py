@@ -1,7 +1,7 @@
 from typing import Dict
 import pandas as pd
 import requests
-from .recode import recode_id
+from .recode_id import recode_id
 
 OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
 
