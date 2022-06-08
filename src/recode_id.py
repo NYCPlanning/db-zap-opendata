@@ -202,7 +202,7 @@ def convert_to_human_readable(
             message = f"Mismatch between {field_dict[metadata_id_key]}/{field_dict[metadata_hr_key]} and {id_val} for field {local_fieldname}"
             logger.info(message)
 
-        logger.info(f"assinging {human_readable} to field {local_fieldname}")
+        logger.info(f"assigning {human_readable} to field {local_fieldname}")
 
         recode_tracker.new_recode(local_fieldname, {id_val: human_readable})
     return human_readable
