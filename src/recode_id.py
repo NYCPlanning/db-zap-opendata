@@ -101,7 +101,7 @@ class AuthRefresher:
         self.logger.info("Got new headers")
 
 
-def recode_id(data, debug_rows=False):
+def recode_id(data, debug_rows: int = False):
     """Recode unique ID's from the CRM to human-readable"""
     recode_logger = create_logger("Recode Logger", "recode_logger.log")
     auth_refresher = AuthRefresher()
