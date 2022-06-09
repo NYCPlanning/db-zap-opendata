@@ -1,6 +1,7 @@
 from typing import Dict
 import pandas as pd
 import requests
+from .recode_id import recode_id
 
 OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
 
@@ -31,6 +32,7 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
         CREATE TABLE dcp_projects_visible as 
         (SELECT dcp_name as project_id,
                 dcp_projectname as project_name,
+                dcp_projectid as crm_project_id,
                 dcp_projectbrief as project_brief,
                 statuscode as project_status,
                 dcp_publicstatus as public_status,
@@ -91,15 +93,7 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
 
     recoder = {}
 
-    if name == "dcp_projectbbls":
-        fields_to_lookup = ["dcp_borough"]
-        fields_to_rename = RECODE_FIELDS[name]
-
-    elif name == "dcp_projects":
-        fields_to_lookup = [t[0] for t in RECODE_FIELDS[name]]
-        fields_to_rename = [t[1] for t in RECODE_FIELDS[name]]
-    else:
-        raise f"no recode written for {name}"
+    fields_to_lookup, fields_to_rename = get_fields(name)
 
     # Standardize integer representation
     data[fields_to_rename] = data[fields_to_rename].apply(
@@ -107,10 +101,8 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
     )
 
     # Get metadata
-    metadata_values = []
-    for link in [PICKLIST_METADATA_LINK, STATUS_METADATA_LINK]:
-        res = requests.get(link, headers=headers)
-        metadata_values.extend(res.json()["value"])
+
+    metadata_values = get_metadata(headers)
 
     # Construct list of just fields we want to recode
     fields_to_recode = {}
@@ -130,6 +122,29 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
             recoder["unverified_borough"] = field_recodes
         elif name == "dcp_projects":
             recoder[local_name] = field_recodes
-    print(recoder)
     data.replace(to_replace=recoder, inplace=True)
+
+    if name == "dcp_projects":
+        data = recode_id(data)
+
     return data
+
+
+def get_fields(name):
+    if name == "dcp_projectbbls":
+        fields_to_lookup = ["dcp_borough"]
+        fields_to_rename = RECODE_FIELDS[name]
+    elif name == "dcp_projects":
+        fields_to_lookup = [t[0] for t in RECODE_FIELDS[name]]
+        fields_to_rename = [t[1] for t in RECODE_FIELDS[name]]
+    else:
+        raise f"no recode written for {name}"
+    return fields_to_lookup, fields_to_rename
+
+
+def get_metadata(headers):
+    metadata_values = []
+    for link in [PICKLIST_METADATA_LINK, STATUS_METADATA_LINK]:
+        res = requests.get(link, headers=headers)
+        metadata_values.extend(res.json()["value"])
+    return metadata_values
