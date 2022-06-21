@@ -1,4 +1,4 @@
-name: Daily Export
+name: Weekly Export
 
 on:
   schedule:
