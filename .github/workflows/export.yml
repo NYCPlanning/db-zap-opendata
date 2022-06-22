@@ -1,8 +1,8 @@
-name: Daily Export
+name: Weekly Export
 
 on:
   schedule:
-    - cron: 0 0 * * *
+    - cron: 0 0 * * 1
   workflow_dispatch:
 
 jobs:
