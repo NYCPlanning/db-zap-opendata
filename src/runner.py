@@ -145,6 +145,7 @@ class Runner:
             )
         if open_data:
             df = open_data_recode(self.name, df, self.headers)
+            df.to_csv(f"{self.output_file}_after_recode.csv", index=False)
             if self.name == "dcp_projectbbls":
                 df = self.timestamp_to_date(df, date_columns=["validated_date"])
                 df["project_id"] = df["project_id"].str.split(" ").str[0]
@@ -161,9 +162,8 @@ class Runner:
                         "approval_date",
                     ],
                 )
-                df.loc[df.current_milestone.str.contains("MM - Project Readiness"), "current_envmilestone_date"] = None
-                df.loc[df.current_milestone.str.contains("MM - Project Readiness"), "current_milestone"] = None
-
+                df.loc[(~df.current_milestone.isnull()) & (df.current_milestone.str.contains("MM - Project Readiness")), "current_milestone_date"] = None
+                df.loc[(~df.current_milestone.isnull()) & (df.current_milestone.str.contains("MM - Project Readiness")), "current_milestone"] = None
         return df
 
     def __call__(self):
