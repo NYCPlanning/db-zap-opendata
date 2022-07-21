@@ -99,8 +99,6 @@ class Runner:
     def open_data_cleaning(self, df):
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
-            #df.loc[df._dcp_currentmilestone_value == "MM- Project Readiness", "dcp_currentmilestoneactualstartdate"] = None
-            #df.loc[df._dcp_currentmilestone_value == "MM- Project Readiness", "_dcp_currentmilestone_value"] = None
         return df
 
     def clean(self):
