@@ -24,17 +24,21 @@ class Runner:
         )
         self.name = name
         self.output_dir = f".output/{name}"
+        self.cache_dir = f".cache/{name}"
         self.output_file = f"{self.output_dir}/{self.name}"
         self.headers = self.c.request_header
         self.engine = PG(ZAP_ENGINE).engine
         self.open_dataset = self.name in OPEN_DATA
 
-    def create_output_dir(self):
+    def create_output_cache_dir(self):
         if not os.path.isdir(self.output_dir):
-            os.makedirs(self.output_dir, exist_ok=True)
+            os.makedirs(self.output_dir, exist_ok=True) 
+        if not os.path.isdir(self.cache_dir):
+            os.makedirs(self.cache_dir, exist_ok=True)
+         
 
     def download(self):
-        self.create_output_dir()
+        self.create_output_cache_dir()
         nextlink = f"{ZAP_DOMAIN}/api/data/v9.1/{self.name}"
         counter = 0
         while nextlink != "":
@@ -99,7 +103,6 @@ class Runner:
     def open_data_cleaning(self, df):
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
-
         return df
 
     def clean(self):
@@ -144,6 +147,7 @@ class Runner:
             )
         if open_data:
             df = open_data_recode(self.name, df, self.headers)
+            df.to_csv(f"{self.cache_dir}/{self.name}_after_recode.csv", index=False)
             if self.name == "dcp_projectbbls":
                 df = self.timestamp_to_date(df, date_columns=["validated_date"])
                 df["project_id"] = df["project_id"].str.split(" ").str[0]
@@ -160,7 +164,8 @@ class Runner:
                         "approval_date",
                     ],
                 )
-
+                df.loc[(~df.current_milestone.isnull()) & (df.current_milestone.str.contains("MM - Project Readiness")), "current_milestone_date"] = None
+                df.loc[(~df.current_milestone.isnull()) & (df.current_milestone.str.contains("MM - Project Readiness")), "current_milestone"] = None
         return df
 
     def __call__(self):
