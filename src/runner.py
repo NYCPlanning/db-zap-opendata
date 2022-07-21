@@ -38,7 +38,7 @@ class Runner:
          
 
     def download(self):
-        self.create_output_dir()
+        self.create_output_cache_dir()
         nextlink = f"{ZAP_DOMAIN}/api/data/v9.1/{self.name}"
         counter = 0
         while nextlink != "":
