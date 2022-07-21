@@ -24,14 +24,18 @@ class Runner:
         )
         self.name = name
         self.output_dir = f".output/{name}"
+        self.cache_dir = f".cache/{name}"
         self.output_file = f"{self.output_dir}/{self.name}"
         self.headers = self.c.request_header
         self.engine = PG(ZAP_ENGINE).engine
         self.open_dataset = self.name in OPEN_DATA
 
-    def create_output_dir(self):
+    def create_output_cache_dir(self):
         if not os.path.isdir(self.output_dir):
-            os.makedirs(self.output_dir, exist_ok=True)
+            os.makedirs(self.output_dir, exist_ok=True) 
+        if not os.path.isdir(self.cache_dir):
+            os.makedirs(self.cache_dir, exist_ok=True)
+         
 
     def download(self):
         self.create_output_dir()
@@ -143,7 +147,7 @@ class Runner:
             )
         if open_data:
             df = open_data_recode(self.name, df, self.headers)
-            df.to_csv(f"{self.output_file}_after_recode.csv", index=False)
+            df.to_csv(f"{self.cache_dir}/{self.name}_after_recode.csv", index=False)
             if self.name == "dcp_projectbbls":
                 df = self.timestamp_to_date(df, date_columns=["validated_date"])
                 df["project_id"] = df["project_id"].str.split(" ").str[0]
