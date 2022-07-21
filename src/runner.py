@@ -161,8 +161,8 @@ class Runner:
                         "approval_date",
                     ],
                 )
-                df.loc[df.current_milestone.contains("MM - Project Readiness"), "current_envmilestone_date"] = None
-                df.loc[df.current_milestone.contains("MM - Project Readiness"), "current_milestone"] = None
+                df.loc[df.current_milestone.str.contains("MM - Project Readiness"), "current_envmilestone_date"] = None
+                df.loc[df.current_milestone.str.contains("MM - Project Readiness"), "current_milestone"] = None
 
         return df
 
