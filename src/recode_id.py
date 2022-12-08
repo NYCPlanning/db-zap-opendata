@@ -4,7 +4,6 @@ from typing import List
 import pandas as pd
 import requests
 from .client import Client
-from multiprocessing import Pool, cpu_count
 
 from .util import create_logger
 from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN
@@ -111,17 +110,11 @@ def recode_id(data, debug_rows: int = False):
         data = data.sample(debug_rows)
         data.index = [x for x in range(data.shape[0])]
     recode_tracker = ReuseTracker()
-    # cleaned = data.apply(
-    #     axis=1,
-    #     func=recode_single_project,
-    #     args=(auth_refresher, recode_tracker, recode_logger),
-    # )
-    records = data.to_dict("records")
-
-    # Multiprocess
-    with Pool(processes=cpu_count()) as pool:
-        it = pool.map(recode_single_project(
-            row, auth, recode_tracker, logger), records, 10000)
+    cleaned = data.apply(
+        axis=1,
+        func=recode_single_project,
+        args=(auth_refresher, recode_tracker, recode_logger),
+    )
 
     recode_tracker.logger.info(
         f"Records that had any ID value recoded: {recode_tracker.total_records_recoded} out of {cleaned.shape[0]}"

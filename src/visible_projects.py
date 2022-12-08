@@ -2,6 +2,7 @@ from typing import Dict
 import pandas as pd
 import requests
 from .recode_id import recode_id
+from multiprocessing import Pool, cpu_count
 
 OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
 
@@ -125,7 +126,14 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
     data.replace(to_replace=recoder, inplace=True)
 
     if name == "dcp_projects":
-        data = recode_id(data)
+        records = data.to_dict("records")
+
+        # Multiprocess
+        with Pool(processes=cpu_count()) as pool:
+            it = pool.map(recode_id, records, 10000)
+
+        data = pd.DataFrame(it)
+        # data = recode_id(data)
 
     return data
 
