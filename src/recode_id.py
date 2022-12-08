@@ -104,6 +104,7 @@ class AuthRefresher:
 
 def recode_id(data, debug_rows: int = False):
     """Recode unique ID's from the CRM to human-readable"""
+    data = pd.DataFrame(data)
     recode_logger = create_logger("Recode Logger", "recode_logger.log")
     auth_refresher = AuthRefresher()
     if debug_rows:
