@@ -67,6 +67,7 @@ class Runner:
         return bool(r.rowcount)
 
     def combine(self):
+        print("running combine ...")
         files = os.listdir(self.output_dir)
         if self.check_table_existence(self.name):
             with self.engine.begin() as sql_conn:
@@ -78,6 +79,7 @@ class Runner:
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
+            print(f"opened json file {_file} with keys {data.keys}")
             df = pd.DataFrame(data["value"], dtype=str)
             if self.open_dataset:
                 df = self.open_data_cleaning(df)
