@@ -1,4 +1,5 @@
 name: Export Single Dataset
+run-name: Export ${{ inputs.dataset }}
 
 on:
   workflow_dispatch:
