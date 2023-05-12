@@ -1,4 +1,4 @@
-name: Export Single Dataset
+name: Export Single Dataset from CRM
 run-name: Export ${{ inputs.dataset }}
 
 on:
