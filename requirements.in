@@ -1,0 +1,9 @@
+black
+msal
+pandas
+pandas
+pathlib
+psycopg2-binary
+pytest
+python-dotenv
+SQLAlchemy

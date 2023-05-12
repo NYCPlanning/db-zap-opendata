@@ -29,7 +29,7 @@ jobs:
           python-version: "3.9"
 
       - name: Install Dependencies
-        run: python3 -m pip install .
+        run: ./bash/setup_build_env.sh
 
       - name: Set Version info
         id: version
