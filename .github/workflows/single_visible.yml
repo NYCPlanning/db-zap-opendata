@@ -1,4 +1,4 @@
-name: Export Single Dataset from CRM to DO
+name: Export Single Open Dataset from CRM to DO
 run-name: Export ${{ inputs.dataset }}
 
 on:
@@ -7,7 +7,11 @@ on:
         dataset:
           description: 'Name of the dataset'
           required: true
+          type: choice
           default: dcp_projects
+          options:
+            - dcp_projects
+            - dcp_projectbbls
 
 jobs:
   build:
