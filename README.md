@@ -2,30 +2,30 @@
 
 Workflow for creating subset of ZAP data that's on open data
 
-# Instructions
+## Instructions
+
+> Note: set the environmental variables in `.env` according to `example.env`.
 
 1. install dependencies
 
-```bash
-poetry install
-```
+    ```bash
+    poetry install
+    ```
 
-or install without dev dependencies (more suitable for just running the scripts)
+    or install without dev dependencies (more suitable for just running the scripts)
 
-```bash
-poetry install --no-dev
-```
+    ```bash
+    poetry install --no-dev
+    ```
 
 2. run a ZAP Pull
 
-```bash
-poetry run python -m src.runner <name of the entity>
-```
+    ```bash
+    poetry run python -m src.runner <name of the entity>
+    ```
 
-e.g.
+    e.g.
 
-```bash
-poetry run python -m src.runner dcp_projects
-```
-
-> Note: set the environmental variables in `.env` according to `example.env`.
+    ```bash
+    poetry run python -m src.runner dcp_projects
+    ```
