@@ -46,6 +46,8 @@ class Runner:
             response = requests.get(nextlink, headers=self.headers)
             result = response.text
             result_json = response.json()
+            if result_json["error"]["code"] == "0x8006088a":
+                raise FileNotFoundError(result_json["error"])
             filename = f"{self.name}_{counter}.json"
             self.write_to_json(response.text, filename)
             counter += 1
