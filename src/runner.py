@@ -80,7 +80,7 @@ class Runner:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
             print(f"opened json file {_file} with keys {data.keys()}")
-            if data.keys() == ["error"]:
+            if list(data.keys()) == ["error"]:
                 raise FileExistsError(f"does the file exist? json file error: {data['error']}")
             df = pd.DataFrame(data["value"], dtype=str)
             if self.open_dataset:
