@@ -6,6 +6,7 @@ from typing import List
 import pandas as pd
 from pathlib import Path
 import requests
+from sqlalchemy import text
 
 from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
 from .client import Client
@@ -57,25 +58,23 @@ class Runner:
         return os.path.isfile(f"{self.output_dir}/{filename}")
 
     def check_table_existence(self, name):
-        r = self.engine.execute(
-            """
-            select * from information_schema.tables 
-            where table_name='%(name)s'
-            """
-            % {"name": name}
-        )
+        with self.engine.begin() as sql_conn:
+            statement = """
+                select * from information_schema.tables 
+                where table_name='%(name)s'
+            """ % {"name": name}
+            r = sql_conn.execute(statement=text(statement))
         return bool(r.rowcount)
 
     def combine(self):
         files = os.listdir(self.output_dir)
         if self.check_table_existence(self.name):
-            self.engine.execute(
-                """
-                BEGIN; DROP TABLE IF EXISTS %(newname)s; 
-                ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
-                """
-                % {"name": self.name, "newname": self.name + "_"}
-            )
+            with self.engine.begin() as sql_conn:
+                statement = """
+                    BEGIN; DROP TABLE IF EXISTS %(newname)s; 
+                    ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
+                """ % {"name": self.name, "newname": self.name + "_"}
+                sql_conn.execute(statement=text(statement))
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
@@ -92,10 +91,9 @@ class Runner:
             os.remove(f"{self.output_dir}/{_file}")
 
         # fmt:off
-        self.engine.execute(
-            "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" 
-            % {"name": self.name + "_"}
-        )
+        with self.engine.begin() as sql_conn:
+            statement =  "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" % {"name": self.name + "_"}
+            sql_conn.execute(statement=text(statement))
         # fmt:on
         if self.open_dataset:
             make_open_data_table(self.engine, self.name)
