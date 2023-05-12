@@ -39,7 +39,7 @@ class Runner:
          
 
     def download(self):
-        print(f"downloading {self.name} ...")
+        print(f"downloading {self.name} from ZAP CRM ...")
         self.create_output_cache_dir()
         nextlink = f"{ZAP_DOMAIN}/api/data/v9.1/{self.name}"
         counter = 0
