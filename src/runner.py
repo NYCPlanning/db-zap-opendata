@@ -79,7 +79,7 @@ class Runner:
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
-            print(f"opened json file {_file} with keys {data.keys}")
+            print(f"opened json file {_file} with keys {data.keys()}")
             df = pd.DataFrame(data["value"], dtype=str)
             if self.open_dataset:
                 df = self.open_data_cleaning(df)
