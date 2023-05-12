@@ -39,6 +39,7 @@ class Runner:
          
 
     def download(self):
+        print(f"downloading {self.name} ...")
         self.create_output_cache_dir()
         nextlink = f"{ZAP_DOMAIN}/api/data/v9.1/{self.name}"
         counter = 0
@@ -46,7 +47,7 @@ class Runner:
             response = requests.get(nextlink, headers=self.headers)
             result = response.text
             result_json = response.json()
-            if result_json["error"]["code"] == "0x8006088a":
+            if list(result_json.keys()) == ["error"]:
                 raise FileNotFoundError(result_json["error"])
             filename = f"{self.name}_{counter}.json"
             self.write_to_json(response.text, filename)
@@ -81,9 +82,6 @@ class Runner:
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
-            print(f"opened json file {_file} with keys {data.keys()}")
-            if list(data.keys()) == ["error"]:
-                raise FileExistsError(f"does the file exist? json file error: {data['error']}")
             df = pd.DataFrame(data["value"], dtype=str)
             if self.open_dataset:
                 df = self.open_data_cleaning(df)
