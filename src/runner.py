@@ -15,6 +15,15 @@ from .pg import PG
 from .visible_projects import OPEN_DATA, make_open_data_table, open_data_recode
 
 
+def timestamp_to_date(df: pd.DataFrame, date_columns: List) -> pd.DataFrame:
+    df[date_columns] = (
+        df[date_columns]
+        .apply(pd.to_datetime)
+        .apply(lambda x: x.dt.strftime("%Y-%m-%d"))
+    )
+    return df
+
+
 class Runner:
     def __init__(self, name: str):
         self.c = Client(
@@ -151,10 +160,10 @@ class Runner:
             df = open_data_recode(self.name, df, self.headers)
             df.to_csv(f"{self.cache_dir}/{self.name}_after_recode.csv", index=False)
             if self.name == "dcp_projectbbls":
-                df = self.timestamp_to_date(df, date_columns=["validated_date"])
+                df = timestamp_to_date(df, date_columns=["validated_date"])
                 df["project_id"] = df["project_id"].str.split(" ").str[0]
             if self.name == "dcp_projects":
-                df = self.timestamp_to_date(
+                df = timestamp_to_date(
                     df,
                     date_columns=[
                         "completed_date",
@@ -175,14 +184,6 @@ class Runner:
         self.download()
         self.combine()
         self.export()
-
-    def timestamp_to_date(self, df: pd.DataFrame, date_columns: List) -> pd.DataFrame:
-        df[date_columns] = (
-            df[date_columns]
-            .apply(pd.to_datetime)
-            .apply(lambda x: x.dt.strftime("%Y-%m-%d"))
-        )
-        return df
 
 
 if __name__ == "__main__":
