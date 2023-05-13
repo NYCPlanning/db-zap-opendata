@@ -40,7 +40,7 @@ jobs:
         id: version
         run: |
           DATE=$(date +%Y%m%d)
-          echo "::set-output name=version::$DATE"
+          echo "version=::$DATE" >> "$GITHUB_OUTPUT"
 
       - name: Set up Mini IO
         run: |
@@ -56,4 +56,5 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          ./zap.sh upload_do ${{  github.event.inputs.dataset }} $VERSION
+          echo "exporting ${{ github.event.inputs.dataset }} with version $VERSION"
+          ./zap.sh upload_do ${{ github.event.inputs.dataset }} $VERSION
