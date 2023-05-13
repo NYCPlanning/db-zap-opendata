@@ -1,4 +1,4 @@
-name: Weekly Export
+name: Weekly Export from CRM to BigQuery
 
 on:
   schedule:
