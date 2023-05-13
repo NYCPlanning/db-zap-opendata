@@ -136,7 +136,7 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
     return data
 
 
-def get_fields(name):
+def get_fields(name) -> tuple[list, list]:
     if name == "dcp_projectbbls":
         fields_to_lookup = ["dcp_borough"]
         fields_to_rename = RECODE_FIELDS[name]
@@ -148,7 +148,7 @@ def get_fields(name):
     return fields_to_lookup, fields_to_rename
 
 
-def get_metadata(headers):
+def get_metadata(headers) -> list:
     metadata_values = []
     for link in [PICKLIST_METADATA_LINK, STATUS_METADATA_LINK]:
         res = requests.get(link, headers=headers)
