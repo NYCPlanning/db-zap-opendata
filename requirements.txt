@@ -14,6 +14,8 @@ charset-normalizer==3.1.0
     # via requests
 click==8.1.3
     # via black
+coverage[toml]==7.2.5
+    # via pytest-cov
 cryptography==40.0.2
     # via
     #   msal
@@ -53,6 +55,10 @@ pycparser==2.21
 pyjwt[crypto]==2.7.0
     # via msal
 pytest==7.3.1
+    # via
+    #   -r requirements.in
+    #   pytest-cov
+pytest-cov==4.0.0
     # via -r requirements.in
 python-dateutil==2.8.2
     # via pandas
@@ -69,6 +75,7 @@ sqlalchemy==2.0.13
 tomli==2.0.1
     # via
     #   black
+    #   coverage
     #   pytest
 typing-extensions==4.5.0
     # via
