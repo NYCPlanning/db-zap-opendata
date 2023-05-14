@@ -1,0 +1,45 @@
+name: Branch tests
+
+on: [pull_request, workflow_dispatch]
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  branch_unit_tests:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+
+      - name: Setup build environment
+        run: |
+          python --version
+          ./bash/setup_build_env.sh
+
+      - name: Run python tests
+        run: |
+          python3 -m pytest --verbose --verbose --cov-config=pyproject.toml --cov .
+
+  branch_dev_container_tests:
+    name: Dev container tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and run dev container task
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            echo "Dev Container is in CI? $CI"
+            pip list
+
+  branch_build_mapzap_tests:
+    name: Build MapZAP test run
+    uses: ./.github/workflows/build_mapzap.yml
+    secrets: inherit
