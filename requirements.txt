@@ -5,7 +5,7 @@
 #    ./bash/dev_compile_python_packages.sh
 #
 black==23.3.0
-    # via -r requirements.in
+    # via db-zap-opendata (pyproject.toml)
 certifi==2023.5.7
     # via requests
 cffi==1.15.1
@@ -29,7 +29,7 @@ idna==3.4
 iniconfig==2.0.0
     # via pytest
 msal==1.22.0
-    # via -r requirements.in
+    # via db-zap-opendata (pyproject.toml)
 mypy-extensions==1.0.0
     # via black
 numpy==1.24.3
@@ -39,9 +39,9 @@ packaging==23.1
     #   black
     #   pytest
 pandas==2.0.1
-    # via -r requirements.in
+    # via db-zap-opendata (pyproject.toml)
 pathlib==1.0.1
-    # via -r requirements.in
+    # via db-zap-opendata (pyproject.toml)
 pathspec==0.11.1
     # via black
 platformdirs==3.5.1
@@ -49,21 +49,21 @@ platformdirs==3.5.1
 pluggy==1.0.0
     # via pytest
 psycopg2-binary==2.9.6
-    # via -r requirements.in
+    # via db-zap-opendata (pyproject.toml)
 pycparser==2.21
     # via cffi
 pyjwt[crypto]==2.7.0
     # via msal
 pytest==7.3.1
     # via
-    #   -r requirements.in
+    #   db-zap-opendata (pyproject.toml)
     #   pytest-cov
 pytest-cov==4.0.0
-    # via -r requirements.in
+    # via db-zap-opendata (pyproject.toml)
 python-dateutil==2.8.2
     # via pandas
 python-dotenv==1.0.0
-    # via -r requirements.in
+    # via db-zap-opendata (pyproject.toml)
 pytz==2023.3
     # via pandas
 requests==2.30.0
@@ -71,7 +71,7 @@ requests==2.30.0
 six==1.16.0
     # via python-dateutil
 sqlalchemy==2.0.13
-    # via -r requirements.in
+    # via db-zap-opendata (pyproject.toml)
 tomli==2.0.1
     # via
     #   black

@@ -18,7 +18,8 @@
 				"mechatroner.rainbow-csv",
 				"janisdd.vscode-edit-csv",
 				"dorzey.vscode-sqlfluff",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"bungcip.better-toml"
 			]
 		}
 	},
