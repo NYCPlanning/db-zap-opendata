@@ -1,6 +1,6 @@
 import logging
 import os
-
+import pandas as pd
 
 def create_logger(logger_name, file_name) -> logging.Logger:
     if not os.path.exists(".logs/"):
@@ -16,3 +16,12 @@ def create_logger(logger_name, file_name) -> logging.Logger:
     if not logger.hasHandlers():
         logger.addHandler(file_handler)
     return logger
+
+
+def timestamp_to_date(df: pd.DataFrame, date_columns: list) -> pd.DataFrame:
+    df[date_columns] = (
+        df[date_columns]
+        .apply(pd.to_datetime)
+        .apply(lambda x: x.dt.strftime("%Y-%m-%d"))
+    )
+    return df

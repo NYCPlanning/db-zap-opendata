@@ -13,15 +13,7 @@ from .client import Client
 from .copy import psql_insert_copy
 from .pg import PG
 from .visible_projects import OPEN_DATA, make_open_data_table, open_data_recode
-
-
-def timestamp_to_date(df: pd.DataFrame, date_columns: List) -> pd.DataFrame:
-    df[date_columns] = (
-        df[date_columns]
-        .apply(pd.to_datetime)
-        .apply(lambda x: x.dt.strftime("%Y-%m-%d"))
-    )
-    return df
+from .util import timestamp_to_date
 
 
 class Runner:
