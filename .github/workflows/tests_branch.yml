@@ -7,6 +7,13 @@ concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  SECRET: ${{ secrets.SECRET }}
+  TENANT_ID: ${{ secrets.TENANT_ID }}
+  ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
+  ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+
 jobs:
   branch_unit_tests:
     name: Unit tests
