@@ -27,7 +27,7 @@
 		5432
 	],
 	// Use 'initializeCommand' to run commands on the host machine before the container is created.
-	"initializeCommand": "${localWorkspaceFolder}/.devcontainer/setup_devcontainer.sh",
+	"initializeCommand": "${localWorkspaceFolder}/.devcontainer/initializeCommand.sh",
     "runArgs": [
         "--env-file", "${localWorkspaceFolder}/.devcontainer/.env"
     ], 
