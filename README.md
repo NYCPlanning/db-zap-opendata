@@ -40,36 +40,38 @@ MapZAP is a dataset of ZAP project records with spatial data. Based on the BBLs 
 ```mermaid
 %%{ init: { 'flowchart': { 'curve': 'curveMonotoneY' } } }%%
 flowchart TB
-    %% source data
-    src_projects[(ZAP Projects)]
-    src_project_bbls[(ZAP Project\nBBLs)]
-    src_pluto_years(PLUTO versions\nby year)
-    src_MapPLUTO[("MapPLUTO\n(2002 - 2022)")]
+%% souce data
+src_projects[("ZAP Project Details\n(1975 - 2022)")]
+src_project_bbls[("ZAP Project BBLs\n(1975 - 2022)")]
+src_pluto_years(PLUTO versions\nby year)
+src_MapPLUTO[("MapPLUTO\n(2002 - 2022)")]
 
-    %% intermediate data
-    projects_pluto("ZAP Projects")
-    pluto_geo("PLUTO\ngeography")
-    project_bbl_geo("Project BBLs\ngeography")
-    projects_bbl("ZAP Project\nBBLs")
+%% intermediate data
+projects_pluto("ZAP Project Details")
+project_bbls("ZAP Project BBLs")
+project_info_bbls("ZAP Project BBLs")
+pluto_geo("BBL geographies")
+project_bbl_geo("Project BBLs\ngeography")
 
-    %% final data
-    project_geo("MapZAP")
+%% final data
+project_geo("MapZAP")
 
-    %% 
-    src_pluto_years --> projects_pluto
-    src_projects ---> projects_pluto
+%% 
+src_pluto_years --> projects_pluto
+src_projects ---> projects_pluto
 
-    src_project_bbls ---> projects_bbl
+src_project_bbls ---> project_bbls
 
-    src_MapPLUTO ---> pluto_geo
+src_MapPLUTO ---> pluto_geo
 
-    %% 
-    projects_pluto --> project_bbl_geo
-    projects_bbl --> project_bbl_geo
-    pluto_geo --> project_bbl_geo
+%% 
+projects_pluto --> project_info_bbls
+project_bbls --> project_info_bbls
+project_info_bbls --> project_bbl_geo
+pluto_geo ---> project_bbl_geo
 
-    %% 
-    project_bbl_geo --> project_geo
+%% 
+project_bbl_geo --> project_geo
 ```
 
 ### Notes
