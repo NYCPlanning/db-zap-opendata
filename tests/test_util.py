@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from src.runner import timestamp_to_date
+from src.util import timestamp_to_date
 
 TEST_DATA_PATH = "tests/test_data"
 
