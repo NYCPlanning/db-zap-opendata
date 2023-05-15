@@ -4,19 +4,17 @@
 set -e
 SCRIPT_DIRECTORY=$( dirname -- "$0"; )
 
-echo "Setting up dev container from $SCRIPT_DIRECTORY/ ..."
+echo "Initializing dev container from $SCRIPT_DIRECTORY/ ..."
 
-# create an empty .env if it doesn't exist
+# create an empty .env if it doesn't exist to allow use of --env-file in runArgs
+echo "If it doesn't exist, create an empty $SCRIPT_DIRECTORY/.env ..."
 touch $SCRIPT_DIRECTORY/.env
 
 # only do this when running locally (rather than in a github action)
 if [[ ${CI} != "true" ]]; then
-	# Avoiding Dubious Ownership in Dev Containers for git
+	# Avoiding git issues due to dubious ownership 
 	echo "Setting directiory as safe for git ..."
 	git config --global --add safe.directory $PWD
-	# echo "Adding local SSH keys ..."
-	# Add local SSH private keys in order to push to github from the dev container
-	# ssh-add
 fi
 
-echo "Done setting up dev container"
+echo "Done initializing dev container"
