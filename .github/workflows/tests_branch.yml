@@ -8,10 +8,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
+  TENANT_ID: ${{ secrets.TENANT_ID }}
   CLIENT_ID: ${{ secrets.CLIENT_ID }}
   SECRET: ${{ secrets.SECRET }}
-  TENANT_ID: ${{ secrets.TENANT_ID }}
-  ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
   ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
 
 jobs:
