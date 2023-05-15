@@ -1,4 +1,4 @@
-name: Weekly Export
+name: Weekly Export from CRM to BigQuery
 
 on:
   schedule:
@@ -37,13 +37,13 @@ jobs:
             open: true
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: "3.9"
 
       - name: Install Dependencies
-        run: python3 -m pip install .
+        run: ./bash/setup_build_env.sh
 
       - name: Get ${{ matrix.entity }}
         run: python3 -m src.runner ${{ matrix.entity }}
@@ -52,7 +52,7 @@ jobs:
         id: version
         run: |
           DATE=$(date +%Y%m%d)
-          echo "::set-output name=version::$DATE"
+          echo "version=::$DATE" >> "$GITHUB_OUTPUT"
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0

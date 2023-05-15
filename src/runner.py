@@ -6,12 +6,14 @@ from typing import List
 import pandas as pd
 from pathlib import Path
 import requests
+from sqlalchemy import text
 
 from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
 from .client import Client
 from .copy import psql_insert_copy
 from .pg import PG
 from .visible_projects import OPEN_DATA, make_open_data_table, open_data_recode
+from .util import timestamp_to_date
 
 
 class Runner:
@@ -38,6 +40,7 @@ class Runner:
          
 
     def download(self):
+        print(f"downloading {self.name} from ZAP CRM ...")
         self.create_output_cache_dir()
         nextlink = f"{ZAP_DOMAIN}/api/data/v9.1/{self.name}"
         counter = 0
@@ -45,6 +48,8 @@ class Runner:
             response = requests.get(nextlink, headers=self.headers)
             result = response.text
             result_json = response.json()
+            if list(result_json.keys()) == ["error"]:
+                raise FileNotFoundError(result_json["error"])
             filename = f"{self.name}_{counter}.json"
             self.write_to_json(response.text, filename)
             counter += 1
@@ -57,25 +62,24 @@ class Runner:
         return os.path.isfile(f"{self.output_dir}/{filename}")
 
     def check_table_existence(self, name):
-        r = self.engine.execute(
-            """
-            select * from information_schema.tables 
-            where table_name='%(name)s'
-            """
-            % {"name": name}
-        )
+        with self.engine.begin() as sql_conn:
+            statement = """
+                select * from information_schema.tables 
+                where table_name='%(name)s'
+            """ % {"name": name}
+            r = sql_conn.execute(statement=text(statement))
         return bool(r.rowcount)
 
     def combine(self):
+        print("running combine ...")
         files = os.listdir(self.output_dir)
         if self.check_table_existence(self.name):
-            self.engine.execute(
-                """
-                BEGIN; DROP TABLE IF EXISTS %(newname)s; 
-                ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
-                """
-                % {"name": self.name, "newname": self.name + "_"}
-            )
+            with self.engine.begin() as sql_conn:
+                statement = """
+                    BEGIN; DROP TABLE IF EXISTS %(newname)s; 
+                    ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
+                """ % {"name": self.name, "newname": self.name + "_"}
+                sql_conn.execute(statement=text(statement))
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
@@ -92,10 +96,9 @@ class Runner:
             os.remove(f"{self.output_dir}/{_file}")
 
         # fmt:off
-        self.engine.execute(
-            "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" 
-            % {"name": self.name + "_"}
-        )
+        with self.engine.begin() as sql_conn:
+            statement =  "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" % {"name": self.name + "_"}
+            sql_conn.execute(statement=text(statement))
         # fmt:on
         if self.open_dataset:
             make_open_data_table(self.engine, self.name)
@@ -149,10 +152,10 @@ class Runner:
             df = open_data_recode(self.name, df, self.headers)
             df.to_csv(f"{self.cache_dir}/{self.name}_after_recode.csv", index=False)
             if self.name == "dcp_projectbbls":
-                df = self.timestamp_to_date(df, date_columns=["validated_date"])
+                df = timestamp_to_date(df, date_columns=["validated_date"])
                 df["project_id"] = df["project_id"].str.split(" ").str[0]
             if self.name == "dcp_projects":
-                df = self.timestamp_to_date(
+                df = timestamp_to_date(
                     df,
                     date_columns=[
                         "completed_date",
@@ -173,14 +176,6 @@ class Runner:
         self.download()
         self.combine()
         self.export()
-
-    def timestamp_to_date(self, df: pd.DataFrame, date_columns: List) -> pd.DataFrame:
-        df[date_columns] = (
-            df[date_columns]
-            .apply(pd.to_datetime)
-            .apply(lambda x: x.dt.strftime("%Y-%m-%d"))
-        )
-        return df
 
 
 if __name__ == "__main__":

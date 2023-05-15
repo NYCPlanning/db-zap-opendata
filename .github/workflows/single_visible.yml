@@ -1,4 +1,5 @@
-name: Export Single Dataset
+name: Export Single Open Dataset from CRM to DO
+run-name: Export ${{ inputs.dataset }}
 
 on:
   workflow_dispatch:
@@ -6,7 +7,11 @@ on:
         dataset:
           description: 'Name of the dataset'
           required: true
+          type: choice
           default: dcp_projects
+          options:
+            - dcp_projects
+            - dcp_projectbbls
 
 jobs:
   build:
@@ -23,19 +28,19 @@ jobs:
       AWS_S3_LIBRARY_BUCKET: edm-recipes
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: "3.9"
 
       - name: Install Dependencies
-        run: python3 -m pip install .
+        run: ./bash/setup_build_env.sh
 
       - name: Set Version info
         id: version
         run: |
           DATE=$(date +%Y%m%d)
-          echo "::set-output name=version::$DATE"
+          echo "version=::$DATE" >> "$GITHUB_OUTPUT"
 
       - name: Set up Mini IO
         run: |
@@ -51,4 +56,5 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          ./zap.sh upload_do ${{  github.event.inputs.dataset }} $VERSION
+          echo "exporting ${{ github.event.inputs.dataset }} with version $VERSION"
+          ./zap.sh upload_do ${{ github.event.inputs.dataset }} $VERSION
