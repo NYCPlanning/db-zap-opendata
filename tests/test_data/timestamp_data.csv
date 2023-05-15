@@ -1,4 +1,4 @@
-id_column,date_column_input,date_column_output
+id_column,date_column_a,date_column_a_expected
 a,,
 b,10/11/12,2012-10-11
 c,10/11/12 1:1:1,2012-10-11
