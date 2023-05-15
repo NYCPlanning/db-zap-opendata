@@ -1,4 +1,3 @@
-import pytest
 import pandas as pd
 from src.util import timestamp_to_date
 
