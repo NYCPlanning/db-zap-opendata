@@ -1,0 +1,29 @@
+config:
+  fail-fast: true
+
+dbt_zap_opendata:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: eng-interface-309819
+      dataset: dbt_zap_opendata
+      threads: 1
+      keyfile: .dbt/bigquery-dbt-dev-keyfile.json
+    # ci:
+    #   type: postgres
+    #   host: "{{ env_var('DBT_ENV_SECRET_POSTGRES_HOST') }}"
+    #   port: "{{ env_var('DBT_POSTGRES_PORT') | as_number }}"
+    #   user: "{{ env_var('DBT_ENV_SECRET_POSTGRES_USER') }}"
+    #   password: "{{ env_var('DBT_ENV_SECRET_POSTGRES_PASSWORD') }}"
+    #   dbname: recipe
+    #   schema: dbt_aue_ci_{{ env_var('GITHUB_PR_NUMBER') }}
+    # prod:
+    #   type: postgres
+    #   host: "{{ env_var('DBT_ENV_SECRET_POSTGRES_HOST') }}"
+    #   port: "{{ env_var('DBT_POSTGRES_PORT') | as_number }}"
+    #   user: "{{ env_var('DBT_ENV_SECRET_POSTGRES_USER') }}"
+    #   password: "{{ env_var('DBT_ENV_SECRET_POSTGRES_PASSWORD') }}"
+    #   dbname: recipe
+    #   schema: dbt_aue_prod

@@ -135,3 +135,10 @@ dmypy.json
 
 # MacOS automatically generated 
 .DS_Store
+
+# dbt files
+target/
+dbt_packages/
+logs/
+.dbt/.user.yml
+.dbt/*.json
