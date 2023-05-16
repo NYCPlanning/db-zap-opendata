@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# Sets up environment for dev in local dev container.
+# Sets up environment for dev container
 set -e
 SCRIPT_DIRECTORY=$( dirname -- "$0"; )
 
-echo "Initializing dev container from $SCRIPT_DIRECTORY/ ..."
+echo "Running initializeCommand from $SCRIPT_DIRECTORY/ ..."
 
 # create an empty .env if it doesn't exist to allow use of --env-file in runArgs
 echo "If it doesn't exist, create an empty $SCRIPT_DIRECTORY/.env ..."
@@ -17,4 +17,4 @@ if [[ ${CI} != "true" ]]; then
 	git config --global --add safe.directory $PWD
 fi
 
-echo "Done initializing dev container"
+echo "Done running initializeCommand"
