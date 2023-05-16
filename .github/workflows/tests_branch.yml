@@ -13,6 +13,7 @@ env:
   CLIENT_ID: ${{ secrets.CLIENT_ID }}
   SECRET: ${{ secrets.SECRET }}
   ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+  DBT_PROFILES_DIR: .dbt/
 
 jobs:
   branch_unit_tests:
