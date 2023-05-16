@@ -8,7 +8,4 @@ python3 -m pip install --upgrade pip
 python3 -m pip install --upgrade pip-tools wheel
 python3 -m pip install --requirement requirements.txt
 
-# install dbt packages
-dbt deps
-
 echo "Done!"
