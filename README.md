@@ -111,6 +111,8 @@ project_bbl_geo --> project_geo
 
 > Note: set the environmental variables in `.env` according to `example.env`.
 
+### Run an export script
+
 1. open repo in the defined dev container
 
 2. run a ZAP Pull
@@ -124,3 +126,12 @@ project_bbl_geo --> project_geo
     ```bash
     python -m src.runner dcp_projects
     ```
+
+### Run dbt
+
+...
+
+### Develop dbt
+
+#### Generate models from configuration files
+

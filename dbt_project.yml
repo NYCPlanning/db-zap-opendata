@@ -1,6 +1,36 @@
-name: "dbt_zap_opendata"
+name: "dbt_mapzap"
 version: "1.0.0"
 config-version: 2
 
-# This setting configures which "profile" dbt uses for this project.
-profile: "dbt_zap_opendata"
+profile: "dbt_mapzap"
+
+model-paths: ["mapzap/models"]
+seed-paths: ["mapzap/seeds"]
+test-paths: ["mapzap/tests"]
+
+# Directories to be removed by `dbt clean`
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+seeds:
+  +quote_columns: false
+
+models:
+  mapzap:
+    staging:
+      +materialized: view
+      +docs:
+        node_color: "#32cd73"
+    # intermediate:
+    #   +materialized: view
+    #   +docs:
+    #     node_color: "#becd32"
+    # final:
+    #   +materialized: table
+    #   +docs:
+    #     node_color: "#cd7f32"
+
+tests:
+  +store_failures: true
+  +schema: aue_dbt_test_results

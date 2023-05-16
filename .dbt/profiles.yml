@@ -1,14 +1,14 @@
 config:
   fail-fast: true
 
-dbt_zap_opendata:
+dbt_mapzap:
   target: dev
   outputs:
     dev:
       type: bigquery
       method: service-account
       project: eng-interface-309819
-      dataset: dbt_zap_opendata
+      dataset: dbt_mapzap
       threads: 1
       keyfile: .dbt/bigquery-dbt-dev-keyfile.json
     # ci:
