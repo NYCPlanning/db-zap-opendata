@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: summary_zap_projects_stats
+    columns:
+      - name: project_certified_referred_year
+      - name: project_pluto_version
+      - name: projects_without_a_bbl
+      - name: projects_without_a_geography
+      - name: percent_projects_without_a_geography

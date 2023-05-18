@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: stg_dcp__zap_projects
+    description: "ZAP project details"
+    columns:
+      - name: project_name
+        description: "The project name"
+        tests:
+          - not_null
+          - unique
+      - name: project_certified_referred_date
+        description: "The date the project was referred for review"
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        combination_of_columns:
+          - project_name
+          - project_certified_referred_date
+
+  - name: stg_dcp__zap_bbls
+    description: "ZAP project BBL details"
+    columns:
+      - name: project_name
+        description: "The project name"
+        tests:
+          - not_null
+      - name: project_bbl
+        description: "The BBLs associated with a project"
+        tests:
+          - not_null
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        combination_of_columns:
+          - project_name
+          - project_bbl
+
+
+  - name: base_dcp__pluto_with_bbls
+    description: "MapPLUTO records which already have BBL values"
+    columns:
+      - name: pluto_version
+      - name: bbl
+      - name: wkt
+
+  - name: base_dcp__pluto_without_bbls
+    description: "MapPLUTO records which have constructued BBL values"
+    columns:
+      - name: pluto_version
+      - name: borocode
+      - name: block
+      - name: lot
+      - name: wkt
+
+  - name: stg_dcp__pluto_bbls
+    description: "MapPLUTO records with BBls and WKT geometries"
+    columns:
+      - name: pluto_version
+      - name: bbl
+      - name: wkt
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        combination_of_columns:
+          - pluto_version
+          - bbl

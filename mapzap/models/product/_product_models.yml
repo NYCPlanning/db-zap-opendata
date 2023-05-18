@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: product_zap_project_geometries
+    columns:
+      - name: project_name
+        tests:
+          - unique
+          - not_null
+      - name: project_certified_referred_year
+      - name: pluto_version
+      - name: project_bbls
+      - name: bbl_areas_sum
+      - name: project_area
+      - name: project_geometry_wkt
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('product_zap_project_geometries')
+          compare_columns:
+            - bbl_areas_sum
+            - project_area
