@@ -5,6 +5,9 @@ models:
     columns:
       - name: project_certified_referred_year
       - name: project_pluto_version
-      - name: projects_without_a_bbl
-      - name: projects_without_a_geography
-      - name: percent_projects_without_a_geography
+      - name: projects_with_no_bbl
+      - name: percent_projects_with_no_bbl
+      - name: projects_with_no_geography
+      - name: percent_projects_with_no_geography
+      - name: projects_with_bbl_and_no_geography
+      - name: percent_projects_with_bbl_and_no_geography

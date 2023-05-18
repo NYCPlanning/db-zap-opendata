@@ -8,9 +8,9 @@ project_geometries_counts as (
         project_pluto_version,
         COUNT(*) as project_count,
         SUM(case when project_bbls is null then 1 else 0 end)
-            as projects_without_a_bbl,
+            as projects_with_no_bbl,
         SUM(case when project_geometry_wkt is null then 1 else 0 end)
-            as projects_without_a_geography
+            as projects_with_no_geography
     from
         project_geometries
     group by
@@ -18,35 +18,37 @@ project_geometries_counts as (
         project_pluto_version
 ),
 
-project_geometries_stats as (
+project_geometries_counts_2 as (
     select
-        project_certified_referred_year,
-        project_pluto_version,
-        project_count,
-        projects_without_a_bbl,
-        projects_without_a_geography,
-        CAST(ROUND(
-            projects_without_a_bbl
-            / project_count, 2
-        ) * 100 as INT64) as percent_projects_without_a_bbl,
-        CAST(ROUND(
-            projects_without_a_geography
-            / project_count, 2
-        ) * 100 as INT64) as percent_projects_without_a_geography
+        *,
+        (projects_with_no_geography - projects_with_no_bbl)
+            as projects_with_bbl_and_no_geography
     from
         project_geometries_counts
 
 ),
 
-project_geometries_stats_ordered as (
+project_geometries_stats as (
     select
-        project_certified_referred_year,
-        project_pluto_version,
-        project_count,
-        projects_without_a_bbl,
-        percent_projects_without_a_bbl,
-        projects_without_a_geography,
-        percent_projects_without_a_geography
+        *,
+        ROUND(
+            projects_with_no_bbl
+            / project_count * 100, 2
+        ) as percent_projects_with_no_bbl,
+        ROUND(
+            projects_with_no_geography
+            / project_count * 100, 2
+        ) as percent_projects_with_no_geography,
+        ROUND(
+            projects_with_bbl_and_no_geography
+            / project_count * 100, 2
+        ) as percent_projects_with_bbl_and_no_geography
+    from
+        project_geometries_counts_2
+),
+
+project_geometries_stats_ordered as (
+    select *
     from project_geometries_stats
     order by
         project_certified_referred_year
