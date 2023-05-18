@@ -17,7 +17,8 @@ dependencies = [
     "pytest",
     "python-dotenv",
     "SQLAlchemy",
-    "sqlfluff==2.0.7",
+    "sqlfluff-templater-dbt",
+    "sqlfluff",
 ]
 
 [tool.pytest.ini_options]
@@ -41,3 +42,17 @@ exclude_lines =[
     # Don't complain if non-runnable code isn't run:
     "if __name__ == .__main__.:",
 ]
+
+[tool.sqlfluff.core]
+# templater = "dbt"
+dialect = "bigquery"
+
+[tool.sqlfluff.templater.jinja]
+apply_dbt_builtins = true
+
+[tool.sqlfluff.rules.layout.long_lines]
+# Line length
+ignore_comment_lines = false
+
+[tool.sqlfluff.rules.capitalisation.keywords]
+capitalisation_policy = "lower"

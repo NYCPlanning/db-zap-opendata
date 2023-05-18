@@ -37,14 +37,14 @@ MapZAP is a dataset of ZAP project records with spatial data. Based on the BBLs 
 ```mermaid
 %%{ init: { 'flowchart': { 'curve': 'curveMonotoneY' } } }%%
 flowchart TB
-%% source data
-src_projects[("ZAP Project Details\n(1975 - 2022)")]
+%% souce data
+src_projects[("ZAP Projects\n(1975 - 2022)")]
 src_project_bbls[("ZAP Project BBLs\n(1975 - 2022)")]
 src_pluto_years(PLUTO versions\nby year)
 src_MapPLUTO[("MapPLUTO\n(2002 - 2022)")]
 
 %% intermediate data
-projects_pluto("ZAP Project Details")
+projects_pluto("ZAP Projects")
 project_bbls("ZAP Project BBLs")
 project_info_bbls("ZAP Project BBLs")
 pluto_geo("BBL geographies")
@@ -74,36 +74,40 @@ project_bbl_geo --> project_geo
 ### Notes
 
 - All source data is in BigQuery
+- Feedback on 5/16
+  > - The Project Name field looks instead like the Project ID number. I recommend renaming it to Project ID to avoid confusion with the Project Name field in ZAP. Project ID is the correct unique ID to use, but adding the actual Project Name field would be useful.
+  > - Is there any case in which the sum of BBL geometry areas and the area of project geometry is not the same? It seems like it should be the same by definition.
+  > - Any idea why there are so many records with info populated in the BBLs field but no info in the BBL area/project area fields? All such projects appear unmappable. E.g., Project ID 2020Q0378 has two verified BBLs in the ZAP record, which correctly show up in the BBL field of this layer, but there’s no corresponding area information and thus the project is in the table but does not show up as a polygon. I’m concerned that for these examples, matching to DOB Job records would be more difficult.
 - For use in CEQR Type II analysis by Planning Support team:
-    > For the ZAP data pull, specifically, we propose to narrow down from all records using the criteria below. Assuming you want to pull and join all ZAP BBL records so this work is useful for others, this use case will need the fields in parentheses below as columns so I can filter down the set:
-    >
-    > - Certified/referred date on or after 2/1/11 (certified/referred field from project entity)
-    > - CEQR number contains data (CEQR number from project entity)
-    > - Public status equals completed (Public Status from project entity)
-    > - CEQR Type does not equal Type II (CEQR Type from project entity)
-    > - Project Status does not equal Record Closed, Terminated, Terminated-Applicant Unresponsive, or Withdrawn-Other (Project -   > Status from project entity)
-    > - Applicant Type does not equal DCP (Applicant Type from project entity)
-    > - BBL is not located within a Special Coastal Risk District
-    > - For all projects with a rezoning action, was it a rezoning from an M district to an R district? (Will filter out those > where - the answer is yes)
-    > - Existing zoning district(s)
-    > - Proposed zoning district(s)
-    >
-    > Additionally, the data pull I’ve been using pulls data into the following columns for later use:
-    >
-    > - Project ID
-    > - Project Name
-    > - Lead Division
-    > - Actions
-    > - Project Status
-    > - BBL
-    > - CEQR Type
-    > - WRP Review Required
-    > - FEMA Flood Zone V
-    >
-    > Lastly, would it be possible to auto calculate these two into the records? If not, we can do it later.
-    >
-    > - Number of unique blocks per project
-    > - For projects with a rezoning action, sum the total rezoned area
+  > For the ZAP data pull, specifically, we propose to narrow down from all records using the criteria below. Assuming you want to pull and join all ZAP BBL records so this work is useful for others, this use case will need the fields in parentheses below as columns so I can filter down the set:
+  >
+  > - Certified/referred date on or after 2/1/11 (certified/referred field from project entity)
+  > - CEQR number contains data (CEQR number from project entity)
+  > - Public status equals completed (Public Status from project entity)
+  > - CEQR Type does not equal Type II (CEQR Type from project entity)
+  > - Project Status does not equal Record Closed, Terminated, Terminated-Applicant Unresponsive, or Withdrawn-Other (Project -   > Status from project entity)
+  > - Applicant Type does not equal DCP (Applicant Type from project entity)
+  > - BBL is not located within a Special Coastal Risk District
+  > - For all projects with a rezoning action, was it a rezoning from an M district to an R district? (Will filter out those > where - the answer is yes)
+  > - Existing zoning district(s)
+  > - Proposed zoning district(s)
+  >
+  > Additionally, the data pull I’ve been using pulls data into the following columns for later use:
+  >
+  > - Project ID
+  > - Project Name
+  > - Lead Division
+  > - Actions
+  > - Project Status
+  > - BBL
+  > - CEQR Type
+  > - WRP Review Required
+  > - FEMA Flood Zone V
+  >
+  > Lastly, would it be possible to auto calculate these two into the records? If not, we can do it later.
+  >
+  > - Number of unique blocks per project
+  > - For projects with a rezoning action, sum the total rezoned area
 
 ...
 
@@ -129,9 +133,37 @@ project_bbl_geo --> project_geo
 
 ### Run dbt
 
+```bash
+dbt deps
+dbt debug
+dbt seed --full-refresh
+dbt run
+dbt test
+```
+
 ...
 
 ### Develop dbt
+
+Run a single model
+```bash
+dbt run --select int_zap_project_bbls
+```
+
+Run a single model and it's parent models
+```bash
+dbt run --select @int_zap_project_bbls
+```
+
+Generate a model based on a schema YAML file
+```bash
+dbt run-operation generate_base_model --args '{"source_name": "zap_projects", "table_name": "20230515"}'
+```
+Generate a schema YAML file based on a model
+
+```bash
+dbt run-operation generate_model_yaml --args '{"model_names": ["stg_dcp__zap_project_bbls"]}'
+```
 
 #### Generate models from configuration files
 

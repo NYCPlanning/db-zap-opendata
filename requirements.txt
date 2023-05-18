@@ -48,7 +48,9 @@ cryptography==40.0.2
 dbt-bigquery==1.5.0
     # via db-zap-opendata (pyproject.toml)
 dbt-core==1.5.0
-    # via dbt-bigquery
+    # via
+    #   dbt-bigquery
+    #   sqlfluff-templater-dbt
 dbt-extractor==0.4.1
     # via dbt-core
 diff-cover==7.5.0
@@ -118,19 +120,27 @@ jinja2==3.1.2
     # via
     #   dbt-core
     #   diff-cover
+    #   jinja2-simple-tags
     #   sqlfluff
+jinja2-simple-tags==0.4.1
+    # via sqlfluff-templater-dbt
 jsonschema==4.17.3
     # via hologram
 leather==0.3.4
     # via agate
 logbook==1.5.3
     # via dbt-core
+markdown-it-py==2.2.0
+    # via rich
 markupsafe==2.1.2
     # via
     #   jinja2
+    #   sqlfluff-templater-dbt
     #   werkzeug
 mashumaro[msgpack]==3.6
     # via dbt-core
+mdurl==0.1.2
+    # via markdown-it-py
 minimal-snowplow-tracker==0.0.2
     # via dbt-core
 msal==1.22.0
@@ -190,8 +200,12 @@ pyasn1-modules==0.3.0
     # via google-auth
 pycparser==2.21
     # via cffi
+pydantic==1.10.7
+    # via sqlfluff-templater-dbt
 pygments==2.15.1
-    # via diff-cover
+    # via
+    #   diff-cover
+    #   rich
 pyjwt[crypto]==2.7.0
     # via msal
 pyrsistent==0.19.3
@@ -232,8 +246,14 @@ requests==2.30.0
     #   google-cloud-storage
     #   minimal-snowplow-tracker
     #   msal
+rich==13.3.5
+    # via sqlfluff-templater-dbt
 rsa==4.9
     # via google-auth
+ruamel-yaml==0.17.26
+    # via sqlfluff-templater-dbt
+ruamel-yaml-clib==0.2.7
+    # via ruamel-yaml
 six==1.16.0
     # via
     #   agate
@@ -244,7 +264,11 @@ six==1.16.0
     #   python-dateutil
 sqlalchemy==2.0.13
     # via db-zap-opendata (pyproject.toml)
-sqlfluff==2.0.7
+sqlfluff==2.1.0
+    # via
+    #   db-zap-opendata (pyproject.toml)
+    #   sqlfluff-templater-dbt
+sqlfluff-templater-dbt==2.1.0
     # via db-zap-opendata (pyproject.toml)
 sqlparse==0.4.3
     # via dbt-core
@@ -266,6 +290,7 @@ typing-extensions==4.5.0
     #   black
     #   dbt-core
     #   mashumaro
+    #   pydantic
     #   sqlalchemy
     #   sqlfluff
 tzdata==2023.3
