@@ -79,36 +79,35 @@ project_bbl_geo --> project_geo
 ### Notes
 
 - All source data is in BigQuery
+
+#### Notes for in-progress work
+
 - For use in CEQR Type II analysis by Planning Support team:
-  > For the ZAP data pull, specifically, we propose to narrow down from all records using the criteria below. Assuming you want to pull and join all ZAP BBL records so this work is useful for others, this use case will need the fields in parentheses below as columns so I can filter down the set:
-  >
-  > - Certified/referred date on or after 2/1/11 (certified/referred field from project entity)
-  > - CEQR number contains data (CEQR number from project entity)
-  > - Public status equals completed (Public Status from project entity)
-  > - CEQR Type does not equal Type II (CEQR Type from project entity)
-  > - Project Status does not equal Record Closed, Terminated, Terminated-Applicant Unresponsive, or Withdrawn-Other (Project -   > Status from project entity)
-  > - Applicant Type does not equal DCP (Applicant Type from project entity)
-  > - BBL is not located within a Special Coastal Risk District
-  > - For all projects with a rezoning action, was it a rezoning from an M district to an R district? (Will filter out those > where - the answer is yes)
-  > - Existing zoning district(s)
-  > - Proposed zoning district(s)
-  >
-  > Additionally, the data pull I’ve been using pulls data into the following columns for later use:
-  >
-  > - Project ID
-  > - Project Name
-  > - Lead Division
-  > - Actions
-  > - Project Status
-  > - BBL
-  > - CEQR Type
-  > - WRP Review Required
-  > - FEMA Flood Zone V
-  >
-  > Lastly, would it be possible to auto calculate these two into the records? If not, we can do it later.
-  >
-  > - Number of unique blocks per project
-  > - For projects with a rezoning action, sum the total rezoned area
+  - For the ZAP data pull, specifically, we propose to narrow down from all records using the criteria below. Assuming you want to pull and join all ZAP BBL records so this work is useful for others, this use case will need the fields in parentheses below as columns so I can filter down the set:
+    - Certified/referred date on or after 2/1/11 (certified/referred field from project entity)
+    - CEQR number contains data (CEQR number from project entity)
+    - CEQR Type does not equal Type II (CEQR Type from project entity)
+    - Public status equals completed (Public Status from project entity)
+    - Project Status does not equal Record Closed, Terminated, Terminated-Applicant Unresponsive, or Withdrawn-Other (Project - Status from project entity)
+    - BBL is not located within a Special Coastal Risk District
+    - Existing zoning district(s)
+    - Proposed zoning district(s)\
+    - [below this, I'm confused]
+    - For all projects with a rezoning action, was it a rezoning from an M district to an R district? (Will filter out those  where - the answer is yes)
+    - Applicant Type does not equal DCP (Applicant Type from project entity)
+  - Additionally, the data pull I’ve been using pulls data into the following columns for later use:
+    - Project ID
+    - Project Name
+    - Lead Division
+    - Actions
+    - Project Status
+    - BBL
+    - CEQR Type
+    - WRP Review Required
+    - FEMA Flood Zone V
+  - Lastly, would it be possible to auto calculate these two into the records? If not, we can do it later.
+    - Number of unique blocks per project
+    - For projects with a rezoning action, sum the total rezoned area
 
 - Mapping CPC project to Housing DOB Job Numbers
   - Concerned that a ZAP project may not have all relevant BBls to match to
@@ -120,6 +119,27 @@ project_bbl_geo --> project_geo
   - we have a small list of
   - SE overlaid Housing DB point file with MapZAP
     - some points were outside of the BBL-based
+
+- DCP Zoning Map Amendments data
+  - You many want to filter status for adopted or "adopted or certified". All domain values listed below
+    - 1 - adopted
+    - 2- certified
+    - 3 - withdrawn
+    - 4 - Not yet certified
+    - 5- disapproved
+    - 6- terminated
+  - Here are the domain values for Applicant type:
+    - 0-other
+    - 1-DCP
+    - 2-Private
+    - 3-DCP and Other City Agency
+    - 4-Other City Agency
+    - 5-Borough President
+  - For Joining by ULURP number use either TRACKINGNO or ULURPNO fields. You should strip the prefix letter (usually a N or C) from the zap data since this dataset does not use them.
+  - Some info on ULURP numbers, one letter prefix, followed by 6 digit number, followed by 3 letter suffix.
+  - The first two digits of the ULURP number are the last two Year numbers of the year the application was filed (030276zmk - means application was filed on 2003).
+  - The three letter suffix is the application type followed by borough (zmk - means zm =zoning map amendment, k = brooklyn) The boro letter codes for ULURP are K-BK, M-MN, Q-QN, R-SI, X-BX, Y-citywide.
+  - If a suffix has four letters it means the application was re-filed for a modification so if the example above was modified the new ULURP number would be 030276azmk, if modified again 030276bzmk, and so on
 
 ...
 
@@ -170,12 +190,11 @@ dbt docs serve
 ### Develop dbt
 
 Run pre commit checks for model and config file:
+> This is configured by `.pre-commit-config.yaml` and some checks depend on having already run dbt compile or dbt run
 
 ```bash
 pre-commit run --all-files
 ```
-
-> This is configured by `.pre-commit-config.yaml` and some checks depend on having already run dbt compile or dbt run
 
 Run a single model:
 
