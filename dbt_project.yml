@@ -7,6 +7,7 @@ profile: "dbt_mapzap"
 model-paths: ["mapzap/models"]
 seed-paths: ["mapzap/seeds"]
 test-paths: ["mapzap/tests"]
+docs-paths: ["docs"]
 
 # Directories to be removed by `dbt clean`
 clean-targets:
@@ -31,11 +32,11 @@ models:
       +docs:
         node_color: "#7da74a"
     product:
-      +materialized: view
+      +materialized: table
       +docs:
         node_color: "#c3783c"
     summary:
-      +materialized: view
+      +materialized: table
       +docs:
         node_color: "#c75580"
 
