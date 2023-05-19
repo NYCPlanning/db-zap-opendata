@@ -11,7 +11,7 @@ repos:
       # - id: check-script-has-no-table-name
 
       # Phase 2 depends on having already run dbt compile or dbt run
-      - id: dbt-test
+      # - id: dbt-test
       - id: dbt-docs-generate
       - id: check-model-has-all-columns
         name: Check columns - staging

@@ -1,15 +1,14 @@
 version: 2
 
 models:
-  - name: int_zap_projects
-    columns:
-      - name: project_id
-      - name: project_name
-      - name: project_code
-      - name: project_certified_referred_date
-      - name: project_certified_referred_year
-      - name: project_pluto_version
-      - name: pluto_version_has_geometry
+  # - name: int_zap_projects_pluto
+  #   columns:
+  #     - name: project_id
+  #     - name: project_name
+  #     - name: project_code
+  #     - name: project_certified_referred_date
+  #     - name: project_certified_referred_year
+  #     - name: project_pluto_version
 
   - name: int_zap_project_bbls
     columns:

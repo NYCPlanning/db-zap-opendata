@@ -5,7 +5,7 @@ with project_geometries as (
 project_geometries_counts as (
     select
         project_certified_referred_year,
-        project_pluto_version,
+        pluto_version,
         COUNT(*) as project_count,
         SUM(case when project_bbls is null then 1 else 0 end)
             as projects_with_no_bbl,
@@ -15,7 +15,7 @@ project_geometries_counts as (
         project_geometries
     group by
         project_certified_referred_year,
-        project_pluto_version
+        pluto_version
 ),
 
 project_geometries_counts_2 as (

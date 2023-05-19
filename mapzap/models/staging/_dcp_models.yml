@@ -15,12 +15,30 @@ models:
         description: '{{ doc("project_code") }}'
       - name: project_certified_referred_date
         description: '{{ doc("project_certified_referred_date") }}'
+      - name: applicant_type
+      - name: ulurp_numbers
+      - name: ceqr_number
+      - name: ceqr_type
+      - name: lead_division
+      - name: project_status
+      - name: public_status
+      - name: action_numbers
+      - name: current_zoning_district
+      - name: proposed_zoning_district
+      - name: wrp_review_required
+      - name: fema_flood_zone_coastal
+      - name: fema_flood_zone_v
+      # columns I havn't found a source for yet, 
+      # - name: rezoning_action
     tests:
     - dbt_utils.unique_combination_of_columns:
         combination_of_columns:
           - project_id
           - project_certified_referred_date
 
+  - name: stg_dcp__zoning_map_amendments
+    description: "Zoning map amendments"
+    
   - name: stg_dcp__zap_bbls
     description: "ZAP project BBL details"
     columns:

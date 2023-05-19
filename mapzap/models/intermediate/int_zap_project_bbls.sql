@@ -1,7 +1,12 @@
 with projects_source as (
-    select *
+    select
+        project_id,
+        project_name,
+        project_code,
+        project_certified_referred_date,
+        project_certified_referred_year
     from
-        {{ ref('int_zap_projects') }}
+        {{ ref('stg_dcp__zap_projects') }}
 ),
 
 bbls_source as (
@@ -17,7 +22,6 @@ zap_project_bbls as (
         projects_source.project_code,
         projects_source.project_certified_referred_date,
         projects_source.project_certified_referred_year,
-        projects_source.project_pluto_version,
         bbls_source.project_bbl as project_bbl
     from
         projects_source

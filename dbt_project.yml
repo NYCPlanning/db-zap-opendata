@@ -32,7 +32,7 @@ models:
       +docs:
         node_color: "#7da74a"
     product:
-      +materialized: table
+      +materialized: view
       +docs:
         node_color: "#c3783c"
     summary:
