@@ -37,14 +37,15 @@ MapZAP is a dataset of ZAP project records with spatial data. Based on the BBLs 
 ```mermaid
 %%{ init: { 'flowchart': { 'curve': 'curveMonotoneY' } } }%%
 flowchart TB
-%% souce data
+%% source data
 src_projects[("ZAP Projects\n(1975 - 2022)")]
 src_project_bbls[("ZAP Project BBLs\n(1975 - 2022)")]
 src_pluto_years(PLUTO versions\nby year)
 src_MapPLUTO[("MapPLUTO\n(2002 - 2022)")]
 
 %% intermediate data
-projects_pluto("ZAP Projects")
+projects("ZAP Projects")
+projects_details("ZAP Project\nDetails")
 project_bbls("ZAP Project BBLs")
 project_info_bbls("ZAP Project BBLs")
 pluto_geo("BBL geographies")
@@ -54,20 +55,24 @@ project_bbl_geo("Project BBLs\ngeography")
 project_geo("MapZAP")
 
 %% 
-src_pluto_years --> projects_pluto
-src_projects ---> projects_pluto
+src_pluto_years --> projects
+src_projects ---> projects
 
 src_project_bbls ---> project_bbls
 
 src_MapPLUTO ---> pluto_geo
 
 %% 
-projects_pluto --> project_info_bbls
+projects --> project_info_bbls
+projects --> projects_details
 project_bbls --> project_info_bbls
+
+%% 
 project_info_bbls --> project_bbl_geo
 pluto_geo ---> project_bbl_geo
 
 %% 
+projects_details --> project_geo
 project_bbl_geo --> project_geo
 ```
 
@@ -106,15 +111,15 @@ project_bbl_geo --> project_geo
   > - For projects with a rezoning action, sum the total rezoned area
 
 - Mapping CPC project to Housing DOB Job Numbers
-  - Concerned that a ZAP project may not have all relevant BBls to match to 
+  - Concerned that a ZAP project may not have all relevant BBls to match to
   - Rezoning shapefiles may have better (larger) than constructed
     - should we default to rezoning shapefile? a real project may have multiple action. the rezoning geometry may only be a subset
     - this is only usable when a project has a rezoning
     - there are many more projects than this shapefile represents
     - hopefully Project ID is in the shapefile
-  - we have a small list of 
+  - we have a small list of
   - SE overlaid Housing DB point file with MapZAP
-    - some points were outside of the BBL-based 
+    - some points were outside of the BBL-based
 
 ...
 
@@ -140,38 +145,56 @@ project_bbl_geo --> project_geo
 
 ### Run dbt
 
+Setup
+
 ```bash
 dbt deps
 dbt debug
+```
+
+Building tables
+
+```bash
 dbt seed --full-refresh
 dbt run
 dbt test
 ```
 
-...
+Building docs
+
+```bash
+dbt docs generate
+dbt docs serve
+```
 
 ### Develop dbt
 
 Run pre commit checks for model and config file:
+
 ```bash
 pre-commit run --all-files
 ```
-> This is configured by `.pre-commit-config.yaml`
+
+> This is configured by `.pre-commit-config.yaml` and some checks depend on having already run dbt compile or dbt run
 
 Run a single model:
+
 ```bash
 dbt run --select int_zap_project_bbls
 ```
 
 Run a single model and it's parent models:
+
 ```bash
 dbt run --select +int_zap_project_bbls
 ```
 
 Generate a model based on a schema YAML file
+
 ```bash
 dbt run-operation generate_base_model --args '{"source_name": "zap_projects", "table_name": "20230515"}'
 ```
+
 Generate a schema YAML file based on a model
 
 ```bash

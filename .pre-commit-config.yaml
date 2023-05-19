@@ -10,7 +10,7 @@ repos:
       # skipping due to incorrect failure on EXTRACT function
       # - id: check-script-has-no-table-name
 
-      # Phase 2
+      # Phase 2 depends on having already run dbt compile or dbt run
       - id: dbt-test
       - id: dbt-docs-generate
       - id: check-model-has-all-columns
