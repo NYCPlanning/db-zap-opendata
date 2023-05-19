@@ -12,6 +12,7 @@ dependencies = [
     "pandas",
     "pandas",
     "pathlib",
+    "pre-commit",
     "psycopg2-binary",
     "pytest-cov",
     "pytest",

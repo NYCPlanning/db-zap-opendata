@@ -24,6 +24,8 @@ cffi==1.15.1
     # via
     #   cryptography
     #   dbt-core
+cfgv==3.3.1
+    # via pre-commit
 chardet==5.1.0
     # via
     #   diff-cover
@@ -55,8 +57,12 @@ dbt-extractor==0.4.1
     # via dbt-core
 diff-cover==7.5.0
     # via sqlfluff
+distlib==0.3.6
+    # via virtualenv
 exceptiongroup==1.1.1
     # via pytest
+filelock==3.12.0
+    # via virtualenv
 future==0.18.3
     # via parsedatetime
 google-api-core[grpc]==2.11.0
@@ -65,7 +71,7 @@ google-api-core[grpc]==2.11.0
     #   google-cloud-core
     #   google-cloud-dataproc
     #   google-cloud-storage
-google-auth==2.18.0
+google-auth==2.18.1
     # via
     #   google-api-core
     #   google-cloud-core
@@ -106,6 +112,8 @@ grpcio-status==1.54.2
     # via google-api-core
 hologram==0.0.16
     # via dbt-core
+identify==2.5.24
+    # via pre-commit
 idna==3.4
     # via
     #   dbt-core
@@ -151,6 +159,8 @@ mypy-extensions==1.0.0
     # via black
 networkx==2.8.8
     # via dbt-core
+nodeenv==1.8.0
+    # via pre-commit
 numpy==1.24.3
     # via pandas
 packaging==23.1
@@ -171,16 +181,20 @@ pathspec==0.11.1
     #   dbt-core
     #   sqlfluff
 platformdirs==3.5.1
-    # via black
+    # via
+    #   black
+    #   virtualenv
 pluggy==1.0.0
     # via
     #   diff-cover
     #   pytest
+pre-commit==3.3.2
+    # via db-zap-opendata (pyproject.toml)
 proto-plus==1.22.2
     # via
     #   google-cloud-bigquery
     #   google-cloud-dataproc
-protobuf==4.23.0
+protobuf==4.23.1
     # via
     #   dbt-core
     #   google-api-core
@@ -235,6 +249,7 @@ pytz==2023.3
 pyyaml==6.0
     # via
     #   dbt-core
+    #   pre-commit
     #   sqlfluff
 regex==2023.5.5
     # via sqlfluff
@@ -299,5 +314,10 @@ urllib3==1.26.15
     # via
     #   google-auth
     #   requests
+virtualenv==20.23.0
+    # via pre-commit
 werkzeug==2.3.4
     # via dbt-core
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

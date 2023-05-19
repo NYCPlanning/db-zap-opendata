@@ -1,11 +1,27 @@
 repos:
-- repo: https://github.com/dbt-checkpoint/dbt-checkpoint
-  rev: v1.1.0
-  hooks:
-  - id: check-script-semicolon
-  - id: check-script-has-no-table-name
-  - id: dbt-test
-  - id: dbt-docs-generate
-  - id: check-model-has-all-columns
-    name: Check columns - core
-    files: ^models/core
+  - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+    rev: v1.1.0
+    hooks:
+      # Phase 1
+      - id: check-script-semicolon
+      - id: check-column-desc-are-same
+      # skipping due to incorrect failure in for loops using pluto_table
+      # - id: check-script-ref-and-source
+      # skipping due to incorrect failure on EXTRACT function
+      # - id: check-script-has-no-table-name
+
+      # Phase 2
+      - id: dbt-test
+      - id: dbt-docs-generate
+      - id: check-model-has-all-columns
+        name: Check columns - staging
+        files: ^mapzap/models/staging
+      - id: check-model-has-all-columns
+        name: Check columns - intermediate
+        files: ^mapzap/models/intermediate
+      - id: check-model-has-all-columns
+        name: Check columns - product
+        files: ^mapzap/models/product
+      - id: check-model-has-all-columns
+        name: Check columns - summary
+        files: ^mapzap/models/summary

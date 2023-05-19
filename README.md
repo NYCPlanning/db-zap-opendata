@@ -74,10 +74,6 @@ project_bbl_geo --> project_geo
 ### Notes
 
 - All source data is in BigQuery
-- Feedback on 5/16
-  > - The Project Name field looks instead like the Project ID number. I recommend renaming it to Project ID to avoid confusion with the Project Name field in ZAP. Project ID is the correct unique ID to use, but adding the actual Project Name field would be useful.
-  > - Is there any case in which the sum of BBL geometry areas and the area of project geometry is not the same? It seems like it should be the same by definition.
-  > - Any idea why there are so many records with info populated in the BBLs field but no info in the BBL area/project area fields? All such projects appear unmappable. E.g., Project ID 2020Q0378 has two verified BBLs in the ZAP record, which correctly show up in the BBL field of this layer, but there’s no corresponding area information and thus the project is in the table but does not show up as a polygon. I’m concerned that for these examples, matching to DOB Job records would be more difficult.
 - For use in CEQR Type II analysis by Planning Support team:
   > For the ZAP data pull, specifically, we propose to narrow down from all records using the criteria below. Assuming you want to pull and join all ZAP BBL records so this work is useful for others, this use case will need the fields in parentheses below as columns so I can filter down the set:
   >
@@ -108,6 +104,17 @@ project_bbl_geo --> project_geo
   >
   > - Number of unique blocks per project
   > - For projects with a rezoning action, sum the total rezoned area
+
+- Mapping CPC project to Housing DOB Job Numbers
+  - Concerned that a ZAP project may not have all relevant BBls to match to 
+  - Rezoning shapefiles may have better (larger) than constructed
+    - should we default to rezoning shapefile? a real project may have multiple action. the rezoning geometry may only be a subset
+    - this is only usable when a project has a rezoning
+    - there are many more projects than this shapefile represents
+    - hopefully Project ID is in the shapefile
+  - we have a small list of 
+  - SE overlaid Housing DB point file with MapZAP
+    - some points were outside of the BBL-based 
 
 ...
 
@@ -145,14 +152,20 @@ dbt test
 
 ### Develop dbt
 
-Run a single model
+Run pre commit checks for model and config file:
+```bash
+pre-commit run --all-files
+```
+> This is configured by `.pre-commit-config.yaml`
+
+Run a single model:
 ```bash
 dbt run --select int_zap_project_bbls
 ```
 
-Run a single model and it's parent models
+Run a single model and it's parent models:
 ```bash
-dbt run --select @int_zap_project_bbls
+dbt run --select +int_zap_project_bbls
 ```
 
 Generate a model based on a schema YAML file
@@ -164,6 +177,3 @@ Generate a schema YAML file based on a model
 ```bash
 dbt run-operation generate_model_yaml --args '{"model_names": ["stg_dcp__zap_project_bbls"]}'
 ```
-
-#### Generate models from configuration files
-
