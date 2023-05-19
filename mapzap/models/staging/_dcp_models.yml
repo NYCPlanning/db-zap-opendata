@@ -4,34 +4,38 @@ models:
   - name: stg_dcp__zap_projects
     description: "ZAP project details"
     columns:
-      - name: project_name
-        description: "The project name"
+      - name: project_id
+        description: '{{ doc("project_id") }}'
         tests:
           - not_null
           - unique
+      - name: project_name
+        description: '{{ doc("project_name") }}'
+      - name: project_code
+        description: '{{ doc("project_code") }}'
       - name: project_certified_referred_date
-        description: "The date the project was referred for review"
+        description: '{{ doc("project_certified_referred_date") }}'
     tests:
     - dbt_utils.unique_combination_of_columns:
         combination_of_columns:
-          - project_name
+          - project_id
           - project_certified_referred_date
 
   - name: stg_dcp__zap_bbls
     description: "ZAP project BBL details"
     columns:
-      - name: project_name
-        description: "The project name"
+      - name: project_id
+        description: '{{ doc("project_id") }}'
         tests:
           - not_null
       - name: project_bbl
-        description: "The BBLs associated with a project"
+        description: '{{ doc("project_bbl") }}'
         tests:
           - not_null
     tests:
     - dbt_utils.unique_combination_of_columns:
         combination_of_columns:
-          - project_name
+          - project_id
           - project_bbl
 
 

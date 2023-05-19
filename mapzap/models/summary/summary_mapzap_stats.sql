@@ -1,5 +1,5 @@
 with project_geometries as (
-    select * from {{ ref('product_zap_project_geometries') }}
+    select * from {{ ref('product_mapzap') }}
 ),
 
 project_geometries_counts as (
@@ -50,8 +50,8 @@ project_geometries_stats as (
 project_geometries_stats_ordered as (
     select *
     from project_geometries_stats
-    order by
-        project_certified_referred_year
 )
 
 select * from project_geometries_stats_ordered
+order by
+    project_certified_referred_year

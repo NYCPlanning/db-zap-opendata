@@ -12,7 +12,9 @@ bbls_source as (
 
 zap_project_bbls as (
     select
+        projects_source.project_id,
         projects_source.project_name,
+        projects_source.project_code,
         projects_source.project_certified_referred_date,
         projects_source.project_certified_referred_year,
         projects_source.project_pluto_version,
@@ -22,13 +24,13 @@ zap_project_bbls as (
     left join
         bbls_source
         on
-            projects_source.project_name
-            = bbls_source.project_name
+            projects_source.project_id
+            = bbls_source.project_id
 )
 
 select *
 from
     zap_project_bbls
 order by
-    project_name desc,
+    project_id desc,
     project_bbl asc

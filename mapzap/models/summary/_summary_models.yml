@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: summary_zap_projects_stats
+  - name: summary_mapzap_stats
     columns:
       - name: project_certified_referred_year
       - name: project_pluto_version
@@ -11,3 +11,5 @@ models:
       - name: percent_projects_with_no_geography
       - name: projects_with_bbl_and_no_geography
       - name: percent_projects_with_bbl_and_no_geography
+
+  # - name: summary_zap_projects_stats

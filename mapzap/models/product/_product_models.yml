@@ -1,21 +1,26 @@
 version: 2
 
 models:
-  - name: product_zap_project_geometries
+  - name: product_mapzap
     columns:
-      - name: project_name
+      - name: project_id
+        description: '{{ doc("project_id") }}'
         tests:
           - unique
           - not_null
+      - name: project_name
+        description: '{{ doc("project_name") }}'
       - name: project_certified_referred_year
+        description: '{{ doc("project_certified_referred_year") }}'
       - name: pluto_version
       - name: project_bbls
+        description: '{{ doc("project_bbls") }}'
       - name: bbl_areas_sum
       - name: project_area
       - name: project_geometry_wkt
     tests:
       - dbt_utils.equality:
-          compare_model: ref('product_zap_project_geometries')
+          compare_model: ref('product_mapzap')
           compare_columns:
             - bbl_areas_sum
             - project_area

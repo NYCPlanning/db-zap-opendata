@@ -12,7 +12,9 @@ pluto_geometries as (
 
 zap_project_bbls as (
     select
+        project_bbls.project_id,
         project_bbls.project_name,
+        project_bbls.project_code,
         project_bbls.project_certified_referred_date,
         project_bbls.project_certified_referred_year,
         project_bbls.project_pluto_version,
@@ -33,5 +35,5 @@ select *
 from
     zap_project_bbls
 order by
-    project_name desc,
+    project_id desc,
     project_bbl asc

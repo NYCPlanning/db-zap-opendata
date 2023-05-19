@@ -8,25 +8,30 @@ seed_pluto_versions as (
 
 zap_projects_info as (
     select
-        -- replace spaces with nothing,
-        -- drop everything to the right of the first hyphen (included),
-        -- and trip leading 'P' characters
+        project_id,
+        project_name,
+        project_code,
         project_certified_referred_date,
-        LTRIM(SPLIT(REPLACE(project_name, ' ', ''), '-')[
-            OFFSET(0)
-        ], 'P') as project_name,
         EXTRACT(
             isoyear
             from
             project_certified_referred_date
         ) as project_certified_referred_year
+        -- -- replace spaces with nothing,
+        -- -- drop everything to the right of the first hyphen (included),
+        -- -- and trip leading 'P' characters
+        -- LTRIM(SPLIT(REPLACE(project_id, ' ', ''), '-')[
+        --     OFFSET(0)
+        -- ], 'P') as project_id
     from
         stg_zap_projects
 ),
 
 zap_projects as (
     select
+        zap_projects_info.project_id,
         zap_projects_info.project_name,
+        zap_projects_info.project_code,
         zap_projects_info.project_certified_referred_date,
         zap_projects_info.project_certified_referred_year,
         seed_pluto_versions.primary_pluto_version as project_pluto_version,

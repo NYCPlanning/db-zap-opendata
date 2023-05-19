@@ -6,7 +6,9 @@ with project_bbl_geometries as (
 
 project_bbl_geometries_aggregated as (
     select
+        project_id,
         project_name,
+        project_code,
         project_certified_referred_year,
         project_pluto_version,
         SUM(ST_AREA(bbl_geometry_wkt)) as bbl_areas_sum,
@@ -14,14 +16,18 @@ project_bbl_geometries_aggregated as (
         ST_UNION_AGG(bbl_geometry_wkt) as project_geometry_wkt
     from project_bbl_geometries
     group by
+        project_id,
         project_name,
+        project_code,
         project_certified_referred_year,
         project_pluto_version
 ),
 
 project_geometries as (
     select
+        project_id,
         project_name,
+        project_code,
         project_certified_referred_year,
         project_pluto_version,
         bbl_areas_sum,

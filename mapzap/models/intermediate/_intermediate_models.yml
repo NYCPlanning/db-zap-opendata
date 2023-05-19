@@ -3,6 +3,7 @@ version: 2
 models:
   - name: int_zap_projects
     columns:
+      - name: project_id
       - name: project_name
       - name: project_certified_referred_date
       - name: project_certified_referred_year
@@ -10,14 +11,13 @@ models:
 
   - name: int_zap_project_bbls
     columns:
-      - name: project_name
-      - name: project_certified_referred_date
-      - name: project_certified_referred_year
+      - name: project_id
       - name: project_pluto_version
       - name: project_bbl
 
   - name: int_zap_project_bbl_geometries
     columns:
+      - name: project_id
       - name: project_name
       - name: project_certified_referred_date
       - name: project_certified_referred_year

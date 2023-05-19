@@ -6,6 +6,10 @@ The ZAP project ID
 The ZAP project name
 {% enddocs %}
 
+{% docs project_code %}
+The ZAP project code
+{% enddocs %}
+
 {% docs project_certified_referred_date %}
 The date the project was referred for review
 {% enddocs %}
