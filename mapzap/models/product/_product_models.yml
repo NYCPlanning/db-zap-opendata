@@ -10,9 +10,11 @@ models:
           - not_null
       - name: project_name
         description: '{{ doc("project_name") }}'
+      - name: project_code
+        description: '{{ doc("project_code") }}'
       - name: project_certified_referred_year
         description: '{{ doc("project_certified_referred_year") }}'
-      - name: pluto_version
+      - name: project_pluto_version
       - name: project_bbls
         description: '{{ doc("project_bbls") }}'
       - name: bbl_areas_sum

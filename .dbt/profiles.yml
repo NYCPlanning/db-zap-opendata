@@ -8,6 +8,6 @@ dbt_mapzap:
       type: bigquery
       method: service-account
       project: eng-interface-309819
-      dataset: dbt_mapzap_{{ env_var('DBT_USER') }}
+      dataset: dbt_mapzap_dev_{{ env_var('DBT_USER') }}
       threads: 2
       keyfile: .dbt/bigquery-dbt-dev-keyfile.json
