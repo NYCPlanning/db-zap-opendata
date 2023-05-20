@@ -15,6 +15,8 @@ models:
         description: '{{ doc("project_code") }}'
       - name: project_certified_referred_date
         description: '{{ doc("project_certified_referred_date") }}'
+      - name: project_certified_referred_year
+        description: '{{ doc("project_certified_referred_year") }}'
       - name: applicant_type
       - name: ulurp_numbers
       - name: ceqr_number
@@ -28,7 +30,7 @@ models:
       - name: wrp_review_required
       - name: fema_flood_zone_coastal
       - name: fema_flood_zone_v
-      # columns I havn't found a source for yet, 
+      # columns I havn't found a source for yet
       # - name: rezoning_action
     tests:
     - dbt_utils.unique_combination_of_columns:
@@ -38,6 +40,12 @@ models:
 
   - name: stg_dcp__zoning_map_amendments
     description: "Zoning map amendments"
+    columns:
+      - name: tracking_number
+      - name: ulurp_number
+      - name: project_name
+        description: '{{ doc("project_name") }}'
+      - name: wkt
     
   - name: stg_dcp__zap_bbls
     description: "ZAP project BBL details"
@@ -65,7 +73,7 @@ models:
       - name: wkt
 
   - name: base_dcp__pluto_without_bbls
-    description: "MapPLUTO records which have constructued BBL values"
+    description: "MapPLUTO records which have Borough, Block, and Lot values"
     columns:
       - name: pluto_version
       - name: borocode
@@ -76,6 +84,7 @@ models:
   - name: stg_dcp__pluto_bbls
     description: "MapPLUTO records with BBls and WKT geometries"
     columns:
+      - name: pluto_year
       - name: pluto_version
       - name: bbl
       - name: wkt

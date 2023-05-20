@@ -4,7 +4,8 @@ models:
   - name: summary_mapzap_stats
     columns:
       - name: project_certified_referred_year
-      - name: project_pluto_version
+        description: '{{ doc("project_certified_referred_year") }}'
+      - name: pluto_version
       - name: project_count
       - name: projects_with_no_bbl
       - name: percent_projects_with_no_bbl

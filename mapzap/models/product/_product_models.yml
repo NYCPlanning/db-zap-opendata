@@ -12,11 +12,26 @@ models:
         description: '{{ doc("project_name") }}'
       - name: project_code
         description: '{{ doc("project_code") }}'
+      - name: project_certified_referred_date
+        description: '{{ doc("project_certified_referred_date") }}'
       - name: project_certified_referred_year
         description: '{{ doc("project_certified_referred_year") }}'
-      - name: project_pluto_version
       - name: project_bbls
         description: '{{ doc("project_bbls") }}'
+      - name: pluto_version
+      - name: applicant_type
+      - name: ulurp_numbers
+      - name: ceqr_number
+      - name: ceqr_type
+      - name: lead_division
+      - name: project_status
+      - name: public_status
+      - name: action_numbers
+      - name: current_zoning_district
+      - name: proposed_zoning_district
+      - name: wrp_review_required
+      - name: fema_flood_zone_coastal
+      - name: fema_flood_zone_v
       - name: bbl_areas_sum
       - name: project_area
       - name: project_geometry_wkt

@@ -13,10 +13,11 @@ models:
   - name: int_zap_project_bbls
     columns:
       - name: project_id
-      - name: project_pluto_version
       - name: project_name
+        description: '{{ doc("project_name") }}'
       - name: project_certified_referred_date
       - name: project_certified_referred_year
+        description: '{{ doc("project_certified_referred_year") }}'
       - name: project_code
       - name: project_bbl
 
@@ -24,9 +25,11 @@ models:
     columns:
       - name: project_id
       - name: project_name
+        description: '{{ doc("project_name") }}'
       - name: project_code
       - name: project_certified_referred_date
       - name: project_certified_referred_year
-      - name: project_pluto_version
+        description: '{{ doc("project_certified_referred_year") }}'
+      - name: pluto_version
       - name: project_bbl
       - name: bbl_geometry_wkt
