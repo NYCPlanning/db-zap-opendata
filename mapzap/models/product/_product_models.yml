@@ -2,6 +2,7 @@ version: 2
 
 models:
   - name: product_mapzap
+    description: "ZAP project details and geometry"
     columns:
       - name: project_id
         description: '{{ doc("project_id") }}'

@@ -2,6 +2,7 @@ version: 2
 
 models:
   - name: summary_mapzap_stats
+    description: "Summary statistics of MapZAP records"
     columns:
       - name: project_certified_referred_year
         description: '{{ doc("project_certified_referred_year") }}'
@@ -13,5 +14,3 @@ models:
       - name: percent_projects_with_no_geography
       - name: projects_with_bbl_and_no_geography
       - name: percent_projects_with_bbl_and_no_geography
-
-  # - name: summary_zap_projects_stats

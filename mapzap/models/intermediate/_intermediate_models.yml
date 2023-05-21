@@ -1,35 +1,24 @@
 version: 2
 
 models:
-  # - name: int_zap_projects_pluto
-  #   columns:
-  #     - name: project_id
-  #     - name: project_name
-  #     - name: project_code
-  #     - name: project_certified_referred_date
-  #     - name: project_certified_referred_year
-  #     - name: project_pluto_version
-
   - name: int_zap_project_bbls
+    description: "The BBLs associated with a ZAP project"
     columns:
       - name: project_id
       - name: project_name
-        description: '{{ doc("project_name") }}'
       - name: project_certified_referred_date
       - name: project_certified_referred_year
-        description: '{{ doc("project_certified_referred_year") }}'
       - name: project_code
       - name: project_bbl
 
   - name: int_zap_project_bbl_geometries
+    description: "The BBLs associated with a ZAP project with geometries from MapPLUTO"
     columns:
       - name: project_id
       - name: project_name
-        description: '{{ doc("project_name") }}'
       - name: project_code
       - name: project_certified_referred_date
       - name: project_certified_referred_year
-        description: '{{ doc("project_certified_referred_year") }}'
       - name: pluto_version
       - name: project_bbl
       - name: bbl_geometry_wkt

@@ -33,10 +33,10 @@ models:
       # columns I havn't found a source for yet
       # - name: rezoning_action
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        combination_of_columns:
-          - project_id
-          - project_certified_referred_date
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - project_id
+            - project_certified_referred_date
 
   - name: stg_dcp__zoning_map_amendments
     description: "Zoning map amendments"
@@ -46,7 +46,7 @@ models:
       - name: project_name
         description: '{{ doc("project_name") }}'
       - name: wkt
-    
+
   - name: stg_dcp__zap_bbls
     description: "ZAP project BBL details"
     columns:
@@ -59,11 +59,10 @@ models:
         tests:
           - not_null
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        combination_of_columns:
-          - project_id
-          - project_bbl
-
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - project_id
+            - project_bbl
 
   - name: base_dcp__pluto_with_bbls
     description: "MapPLUTO records which already have BBL values"
@@ -89,7 +88,7 @@ models:
       - name: bbl
       - name: wkt
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        combination_of_columns:
-          - pluto_version
-          - bbl
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - pluto_version
+            - bbl
