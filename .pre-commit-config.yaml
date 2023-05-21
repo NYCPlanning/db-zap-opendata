@@ -2,39 +2,52 @@ repos:
   - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
     rev: v1.1.0
     hooks:
-      # Phase 1
-      - id: check-script-semicolon
-      - id: check-model-has-description
-      - id: check-column-desc-are-same
+      # # Phase 1
+      # - id: check-script-semicolon
+      # - id: check-model-has-description
+      # - id: check-column-desc-are-same
+
       # skipping due to incorrect failure in for loops using pluto_table
       # - id: check-script-ref-and-source
       # skipping due to incorrect failure on EXTRACT function
       # - id: check-script-has-no-table-name
 
-      # # # Phase 2 depends on having already run:
-      # - dbt run or dbt compile
-      # - dbt docs generate
-
-      # # # - id: dbt-test
-      # - id: dbt-compile
+      # Phase 2
+      # - id: dbt-clean
+      # # - id: dbt-test
       # - id: dbt-docs-generate
 
-      # - id: check-column-name-contract
-      #   args: [--pattern, "(is|has|do)_.*", --dtype, boolean]
-      # - id: check-model-name-contract
-      #   name: Check columns - staging
-      # files: models/staging/
+      - id: check-column-name-contract
+        args: [--pattern, "(is|has|do)_.*", --dtype, boolean]
 
-      #   args: [--pattern, "(base_|stg_).*"]
-      # - id: check-model-has-all-columns
-      #   name: Check columns - staging
-      #   files: ^mapzap/models/staging
-      # - id: check-model-has-all-columns
-      #   name: Check columns - intermediate
-      #   files: ^mapzap/models/intermediate
-      # - id: check-model-has-all-columns
-      #   name: Check columns - product
-      #   files: ^mapzap/models/product
-      # - id: check-model-has-all-columns
-      #   name: Check columns - summary
-      #   files: ^mapzap/models/summary
+      - id: check-model-name-contract
+        name: Staging - Check model names
+        files: models/staging/
+        args: [--pattern, "(base_|stg_).*"]
+      - id: check-model-has-all-columns
+        name: Staging - Check columns are in properties file
+        files: ^mapzap/models/staging
+
+      - id: check-model-name-contract
+        name: intermediate - Check model names
+        files: models/intermediate/
+        args: [--pattern, "(int_).*"]
+      - id: check-model-has-all-columns
+        name: intermediate - Check columns are in properties file
+        files: ^mapzap/models/intermediate
+
+      - id: check-model-name-contract
+        name: product - Check model names
+        files: models/product/
+        args: [--pattern, "(product_).*"]
+      - id: check-model-has-all-columns
+        name: product - Check columns are in properties file
+        files: ^mapzap/models/product
+
+      - id: check-model-name-contract
+        name: summary - Check model names
+        files: models/summary/
+        args: [--pattern, "(summary_).*"]
+      - id: check-model-has-all-columns
+        name: summary - Check columns are in properties file
+        files: ^mapzap/models/summary
