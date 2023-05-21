@@ -3,19 +3,18 @@ repos:
     rev: v1.1.0
     hooks:
       # # Phase 1
-      # - id: check-script-semicolon
-      # - id: check-model-has-description
-      # - id: check-column-desc-are-same
-
+      - id: check-script-semicolon
+      - id: check-model-has-description
+      - id: check-column-desc-are-same
       # skipping due to incorrect failure in for loops using pluto_table
       # - id: check-script-ref-and-source
       # skipping due to incorrect failure on EXTRACT function
       # - id: check-script-has-no-table-name
 
       # Phase 2
-      # - id: dbt-clean
-      # # - id: dbt-test
-      # - id: dbt-docs-generate
+      - id: dbt-clean
+      # - id: dbt-test
+      - id: dbt-docs-generate
 
       - id: check-column-name-contract
         args: [--pattern, "(is|has|do)_.*", --dtype, boolean]
