@@ -9,10 +9,8 @@ seed-paths: ["mapzap/seeds"]
 test-paths: ["mapzap/tests"]
 docs-paths: ["docs"]
 
-# Directories to be removed by `dbt clean`
 clean-targets:
   - "target"
-  - "dbt_packages"
 
 seeds:
   +quote_columns: false
