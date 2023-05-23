@@ -66,7 +66,7 @@ python-dotenv==1.0.0
     # via db-zap-opendata (pyproject.toml)
 pytz==2023.3
     # via pandas
-requests==2.30.0
+requests==2.31.0
     # via msal
 six==1.16.0
     # via python-dateutil
