@@ -73,14 +73,12 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: ./zap.sh upload_bq ${{ matrix.entity }} $VERSION
 
-      - name: Archive recoded upload_recoded_bq to BigQuery
+      - name: Archive recoded data to BigQuery
         env:
           VERSION: ${{ steps.version.outputs.version }}
+        if: ${{ matrix.open }}
         run: |
-          if ${{ matrix.open }};
-          then
           ./zap.sh upload_recoded_bq ${{ matrix.entity }} $VERSION
-          fi
 
       - name: Archive to data library - PGdump
         env:
