@@ -11,3 +11,9 @@ dbt_mapzap:
       dataset: dbt_mapzap_dev_{{ env_var('DBT_USER') }}
       threads: 2
       keyfile: .dbt/bigquery-dbt-dev-keyfile.json
+    ci_test:
+      type: bigquery
+      method: service-account
+      project: eng-interface-309819
+      dataset: dbt_mapzap_dev_{{ env_var('GITHUB_PR_NUMBER') }}
+      threads: 2
