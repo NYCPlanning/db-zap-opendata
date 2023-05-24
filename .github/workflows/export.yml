@@ -76,7 +76,7 @@ jobs:
       - name: Archive recoded upload_recoded_bq to BigQuery
         env:
           VERSION: ${{ steps.version.outputs.version }}
-        run: 
+        run: |
           if ${{ matrix.open }};
           then
           ./zap.sh upload_recoded_bq ${{ matrix.entity }} $VERSION
