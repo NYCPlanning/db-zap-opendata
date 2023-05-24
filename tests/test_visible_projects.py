@@ -48,14 +48,10 @@ def test_recode_fields_raise(fields_in_metadata):
             assert field in fields_in_metadata
 
 
-def test_crm_codes(seed_data_path):
-    crm_codes = pd.read_csv(f"{seed_data_path}/seed_crm_codes.csv")
-
+@pytest.mark.skip(reason="may not test this yet, was used to print CRM metadata")
 @pytest.mark.parametrize("dataset_name", ["dcp_projects", "dcp_projectbbls"])
 def test_recode_values(all_fields_metadata, dataset_name):
     fields_to_lookup, _ = get_fields(dataset_name)
-# def test_recode_values(all_fields_metadata):
-#     fields_to_lookup, _ = (["dcp_applicanttype"], ["applicant_type"])
 
     for field in fields_to_lookup:
         print(f"\n\nField name: {field}")
