@@ -50,9 +50,9 @@ case $1 in
             --skip_leading_rows 1\
             --replace\
             --allow_quoted_newlines\
+            --autodetect\
             $tablename \
-            $FILEPATH \
-            schemas/$dataset.json
+            $FILEPATH
     ;;
     upload_do )
         dataset=$2

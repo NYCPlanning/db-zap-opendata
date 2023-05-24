@@ -31,8 +31,8 @@ jobs:
         # open:
         #   - false
         include:
-          - entity: "dcp_projects"
-            open: true
+          # - entity: "dcp_projects"
+          #   open: true
           - entity: "dcp_projectbbls"
             open: true
 
