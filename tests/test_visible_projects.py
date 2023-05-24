@@ -1,10 +1,5 @@
 import pytest
-import pprint
-import pandas as pd
 from src.visible_projects import get_fields, get_metadata
-
-# dict_printer = pprint.PrettyPrinter(width=20)
-dict_printer = pprint.PrettyPrinter(indent=4)
 
 
 @pytest.fixture(scope="module")

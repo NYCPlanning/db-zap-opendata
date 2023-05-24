@@ -3,7 +3,6 @@ from src import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN
 from src.client import Client
 
 
-@pytest.fixture(scope="session")
 def test_data_path():
     return "tests/test_data"
 
