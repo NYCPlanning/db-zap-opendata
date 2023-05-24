@@ -5,11 +5,10 @@ case $1 in
         python3 -m src.runner $2
     ;;
     upload_bq )
-        # only archives CRM and recoded version, not the subest for Open Data
+        # only archives CRM and recoded versions, not the subest for Open Data
         dataset=$2
         VERSION=${3:-$VERSION}
         location=US
-
         # crm version
         FILEPATH=gs://zap-crm-export/datasets/$dataset/$VERSION/$dataset.csv
         tablename=$dataset.$VERSION
@@ -30,6 +29,10 @@ case $1 in
             schemas/$dataset.json
     ;;
     upload_recoded_bq )
+        # only archives CRM and recoded versions, not the subest for Open Data
+        dataset=$2
+        VERSION=${3:-$VERSION}
+        location=US
         # recoded version
         recoded_filename="${dataset}_after_recode.csv"
         FILEPATH=gs://zap-crm-export/datasets/$dataset/$VERSION/${dataset}_recoded.csv
