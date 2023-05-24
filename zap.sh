@@ -28,7 +28,8 @@ case $1 in
             $tablename \
             $FILEPATH \
             schemas/$dataset.json
-        
+    ;;
+    upload_recoded_bq )
         # recoded version
         recoded_filename="${dataset}_after_recode.csv"
         FILEPATH=gs://zap-crm-export/datasets/$dataset/$VERSION/${dataset}_recoded.csv
