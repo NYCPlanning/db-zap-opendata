@@ -10,6 +10,11 @@ echo "Running initializeCommand from $SCRIPT_DIRECTORY/ ..."
 echo "If it doesn't exist, create an empty $SCRIPT_DIRECTORY/.env ..."
 touch $SCRIPT_DIRECTORY/.env
 
+# # Update Ubuntu/Debian package list and install packages
+# apt update
+# apt install wget
+# apt install gpg
+
 # only do this when running locally (rather than in a github action)
 if [[ ${CI} != "true" ]]; then
 	# Avoiding git issues due to dubious ownership 
