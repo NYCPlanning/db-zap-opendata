@@ -52,7 +52,7 @@ jobs:
         id: version
         run: |
           DATE=$(date +%Y%m%d)
-          echo "version=::$DATE" >> "$GITHUB_OUTPUT"
+          echo "version=$DATE" >> "$GITHUB_OUTPUT"
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
