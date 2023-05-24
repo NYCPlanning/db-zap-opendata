@@ -22,14 +22,14 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        entity:
-          - dcp_projectactions
-          - dcp_projectmilestones
-          - dcp_projectactionbbls
-          - dcp_communityboarddispositions
-          - dcp_dcpprojectteams
-        open:
-          - false
+        # entity:
+        #   - dcp_projectactions
+        #   - dcp_projectmilestones
+        #   - dcp_projectactionbbls
+        #   - dcp_communityboarddispositions
+        #   - dcp_dcpprojectteams
+        # open:
+        #   - false
         include:
           - entity: "dcp_projects"
             open: true
