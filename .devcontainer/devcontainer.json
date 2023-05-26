@@ -32,6 +32,5 @@
 	"initializeCommand": "${localWorkspaceFolder}/.devcontainer/initializeCommand.sh",
     "runArgs": [
         "--env-file", "${localWorkspaceFolder}/.devcontainer/.env"
-    ], 
-	"remoteUser": "vscode"
+    ]
 }

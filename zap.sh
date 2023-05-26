@@ -5,11 +5,15 @@ case $1 in
         python3 -m src.runner $2
     ;;
     upload_bq )
-        location=US
+        # only archives CRM and recoded versions, not the subest for Open Data
         dataset=$2
         VERSION=${3:-$VERSION}
-        tablename=$dataset.$VERSION
+        location=US
+        # crm version
         FILEPATH=gs://zap-crm-export/datasets/$dataset/$VERSION/$dataset.csv
+        tablename=$dataset.$VERSION
+        echo "Archving non-visible version ${dataset} ${VERSION} to ${tablename}..."
+
         gsutil cp .output/$dataset/$dataset.csv $FILEPATH
         bq show $dataset || bq mk --location=$location --dataset $dataset
         bq show $tablename || bq mk $tablename
@@ -23,6 +27,32 @@ case $1 in
             $tablename \
             $FILEPATH \
             schemas/$dataset.json
+    ;;
+    upload_recoded_bq )
+        # only archives CRM and recoded versions, not the subest for Open Data
+        dataset=$2
+        VERSION=${3:-$VERSION}
+        location=US
+        # recoded version
+        recoded_filename="${dataset}_after_recode.csv"
+        FILEPATH=gs://zap-crm-export/datasets/$dataset/$VERSION/${dataset}_recoded.csv
+        VERSION_RECODED="${VERSION}_recoded"
+        tablename=$dataset.$VERSION_RECODED
+        echo "Archving recoded version ${dataset} ${VERSION_RECODED} to ${tablename}..."
+
+        gsutil cp .cache/$dataset/$recoded_filename $FILEPATH
+        bq show $dataset || bq mk --location=$location --dataset $dataset
+        bq show $tablename || bq mk $tablename
+        bq load \
+            --location=$location\
+            --source_format=CSV\
+            --quote '"' \
+            --skip_leading_rows 1\
+            --replace\
+            --allow_quoted_newlines\
+            --autodetect\
+            $tablename \
+            $FILEPATH
     ;;
     upload_do )
         dataset=$2

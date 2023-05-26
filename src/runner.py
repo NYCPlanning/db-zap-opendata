@@ -172,9 +172,13 @@ class Runner:
         return df
 
     def __call__(self):
+        print("~~~ RUNNING clean ~~~")
         self.clean()
+        print("~~~ RUNNING download ~~~")
         self.download()
+        print("~~~ RUNNING combine ~~~")
         self.combine()
+        print("~~~ RUNNING export ~~~")
         self.export()
 
 
