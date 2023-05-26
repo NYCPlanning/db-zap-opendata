@@ -14,11 +14,6 @@ def fields_in_metadata(metadata_values):
 
 
 @pytest.fixture(scope="module")
-def fields_in_metadata(metadata_values):
-    return [field["LogicalName"] for field in metadata_values]
-
-
-@pytest.fixture(scope="module")
 def all_fields_metadata(metadata_values):
     return {field["LogicalName"]: field for field in metadata_values}
 
