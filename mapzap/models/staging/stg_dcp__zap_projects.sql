@@ -1,6 +1,6 @@
 with source as (
 
-    select * from {{ source('zap_projects', '20230515') }}
+    select * from {{ source('zap_projects', '20230526_recoded') }}
 
 ),
 
