@@ -30,11 +30,11 @@ models:
       +docs:
         node_color: "#7da74a"
     product:
-      +materialized: view
+      +materialized: table
       +docs:
         node_color: "#c3783c"
     summary:
-      +materialized: table
+      +materialized: view
       +docs:
         node_color: "#c75580"
 
