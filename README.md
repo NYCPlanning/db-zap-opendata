@@ -193,7 +193,7 @@ dbt docs serve
 ### Develop dbt
 
 Run pre commit checks for model and config file:
-> This is configured by `.pre-commit-config.yaml` and some checks depend on having already run dbt compile or dbt run
+> This is configured by `.pre-commit-config.yaml` and will run `dbt compile` and `dbt docs generate`
 
 ```bash
 pre-commit run --all-files
