@@ -19,7 +19,8 @@
 				"janisdd.vscode-edit-csv",
 				"dorzey.vscode-sqlfluff",
 				"github.vscode-github-actions",
-				"bungcip.better-toml"
+				"bungcip.better-toml",
+				"innoverio.vscode-dbt-power-user"
 			]
 		}
 	},

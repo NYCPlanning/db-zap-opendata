@@ -18,8 +18,8 @@ dependencies = [
     "pytest",
     "python-dotenv",
     "SQLAlchemy",
-    "sqlfluff-templater-dbt",
     "sqlfluff",
+    "shandy-sqlfmt[jinjafmt]",
 ]
 
 [tool.pytest.ini_options]
