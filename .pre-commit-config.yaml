@@ -3,22 +3,24 @@ repos:
     rev: v1.1.0
     hooks:
       # # Phase 1
-      - id: check-script-semicolon
       - id: check-model-has-description
       - id: check-column-desc-are-same
-      # skipping due to incorrect failure in for loops using pluto_table
+      # skipping due to incorrect failure in for-loops using pluto_table
       # - id: check-script-ref-and-source
       # skipping due to incorrect failure on EXTRACT function
       # - id: check-script-has-no-table-name
 
       # Phase 2
+      # requires `compile` and `docs generate`)
       - id: dbt-clean
-      # - id: dbt-test
+      - id: dbt-compile
       - id: dbt-docs-generate
-
+      
+      - id: check-script-semicolon
       - id: check-column-name-contract
         args: [--pattern, "(is|has|do)_.*", --dtype, boolean]
 
+      # Models - staging
       - id: check-model-name-contract
         name: Staging - Check model names
         files: models/staging/
@@ -27,6 +29,7 @@ repos:
         name: Staging - Check columns are in properties file
         files: ^mapzap/models/staging
 
+      # Models - intermediate
       - id: check-model-name-contract
         name: intermediate - Check model names
         files: models/intermediate/
@@ -35,6 +38,7 @@ repos:
         name: intermediate - Check columns are in properties file
         files: ^mapzap/models/intermediate
 
+      # Models - product
       - id: check-model-name-contract
         name: product - Check model names
         files: models/product/
@@ -42,7 +46,8 @@ repos:
       - id: check-model-has-all-columns
         name: product - Check columns are in properties file
         files: ^mapzap/models/product
-
+      
+      # Models - summary
       - id: check-model-name-contract
         name: summary - Check model names
         files: models/summary/
