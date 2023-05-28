@@ -210,15 +210,3 @@ Run a single model and it's parent models:
 ```bash
 dbt run --select +int_zap_project_bbls
 ```
-
-Generate a model based on a schema YAML file
-
-```bash
-dbt run-operation generate_base_model --args '{"source_name": "zap_projects", "table_name": "20230515"}'
-```
-
-Generate a schema YAML file based on a model
-
-```bash
-dbt run-operation generate_model_yaml --args '{"model_names": ["stg_dcp__zap_project_bbls"]}'
-```
