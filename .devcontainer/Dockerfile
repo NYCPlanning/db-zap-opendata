@@ -3,7 +3,7 @@ ARG VARIANT="3.9"
 
 FROM mcr.microsoft.com/devcontainers/python:0-${VARIANT}
 
-FROM gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
+FROM gcr.io/google.com/cloudsdktool/google-cloud-cli:432.0.0-slim
 
 RUN export DEBIAN_FRONTEND=noninteractive
 
