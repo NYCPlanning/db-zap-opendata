@@ -52,7 +52,7 @@ jobs:
         id: version
         run: |
           DATE=$(date +%Y%m%d)
-          echo "version=::$DATE" >> "$GITHUB_OUTPUT"
+          echo "version=$DATE" >> "$GITHUB_OUTPUT"
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -72,6 +72,13 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: ./zap.sh upload_bq ${{ matrix.entity }} $VERSION
+
+      - name: Archive recoded data to BigQuery
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        if: ${{ matrix.open }}
+        run: |
+          ./zap.sh upload_recoded_bq ${{ matrix.entity }} $VERSION
 
       - name: Archive to data library - PGdump
         env:
