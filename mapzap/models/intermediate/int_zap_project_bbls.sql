@@ -2,7 +2,6 @@ with projects_source as (
     select
         project_id,
         project_name,
-        project_code,
         project_certified_referred_date,
         project_certified_referred_year
     from
@@ -19,7 +18,6 @@ zap_project_bbls as (
     select
         projects_source.project_id,
         projects_source.project_name,
-        projects_source.project_code,
         projects_source.project_certified_referred_date,
         projects_source.project_certified_referred_year,
         bbls_source.project_bbl as project_bbl
