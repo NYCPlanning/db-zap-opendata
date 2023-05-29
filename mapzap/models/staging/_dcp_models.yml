@@ -38,15 +38,6 @@ models:
             - project_id
             - project_certified_referred_date
 
-  - name: stg_dcp__zoning_map_amendments
-    description: "Zoning map amendments"
-    columns:
-      - name: tracking_number
-      - name: ulurp_number
-      - name: project_name
-        description: '{{ doc("project_name") }}'
-      - name: wkt
-
   - name: stg_dcp__zap_bbls
     description: "ZAP project BBL details"
     columns:
@@ -54,6 +45,9 @@ models:
         description: '{{ doc("project_id") }}'
         tests:
           - not_null
+          - relationships:
+              to: ref('stg_dcp__zap_projects')
+              field: project_id
       - name: project_bbl
         description: '{{ doc("project_bbl") }}'
         tests:
@@ -63,6 +57,15 @@ models:
           combination_of_columns:
             - project_id
             - project_bbl
+
+  - name: stg_dcp__zoning_map_amendments
+    description: "Zoning map amendments"
+    columns:
+      - name: tracking_number
+      - name: ulurp_number
+      - name: project_name
+        description: '{{ doc("project_name") }}'
+      - name: wkt
 
   - name: base_dcp__pluto_with_bbls
     description: "MapPLUTO records which already have BBL values"
