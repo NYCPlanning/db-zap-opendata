@@ -4,17 +4,17 @@ sources:
   - name: zap_projects
     schema: dcp_projects
     tables:
-      - name: "20230515"
-
-  - name: zoning_map_amendments
-    schema: dcp_zoningmapamendments
-    tables:
-      - name: "20230519_internal"
+      - name: "20230526_recoded"
 
   - name: zap_bbls
     schema: dcp_projectbbls
     tables:
-      - name: "20230515"
+      - name: "20230526_recoded"
+  
+  - name: zoning_map_amendments
+    schema: dcp_zoningmapamendments
+    tables:
+      - name: "20230519_internal"
 
   - name: map_pluto
     schema: dcp_mappluto
