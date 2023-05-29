@@ -1,6 +1,6 @@
 with source_zap_project_bbls as (
 
-    select * from {{ source('zap_bbls', '20230526_recoded') }}
+    select * from {{ source('zap_bbls', '20230526') }}
 
 ),
 

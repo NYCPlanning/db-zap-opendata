@@ -10,7 +10,7 @@ project_geometries_counts as (
         SUM(case when project_bbls is null then 1 else 0 end)
             as projects_with_no_bbl,
         SUM(case when project_geometry_wkt is null then 1 else 0 end)
-            as projects_with_no_geography
+            as projects_with_no_geometry
     from
         project_geometries
     group by
@@ -21,8 +21,8 @@ project_geometries_counts as (
 project_geometries_counts_2 as (
     select
         *,
-        (projects_with_no_geography - projects_with_no_bbl)
-            as projects_with_bbl_and_no_geography
+        (projects_with_no_geometry - projects_with_no_bbl)
+            as projects_with_bbl_and_no_geometry
     from
         project_geometries_counts
 
@@ -36,13 +36,13 @@ project_geometries_stats as (
             / project_count * 100, 2
         ) as percent_projects_with_no_bbl,
         ROUND(
-            projects_with_no_geography
+            projects_with_no_geometry
             / project_count * 100, 2
-        ) as percent_projects_with_no_geography,
+        ) as percent_projects_with_no_geometry,
         ROUND(
-            projects_with_bbl_and_no_geography
-            / project_count * 100, 2
-        ) as percent_projects_with_bbl_and_no_geography
+            projects_with_bbl_and_no_geometry
+            / (project_count - projects_with_no_bbl) * 100, 2
+        ) as percent_projects_with_bbl_and_no_geometry
     from
         project_geometries_counts_2
 ),
