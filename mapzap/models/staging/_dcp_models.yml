@@ -1,20 +1,37 @@
 version: 2
 
 models:
-  - name: base_dcp__zap_projects_recoded
-    description: "ZAP projects with recoded values"
-
-  - name: base_dcp__zap_project_id
+  - name: base_dcp__zap_project_ids
     description: "ZAP project IDs"
     columns:
       - name: project_id
+        description: '{{ doc("project_id") }}'
       - name: dcp_name
 
-  # TODO clean up
+  - name: base_dcp__zap_projects_recoded
+    description: "ZAP projects with recoded values"
+    columns:
+      - name: dcp_name
+      - name: project_name
+        description: '{{ doc("project_name") }}'
+      - name: project_certified_referred_date
+        description: '{{ doc("project_certified_referred_date") }}'
+      - name: project_certified_referred_year
+        description: '{{ doc("project_certified_referred_year") }}'
+      - name: applicant_type
+      - name: ulurp_type
+      - name: ulurp_numbers
+      - name: ceqr_number
+      - name: ceqr_type
+      - name: project_status
+      - name: public_status
+      - name: action_codes
+
   - name: stg_dcp__zap_projects
-    description: "ZAP project details"
+    description: "ZAP projects"
     columns:
       - name: project_id
+        description: '{{ doc("project_id") }}'
         tests:
           - not_null
           - unique
@@ -26,35 +43,27 @@ models:
       - name: project_certified_referred_year
         description: '{{ doc("project_certified_referred_year") }}'
       - name: applicant_type
+      - name: ulurp_type
       - name: ulurp_numbers
       - name: ceqr_number
       - name: ceqr_type
-      - name: lead_division
       - name: project_status
       - name: public_status
-      - name: action_numbers
-      - name: current_zoning_district
-      - name: proposed_zoning_district
-      - name: wrp_review_required
-      - name: fema_flood_zone_coastal
-      - name: fema_flood_zone_v
-      # columns I havn't found a source for yet
+      - name: action_codes
+      # columns not in recoded data
+      # - name: lead_division
+      # - name: current_zoning_district
+      # - name: proposed_zoning_district
+      # - name: wrp_review_required
+      # - name: fema_flood_zone_coastal
+      # - name: fema_flood_zone_v
+      # columns without a source
       # - name: rezoning_action
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - project_id
             - project_certified_referred_date
-
-  - name: stg_dcp__zap_project_ids
-    description: "ZAP project IDs"
-    columns:
-      - name: project_id
-        description: '{{ doc("project_id") }}'
-        tests:
-          - not_null
-          - unique
-      - name: dcp_name
 
   - name: stg_dcp__zap_bbls
     description: "ZAP project BBL details"

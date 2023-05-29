@@ -8,7 +8,6 @@ models:
       - name: project_name
       - name: project_certified_referred_date
       - name: project_certified_referred_year
-      - name: project_code
       - name: project_bbl
 
   - name: int_zap_project_bbl_geometries
@@ -16,7 +15,6 @@ models:
     columns:
       - name: project_id
       - name: project_name
-      - name: project_code
       - name: project_certified_referred_date
       - name: project_certified_referred_year
       - name: pluto_version

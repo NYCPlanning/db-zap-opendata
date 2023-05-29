@@ -30,7 +30,7 @@ project_geometries as (
         bbl_areas_sum,
         NULLIF(ARRAY_TO_STRING(project_bbls_array, '|'), '') as project_bbls,
         ST_AREA(project_geometry_wkt) as project_area,
-        ST_ASTEXT(project_geometry_wkt) as project_geometry_wkt
+        ST_ASTEXT(project_geometry_wkt) as wkt
     from project_bbl_geometries_aggregated
 ),
 
@@ -41,7 +41,7 @@ mapzap as (
         project_geometries.bbl_areas_sum,
         project_geometries.project_bbls,
         project_geometries.project_area,
-        project_geometries.project_geometry_wkt
+        project_geometries.wkt
     from
         project_details
     left join

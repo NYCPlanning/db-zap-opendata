@@ -10,7 +10,7 @@ models:
       - name: project_count
       - name: projects_with_no_bbl
       - name: percent_projects_with_no_bbl
-      - name: projects_with_no_geography
-      - name: percent_projects_with_no_geography
-      - name: projects_with_bbl_and_no_geography
-      - name: percent_projects_with_bbl_and_no_geography
+      - name: projects_with_no_geometry
+      - name: percent_projects_with_no_geometry
+      - name: projects_with_bbl_and_no_geometry
+      - name: percent_projects_with_bbl_and_no_geometry

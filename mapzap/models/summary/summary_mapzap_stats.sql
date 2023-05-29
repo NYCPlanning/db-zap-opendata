@@ -9,7 +9,7 @@ project_geometries_counts as (
         COUNT(*) as project_count,
         SUM(case when project_bbls is null then 1 else 0 end)
             as projects_with_no_bbl,
-        SUM(case when project_geometry_wkt is null then 1 else 0 end)
+        SUM(case when wkt is null then 1 else 0 end)
             as projects_with_no_geometry
     from
         project_geometries
