@@ -40,4 +40,4 @@ models:
 
 tests:
   +store_failures: true
-  +schema: aue_dbt_test_results
+  +schema: test_results
