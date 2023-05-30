@@ -18,7 +18,7 @@ repos:
       
       - id: check-script-semicolon
       - id: check-column-name-contract
-        args: [--pattern, "(is|has|do)_.*", --dtype, boolean]
+        args: [--pattern, "(is|has|do)_.*", --dtype, BOOL]
 
       # Models - staging
       - id: check-model-name-contract

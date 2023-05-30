@@ -25,6 +25,7 @@ models:
     description: "ZAP projects with geometries from the Zoning Map Amendment"
     columns:
       - name: project_id
+      - name: project_name
       - name: ulurp_number
       - name: tracking_number
       - name: wkt

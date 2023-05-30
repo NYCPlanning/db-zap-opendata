@@ -33,6 +33,11 @@ models:
       # - name: wrp_review_required
       # - name: fema_flood_zone_coastal
       # - name: fema_flood_zone_v
+      - name: map_amendment_ulurp_numner
+      - name: has_bbls_geometry
+      - name: map_amendment_project_name
+      - name: has_map_amendment_geometry
+      - name: geometry_source
       - name: bbl_areas_sum
       - name: project_area
       - name: wkt
