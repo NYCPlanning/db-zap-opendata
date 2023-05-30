@@ -47,7 +47,7 @@ cryptography==40.0.2
     # via
     #   msal
     #   pyjwt
-dbt-bigquery==1.5.0
+dbt-bigquery==1.5.1
     # via db-zap-opendata (pyproject.toml)
 dbt-core==1.5.1
     # via dbt-bigquery
