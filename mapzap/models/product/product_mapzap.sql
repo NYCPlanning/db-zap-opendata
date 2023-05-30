@@ -4,6 +4,12 @@ with project_bbl_geometries as (
         {{ ref('int_zap_project_bbl_geometries') }}
 ),
 
+project_geometries_from_map as (
+    select *
+    from
+        {{ ref('int_zap_project_map_geometries') }}
+),
+
 project_details as (
     select *
     from
@@ -23,7 +29,7 @@ project_bbl_geometries_aggregated as (
         pluto_version
 ),
 
-project_geometries as (
+project_geometries_from_bbls as (
     select
         project_id,
         pluto_version,
@@ -32,6 +38,20 @@ project_geometries as (
         ST_AREA(project_geometry_wkt) as project_area,
         ST_ASTEXT(project_geometry_wkt) as wkt
     from project_bbl_geometries_aggregated
+),
+
+project_geometries as (
+    select
+        project_geometries_from_bbls.*,
+        project_geometries_from_map.ulurp_number as map_ammendment_ulurp_numner
+    from
+        project_geometries_from_bbls
+    left join
+        project_geometries_from_map
+        on
+            project_geometries_from_bbls.project_id
+            = project_geometries_from_map.project_id
+
 ),
 
 mapzap as (

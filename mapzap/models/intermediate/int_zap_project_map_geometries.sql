@@ -37,7 +37,8 @@ project_ulurps as (
 
 zap_project_map_amendments as (
     select
-        project_ulurps.*,
+        project_ulurps.project_id,
+        project_ulurps.ulurp_number,
         map_amendments_source.tracking_number,
         map_amendments_source.project_name,
         map_amendments_source.wkt

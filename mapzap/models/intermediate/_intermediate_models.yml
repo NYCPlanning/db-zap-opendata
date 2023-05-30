@@ -22,3 +22,8 @@ models:
       - name: bbl_geometry_wkt
 
   - name: int_zap_project_map_geometries
+    columns:
+      - name: project_id
+      - name: ulurp_number
+      - name: tracking_number
+      - name: wkt
