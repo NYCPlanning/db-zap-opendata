@@ -20,3 +20,5 @@ models:
       - name: pluto_version
       - name: project_bbl
       - name: bbl_geometry_wkt
+
+  - name: int_zap_project_map_geometries

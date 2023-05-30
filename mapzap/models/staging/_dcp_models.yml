@@ -88,8 +88,11 @@ models:
   - name: stg_dcp__zoning_map_amendments
     description: "Zoning map amendments"
     columns:
-      - name: tracking_number
       - name: ulurp_number
+        tests:
+          - not_null
+          - unique
+      - name: tracking_number
       - name: project_name
         description: '{{ doc("project_name") }}'
       - name: wkt
