@@ -1,8 +1,15 @@
 version: 2
 
 models:
-  - name: summary_mapzap_bbl_stats
-    description: "Summary statistics of MapZAP records"
+  - name: summary_geometry_sources
+    description: "Summary of MapZAP record geometry sources"
+    columns:
+      - name: geometry_source
+      - name: geometry_source_count
+      - name: geometry_count
+
+  - name: summary_mapzap_bbls
+    description: "Summary of MapZAP records with BBLs"
     columns:
       - name: project_certified_referred_year
         description: '{{ doc("project_certified_referred_year") }}'

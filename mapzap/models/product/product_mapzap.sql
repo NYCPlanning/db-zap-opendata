@@ -61,12 +61,18 @@ mapzap as (
         project_details.*,
         project_geometries.map_ammendment_ulurp_numner,
         project_geometries.map_ammendment_project_name,
-        project_geometries.map_ammendment_wkt,
         project_geometries.pluto_version,
         project_geometries.bbl_areas_sum,
         project_geometries.project_bbls,
         project_geometries.project_area,
-        project_geometries.bbls_wkt,
+        COALESCE(
+            project_geometries.map_ammendment_wkt is not null,
+            false
+        ) as has_map_ammendment_geometry,
+        COALESCE(
+            project_geometries.bbls_wkt is not null,
+            false
+        ) as has_bbls_geometry,
         case
             when
                 project_geometries.map_ammendment_wkt is not null
