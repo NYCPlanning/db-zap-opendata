@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: summary_mapzap_stats
+  - name: summary_mapzap_bbl_stats
     description: "Summary statistics of MapZAP records"
     columns:
       - name: project_certified_referred_year

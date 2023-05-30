@@ -8,7 +8,7 @@ map_amendments_not_unique as (
 
     select
         project_na as project_name,
-        ST_GEOGFROMTEXT(wkt) as wkt,
+        ST_GEOGFROMTEXT(wkt, make_valid => TRUE) as wkt,
         UPPER(trackingno) as tracking_number,
         UPPER(ulurpno) as ulurp_number
     from source
