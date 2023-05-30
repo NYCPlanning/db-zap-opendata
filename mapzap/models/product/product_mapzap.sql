@@ -42,9 +42,9 @@ project_geometries_from_bbls as (
 project_geometries as (
     select
         project_geometries_from_bbls.*,
-        project_geometries_from_map.ulurp_number as map_ammendment_ulurp_numner,
-        project_geometries_from_map.project_name as map_ammendment_project_name,
-        ST_ASTEXT(project_geometries_from_map.wkt) as map_ammendment_wkt
+        project_geometries_from_map.ulurp_number as map_amendment_ulurp_numner,
+        project_geometries_from_map.project_name as map_amendment_project_name,
+        ST_ASTEXT(project_geometries_from_map.wkt) as map_amendment_wkt
     from
         project_geometries_from_bbls
     left join
@@ -58,28 +58,28 @@ project_geometries as (
 project_geometries_resolved as (
     select
         project_details.*,
-        project_geometries.map_ammendment_ulurp_numner,
-        project_geometries.map_ammendment_project_name,
+        project_geometries.map_amendment_ulurp_numner,
+        project_geometries.map_amendment_project_name,
         project_geometries.pluto_version,
         project_geometries.bbl_areas_sum,
         project_geometries.project_bbls,
         COALESCE(
-            project_geometries.map_ammendment_wkt is not null,
+            project_geometries.map_amendment_wkt is not null,
             false
-        ) as has_map_ammendment_geometry,
+        ) as has_map_amendment_geometry,
         COALESCE(
             project_geometries.bbls_wkt is not null,
             false
         ) as has_bbls_geometry,
         case
             when
-                project_geometries.map_ammendment_wkt is not null
-                then 'zoning map ammendment'
+                project_geometries.map_amendment_wkt is not null
+                then 'zoning map amendment'
             when project_geometries.bbls_wkt is not null then 'pluto bbls'
         end
             as geometry_source,
         COALESCE(
-            project_geometries.map_ammendment_wkt, project_geometries.bbls_wkt
+            project_geometries.map_amendment_wkt, project_geometries.bbls_wkt
         ) as wkt
     from
         project_details
