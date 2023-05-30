@@ -14,7 +14,6 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Setup build environment
+      - name: Placeholder step
         run: |
-          python --version
-          ./bash/setup_build_env.sh
+          echo "Placeholder step"

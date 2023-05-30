@@ -27,12 +27,6 @@ models:
       - name: project_status
       - name: public_status
       - name: action_codes
-      # - name: lead_division
-      # - name: current_zoning_district
-      # - name: proposed_zoning_district
-      # - name: wrp_review_required
-      # - name: fema_flood_zone_coastal
-      # - name: fema_flood_zone_v
       - name: map_amendment_ulurp_numner
       - name: has_bbls_geometry
       - name: map_amendment_project_name
@@ -41,6 +35,13 @@ models:
       - name: bbl_areas_sum
       - name: project_area
       - name: wkt
+      # columns not in new recoded source data, but desired in output
+      # - name: lead_division
+      # - name: current_zoning_district
+      # - name: proposed_zoning_district
+      # - name: wrp_review_required
+      # - name: fema_flood_zone_coastal
+      # - name: fema_flood_zone_v
     tests:
       - dbt_utils.equality:
           compare_model: ref('product_mapzap')

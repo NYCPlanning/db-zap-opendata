@@ -50,7 +50,7 @@ models:
       - name: project_status
       - name: public_status
       - name: action_codes
-      # columns not in recoded data
+      # columns not in new recoded source data, but desired in output
       # - name: lead_division
       # - name: current_zoning_district
       # - name: proposed_zoning_district

@@ -10,7 +10,6 @@ zap_projects as (
         project_id as dcp_name,
         project_name,
         certified_referred as project_certified_referred_date,
-        -- new columns
         applicant_type,
         ulurp_numbers,
         ulurp_non as ulurp_type,
@@ -25,13 +24,6 @@ zap_projects as (
             certified_referred
         ) as project_certified_referred_year
 
-        -- not in recoded data
-        {# dcp_leaddivision as lead_division, #}
-        {# dcp_currentzoningdistrict as current_zoning_district, #}
-        {# dcp_proposedzoningdistrict as proposed_zoning_district, #}
-        {# dcp_wrpreviewrequired as wrp_review_required, #}
-        {# dcp_femafloodzonecoastala as fema_flood_zone_coastal, #}
-        {# dcp_femafloodzonev as fema_flood_zone_v #}
     from source
 )
 
