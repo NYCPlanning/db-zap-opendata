@@ -35,7 +35,6 @@ project_geometries_from_bbls as (
         pluto_version,
         bbl_areas_sum,
         NULLIF(ARRAY_TO_STRING(project_bbls_array, '|'), '') as project_bbls,
-        ST_AREA(project_geometry_wkt) as project_area,
         ST_ASTEXT(project_geometry_wkt) as bbls_wkt
     from project_bbl_geometries_aggregated
 ),
@@ -56,7 +55,7 @@ project_geometries as (
 
 ),
 
-mapzap as (
+project_geometries_resolved as (
     select
         project_details.*,
         project_geometries.map_ammendment_ulurp_numner,
@@ -64,7 +63,6 @@ mapzap as (
         project_geometries.pluto_version,
         project_geometries.bbl_areas_sum,
         project_geometries.project_bbls,
-        project_geometries.project_area,
         COALESCE(
             project_geometries.map_ammendment_wkt is not null,
             false
@@ -77,7 +75,7 @@ mapzap as (
             when
                 project_geometries.map_ammendment_wkt is not null
                 then 'zoning map ammendment'
-            when project_geometries.bbls_wkt is not null then 'bbls'
+            when project_geometries.bbls_wkt is not null then 'pluto bbls'
         end
             as geometry_source,
         COALESCE(
@@ -89,6 +87,14 @@ mapzap as (
         project_geometries on
         project_details.project_id = project_geometries.project_id
 
+),
+
+mapzap as (
+    select
+        *,
+        ST_AREA(ST_GEOGFROMTEXT(wkt)) as project_area
+    from
+        project_geometries_resolved
 )
 
 select * from mapzap
