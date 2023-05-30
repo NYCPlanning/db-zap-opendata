@@ -41,7 +41,7 @@ colorama==0.4.6
     # via
     #   dbt-core
     #   sqlfluff
-coverage[toml]==7.2.6
+coverage[toml]==7.2.7
     # via pytest-cov
 cryptography==40.0.2
     # via
@@ -49,7 +49,7 @@ cryptography==40.0.2
     #   pyjwt
 dbt-bigquery==1.5.0
     # via db-zap-opendata (pyproject.toml)
-dbt-core==1.5.0
+dbt-core==1.5.1
     # via dbt-bigquery
 dbt-extractor==0.4.1
     # via dbt-core
