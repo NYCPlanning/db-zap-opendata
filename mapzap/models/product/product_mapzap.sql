@@ -34,14 +34,18 @@ project_geometries_from_bbls as (
         project_id,
         pluto_version,
         bbl_areas_sum,
-        NULLIF(ARRAY_TO_STRING(project_bbls_array, '|'), '') as project_bbls,
-        project_geometry_wkt as bbls_wkt
+        project_geometry_wkt as bbls_wkt,
+        NULLIF(ARRAY_TO_STRING(project_bbls_array, '|'), '') as project_bbls
     from project_bbl_geometries_aggregated
 ),
 
 project_geometries as (
     select
-        project_geometries_from_bbls.*,
+        project_geometries_from_bbls.project_id,
+        project_geometries_from_bbls.pluto_version,
+        project_geometries_from_bbls.bbl_areas_sum,
+        project_geometries_from_bbls.project_bbls,
+        project_geometries_from_bbls.bbls_wkt,
         project_geometries_from_map.ulurp_number as map_amendment_ulurp_numner,
         project_geometries_from_map.project_name as map_amendment_project_name,
         project_geometries_from_map.wkt as map_amendment_wkt
@@ -57,7 +61,19 @@ project_geometries as (
 
 project_geometries_resolved as (
     select
-        project_details.*,
+        project_details.dcp_name,
+        project_details.project_name,
+        project_details.project_certified_referred_date,
+        project_details.project_certified_referred_year,
+        project_details.applicant_type,
+        project_details.ulurp_numbers,
+        project_details.ulurp_type,
+        project_details.ceqr_number,
+        project_details.ceqr_type,
+        project_details.project_status,
+        project_details.public_status,
+        project_details.action_codes,
+        project_details.project_id,
         project_geometries.map_amendment_ulurp_numner,
         project_geometries.map_amendment_project_name,
         project_geometries.pluto_version,

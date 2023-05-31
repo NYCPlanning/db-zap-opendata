@@ -16,7 +16,11 @@ seed_pluto_versions as (
 
 zap_pluto as (
     select
-        zap_project_bbls.*,
+        zap_project_bbls.project_id,
+        zap_project_bbls.project_name,
+        zap_project_bbls.project_certified_referred_date,
+        zap_project_bbls.project_certified_referred_year,
+        zap_project_bbls.project_bbl,
         seed_pluto_versions.primary_pluto_version as pluto_version
     from
         zap_project_bbls
@@ -28,7 +32,12 @@ zap_pluto as (
 
 zap_project_bbl_geometries as (
     select
-        zap_pluto.*,
+        zap_pluto.project_id,
+        zap_pluto.project_name,
+        zap_pluto.project_certified_referred_date,
+        zap_pluto.project_certified_referred_year,
+        zap_pluto.project_bbl,
+        zap_pluto.pluto_version,
         ST_GEOGFROMTEXT(pluto_geometries.wkt) as bbl_geometry_wkt
     from
         zap_pluto
