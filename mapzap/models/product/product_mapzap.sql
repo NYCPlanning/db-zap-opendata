@@ -35,7 +35,7 @@ project_geometries_from_bbls as (
         pluto_version,
         bbl_areas_sum,
         NULLIF(ARRAY_TO_STRING(project_bbls_array, '|'), '') as project_bbls,
-        ST_ASTEXT(project_geometry_wkt) as bbls_wkt
+        project_geometry_wkt as bbls_wkt
     from project_bbl_geometries_aggregated
 ),
 
@@ -44,7 +44,7 @@ project_geometries as (
         project_geometries_from_bbls.*,
         project_geometries_from_map.ulurp_number as map_amendment_ulurp_numner,
         project_geometries_from_map.project_name as map_amendment_project_name,
-        ST_ASTEXT(project_geometries_from_map.wkt) as map_amendment_wkt
+        project_geometries_from_map.wkt as map_amendment_wkt
     from
         project_geometries_from_bbls
     left join
@@ -63,14 +63,10 @@ project_geometries_resolved as (
         project_geometries.pluto_version,
         project_geometries.bbl_areas_sum,
         project_geometries.project_bbls,
-        COALESCE(
-            project_geometries.map_amendment_wkt is not null,
-            false
-        ) as has_map_amendment_geometry,
-        COALESCE(
-            project_geometries.bbls_wkt is not null,
-            false
-        ) as has_bbls_geometry,
+        project_geometries.map_amendment_wkt is not null
+            as has_map_amendment_geometry,
+        project_geometries.bbls_wkt is not null
+            as has_bbls_geometry,
         case
             when
                 project_geometries.map_amendment_wkt is not null
@@ -92,7 +88,7 @@ project_geometries_resolved as (
 mapzap as (
     select
         *,
-        ST_AREA(ST_GEOGFROMTEXT(wkt)) as project_area
+        ST_AREA(wkt) as project_area
     from
         project_geometries_resolved
 )
