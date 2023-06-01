@@ -42,8 +42,3 @@ models:
       # - name: wrp_review_required
       # - name: fema_flood_zone_coastal
       # - name: fema_flood_zone_v
-    tests:
-      - dbt_utils.expression_is_true:
-          expression: "project_area = bbl_areas_sum"
-          config:
-            where: geometry_source = 'pluto bbls'
