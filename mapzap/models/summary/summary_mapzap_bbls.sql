@@ -1,5 +1,5 @@
-with product_mapzap as (
-    select * from {{ ref('product_mapzap') }}
+with mapzap as (
+    select * from {{ ref('mapzap') }}
 ),
 
 project_geometries_counts as (
@@ -12,7 +12,7 @@ project_geometries_counts as (
         SUM(case when wkt is null then 1 else 0 end)
             as projects_with_no_geometry
     from
-        product_mapzap
+        mapzap
     group by
         project_certified_referred_year,
         pluto_version

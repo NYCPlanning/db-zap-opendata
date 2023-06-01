@@ -38,14 +38,10 @@ repos:
         name: intermediate - Check columns are in properties file
         files: ^mapzap/models/intermediate
 
-      # Models - product
-      - id: check-model-name-contract
-        name: product - Check model names
-        files: models/product/
-        args: [--pattern, "(product_).*"]
+      # Models - marts
       - id: check-model-has-all-columns
-        name: product - Check columns are in properties file
-        files: ^mapzap/models/product
+        name: marts - Check columns are in properties file
+        files: ^mapzap/models/marts
       
       # Models - summary
       - id: check-model-name-contract

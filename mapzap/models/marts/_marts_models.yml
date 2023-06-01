@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: product_mapzap
+  - name: mapzap
     description: "ZAP project details and geometry"
     columns:
       - name: project_id
@@ -43,8 +43,7 @@ models:
       # - name: fema_flood_zone_coastal
       # - name: fema_flood_zone_v
     tests:
-      - dbt_utils.equality:
-          compare_model: ref('product_mapzap')
-          compare_columns:
-            - bbl_areas_sum
-            - project_area
+      - dbt_utils.expression_is_true:
+          expression: "project_area = bbl_areas_sum"
+          config:
+            where: geometry_source = 'pluto bbls'

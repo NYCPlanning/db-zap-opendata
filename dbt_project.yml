@@ -29,7 +29,7 @@ models:
       +materialized: view
       +docs:
         node_color: "#7da74a"
-    product:
+    marts:
       +materialized: table
       +docs:
         node_color: "#c3783c"
