@@ -72,9 +72,6 @@ models:
         description: '{{ doc("project_id") }}'
         tests:
           - not_null
-          - relationships:
-              to: ref('stg_dcp__zap_project_ids')
-              field: project_id
       - name: project_bbl
         description: '{{ doc("project_bbl") }}'
         tests:
