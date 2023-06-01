@@ -24,6 +24,10 @@ dependencies = [
 [tool.pytest.ini_options]
 xfail_strict = true
 addopts = "--strict-markers"
+# marks tests (select with 'pytest -m "marker_good and not marker_bad"')
+markers = [
+    "integration"
+]
 
 [tool.coverage.run]
 # Measure branch coverage (https://coverage.readthedocs.io/en/latest/branch.html)
@@ -39,7 +43,7 @@ show_missing = true
 exclude_lines =[
     # Have to re-enable the standard pragma
     "pragma: no cover",
-    # Don't complain if non-runnable code isn't run:
+    # Don't complain if non-runnable code isn't run
     "if __name__ == .__main__.:",
 ]
 
