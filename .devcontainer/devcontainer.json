@@ -19,7 +19,8 @@
 				"janisdd.vscode-edit-csv",
 				"dorzey.vscode-sqlfluff",
 				"github.vscode-github-actions",
-				"bungcip.better-toml"
+				"bungcip.better-toml",
+				"innoverio.vscode-dbt-power-user"
 			]
 		}
 	},
@@ -30,7 +31,8 @@
 	],
 	// Use 'initializeCommand' to run commands on the host machine before the container is created.
 	"initializeCommand": "${localWorkspaceFolder}/.devcontainer/initializeCommand.sh",
-    "runArgs": [
-        "--env-file", "${localWorkspaceFolder}/.devcontainer/.env"
-    ]
+	"runArgs": [
+		"--env-file",
+		"${localWorkspaceFolder}/.devcontainer/.env"
+	]
 }

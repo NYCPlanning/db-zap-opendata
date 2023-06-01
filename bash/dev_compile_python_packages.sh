@@ -5,6 +5,7 @@ set -e
 RELATIVE_SCRIPTPATH=$0
 
 # Update and install packages used to compile requirements
+apt-get -yq install python3-venv
 python3 -m pip install --upgrade pip
 python3 -m pip install --upgrade pip-tools wheel validate-pyproject
 

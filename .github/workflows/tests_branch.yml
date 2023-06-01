@@ -35,6 +35,11 @@ jobs:
         run: |
           python3 -m pytest --verbose --verbose --cov-config=pyproject.toml --cov .
 
+  branch_build_mapzap_tests:
+    name: Build MapZAP test run
+    uses: ./.github/workflows/build_mapzap.yml
+    secrets: inherit
+
   branch_dev_container_tests:
     name: Dev container tests
     runs-on: ubuntu-22.04
@@ -45,9 +50,6 @@ jobs:
         with:
           runCmd: |
             echo "Dev Container is in CI? $CI"
+            gcloud version
+            python3 --version
             pip list
-
-  branch_build_mapzap_tests:
-    name: Build MapZAP test run
-    uses: ./.github/workflows/build_mapzap.yml
-    secrets: inherit
