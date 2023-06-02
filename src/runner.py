@@ -17,7 +17,7 @@ from .util import timestamp_to_date
 
 
 class Runner:
-    def __init__(self, name, schema: str = "public"):
+    def __init__(self, name, schema: str):
         self.c = Client(
             zap_domain=ZAP_DOMAIN,
             tenant_id=TENANT_ID,
