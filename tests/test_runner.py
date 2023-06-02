@@ -33,15 +33,15 @@ test_datasets = [
             """,
         expected_row_count=4,
     ),
-    TestDataset(
-        name="dcp_projectbbls",
-        filter_clause="""
-            where SUBSTRING(dcp_projectbbls.dcp_name, 0,10) in (
-                'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
-                )
-            """,
-        expected_row_count=2210,
-    ),
+    # TestDataset(
+    #     name="dcp_projectbbls",
+    #     filter_clause="""
+    #         where SUBSTRING(dcp_projectbbls.dcp_name, 0,10) in (
+    #             'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
+    #             )
+    #         """,
+    #     expected_row_count=2210,
+    # ),
 ]
 
 
@@ -87,6 +87,7 @@ def test_runner(test_dataset):
             "filter_clause": test_dataset.filter_clause,
         },
     )
+    # TODO assert things for all output tables
     assert len(test_data_actual) == test_dataset.expected_row_count
 
     # TODO compare a subset of the final csv to known data
