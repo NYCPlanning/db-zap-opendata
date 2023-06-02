@@ -32,7 +32,8 @@ class Runner:
         self.schema = schema
         self.pg = PG(ZAP_ENGINE, self.schema)
         self.engine = self.pg.engine
-        self.open_dataset = self.name in OPEN_DATA
+        self.open_dataset = False # DEV for testing
+        # self.open_dataset = self.name in OPEN_DATA
 
     def create_output_cache_dir(self):
         if not os.path.isdir(self.output_dir):
@@ -66,8 +67,11 @@ class Runner:
         with self.engine.begin() as sql_conn:
             statement = """
                 select * from information_schema.tables 
-                where table_name='%(name)s'
+                where
+                    table_schema='%(schema)s'
+                    and table_name='%(name)s'
             """ % {
+                "schema": self.pg.schema,
                 "name": name
             }
             r = sql_conn.execute(statement=text(statement))
@@ -86,6 +90,7 @@ class Runner:
                     "newname": self.name + "_",
                 }
                 sql_conn.execute(statement=text(statement))
+        # for _file in files[:2]: # DEV for testing
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
@@ -127,8 +132,10 @@ class Runner:
         return [s["name"] for s in schema]
 
     def export(self):
+        print("self.sql_to_csv ...")
         self.sql_to_csv(self.name, self.output_file, all_columns=False, open_data=False)
         if self.open_dataset:
+            print("self.sql_to_csv for name_visible ...")
             self.sql_to_csv(
                 f"{self.name}_visible",
                 f"{self.output_file}_visible",
@@ -137,16 +144,20 @@ class Runner:
             )
 
     def sql_to_csv(self, table_name, output_file, all_columns, open_data):
+        print("pd.read_sql ...")
         df = pd.read_sql(
             "select * from %(name)s" % {"name": table_name}, con=self.engine
         )
+        print("self.export_cleaning ...")
         df = self.export_cleaning(df, open_data)
         if not all_columns:
             df = df[self.columns]
 
+        print("df.to_csv ...")
         df.to_csv(f"{output_file}.csv", index=False)
 
     def export_cleaning(self, df, open_data):
+        # TODO add prints to see which parts take the longest (~1 hour)
         """Written because sql int to csv writes with decimal and big query wants int"""
         if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
             df["timezoneruleversionnumber"] = (
@@ -155,12 +166,16 @@ class Runner:
                 .astype(int, errors="ignore")
             )
         if open_data:
+            print("open_data_recode ...")
             df = open_data_recode(self.name, df, self.headers)
+            print("df.to_csv ...")
             df.to_csv(f"{self.cache_dir}/{self.name}_after_recode.csv", index=False)
             if self.name == "dcp_projectbbls":
+                print("timestamp_to_date ...")
                 df = timestamp_to_date(df, date_columns=["validated_date"])
                 df["project_id"] = df["project_id"].str.split(" ").str[0]
             if self.name == "dcp_projects":
+                print("timestamp_to_date ...")
                 df = timestamp_to_date(
                     df,
                     date_columns=[
@@ -173,11 +188,13 @@ class Runner:
                         "approval_date",
                     ],
                 )
+                print("current_milestone_date ...")
                 df.loc[
                     (~df.current_milestone.isnull())
                     & (df.current_milestone.str.contains("MM - Project Readiness")),
                     "current_milestone_date",
                 ] = None
+                print("current_milestone ...")
                 df.loc[
                     (~df.current_milestone.isnull())
                     & (df.current_milestone.str.contains("MM - Project Readiness")),
@@ -190,10 +207,10 @@ class Runner:
         self.clean()
         print("~~~ RUNNING download ~~~")
         self.download()
-        # print("~~~ RUNNING combine ~~~")
-        # self.combine()
-        # print("~~~ RUNNING export ~~~")
-        # self.export()
+        print("~~~ RUNNING combine ~~~")
+        self.combine()
+        print("~~~ RUNNING export ~~~")
+        self.export()
 
 
 if __name__ == "__main__":

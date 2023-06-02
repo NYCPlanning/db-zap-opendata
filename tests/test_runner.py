@@ -16,16 +16,17 @@ TestDataset = namedtuple(
         "expected_row_count",
     ],
 )
+# TODO add all output table names to these test datasets
 test_datasets = [
-    # TestDataset(
-    #     name="dcp_projects",
-    #     filter_clause="""
-    #         where dcp_name in (
-    #             'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
-    #             )
-    #         """,
-    #     expected_row_count=4,
-    # ),
+    TestDataset(
+        name="dcp_projects",
+        filter_clause="""
+            where dcp_name in (
+                'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
+                )
+            """,
+        expected_row_count=4,
+    ),
     TestDataset(
         name="dcp_projectbbls",
         filter_clause="""
@@ -80,6 +81,7 @@ def test_runner(test_dataset):
             "filter_clause": test_dataset.filter_clause,
         },
     )
+    assert len(test_data_actual) == test_dataset.expected_row_count
 
     # TODO compare a subset of the final csv to known data
     runner = Runner(name=test_dataset.name, schema=test_data_expected_schema)
@@ -91,4 +93,3 @@ def test_runner(test_dataset):
         },
     )
     # TODO assert things
-    assert len(test_data_actual) == test_dataset.expected_row_count
