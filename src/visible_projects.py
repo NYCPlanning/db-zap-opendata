@@ -24,6 +24,8 @@ RECODE_FIELDS = {
     "dcp_projectbbls": ["validated_borough", "unverified_borough"],
 }
 
+CRM_CODE_PROJECT_IS_VISIBLE = "717170003"
+
 
 def make_open_data_table(sql_engine, dataset_name) -> None:
     if dataset_name == "dcp_projects":
@@ -90,35 +92,38 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
         """
     else:
         raise NotImplementedError(f"Unimplemented open dataset: {dataset_name}")
-    
+
     with sql_engine.begin() as sql_conn:
         sql_conn.execute(statement=text(statement))
 
 
 def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFrame:
-
     recoder = {}
 
     fields_to_lookup, fields_to_rename = get_fields(name)
 
     # Standardize integer representation
+    print("standardize integer representation ...")
     data[fields_to_rename] = data[fields_to_rename].apply(
         func=lambda x: x.str.split(".").str[0], axis=1
     )
 
     # Get metadata
-
+    print("get_metadata ...")
     metadata_values = get_metadata(headers)
 
     # Construct list of just fields we want to recode
+    print("Construct list of fields to recode ...")
     fields_to_recode = {}
     for field in metadata_values:
         if field["LogicalName"] in fields_to_lookup:
             fields_to_recode[field["LogicalName"]] = field
 
+    print("populate recoder ...")
     for crm_name, local_name in zip(fields_to_lookup, fields_to_rename):
         field_metadata = fields_to_recode[crm_name]
         field_recodes = {}
+        print(f"for {crm_name}, {local_name} ...")
         for category in field_metadata["OptionSet"]["Options"]:
             field_recodes[str(category["Value"])] = category["Label"][
                 "LocalizedLabels"
@@ -128,6 +133,8 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
             recoder["unverified_borough"] = field_recodes
         elif name == "dcp_projects":
             recoder[local_name] = field_recodes
+
+    print("replace values using recoder ...")
     data.replace(to_replace=recoder, inplace=True)
 
     if name == "dcp_projects":

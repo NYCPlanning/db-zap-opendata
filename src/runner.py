@@ -32,8 +32,8 @@ class Runner:
         self.schema = schema
         self.pg = PG(ZAP_ENGINE, self.schema)
         self.engine = self.pg.engine
-        self.open_dataset = False # DEV for testing
-        # self.open_dataset = self.name in OPEN_DATA
+        # self.open_dataset = False # DEV for testing
+        self.open_dataset = self.name in OPEN_DATA
 
     def create_output_cache_dir(self):
         if not os.path.isdir(self.output_dir):
@@ -131,10 +131,10 @@ class Runner:
         return [s["name"] for s in schema]
 
     def export(self):
-        print("self.sql_to_csv ...")
+        print(f"self.sql_to_csv for {self.name} ...")
         self.sql_to_csv(self.name, self.output_file, all_columns=False, open_data=False)
         if self.open_dataset:
-            print("self.sql_to_csv for name_visible ...")
+            print(f"self.sql_to_csv for {self.name}_visible ...")
             self.sql_to_csv(
                 f"{self.name}_visible",
                 f"{self.output_file}_visible",
@@ -166,6 +166,7 @@ class Runner:
             )
         if open_data:
             print("open_data_recode ...")
+            # TODO make this faster!
             df = open_data_recode(self.name, df, self.headers)
             print("df.to_csv ...")
             df.to_csv(f"{self.cache_dir}/{self.name}_after_recode.csv", index=False)

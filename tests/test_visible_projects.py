@@ -1,5 +1,5 @@
 import pytest
-from src.visible_projects import get_fields, get_metadata
+from src.visible_projects import get_fields, get_metadata, open_data_recode
 
 
 @pytest.fixture(scope="module")
@@ -38,9 +38,15 @@ def test_recode_fields_raise(fields_in_metadata):
             assert field in fields_in_metadata
 
 
-@pytest.mark.skip(reason="may not test this yet, was used to print CRM metadata")
+@pytest.mark.skip(reason="in-progress")
 @pytest.mark.parametrize("dataset_name", ["dcp_projects", "dcp_projectbbls"])
 def test_recode_values(all_fields_metadata, dataset_name):
+    df_after_recode = open_data_recode(dataset_name, df_from_crm, headers)
+
+
+@pytest.mark.skip(reason="may not test this yet, was used to print CRM metadata")
+@pytest.mark.parametrize("dataset_name", ["dcp_projects", "dcp_projectbbls"])
+def test_recode_exploration(all_fields_metadata, dataset_name):
     fields_to_lookup, _ = get_fields(dataset_name)
 
     for field in fields_to_lookup:
