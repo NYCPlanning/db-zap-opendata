@@ -5,12 +5,12 @@ from collections import namedtuple
 from src.runner import Runner
 
 TEST_SCHEMA_SUFFIX = os.environ.get("TEST_SCHEMA_SUFFIX", None)
-if not TEST_SCHEMA_SUFFIX:
-    test_data_expected_schema = "test_data_expected"
-else:
-    test_data_expected_schema = f"test_data_expected_{TEST_SCHEMA_SUFFIX}"
 
+test_data_expected_schema = "test_data_expected"
 test_data_actual_schema = "test_data_actual"
+if TEST_SCHEMA_SUFFIX:
+    test_data_actual_schema = f"{test_data_actual_schema}_{TEST_SCHEMA_SUFFIX}"
+
 test_data_query = """
     select * from :dataset_name :filter_clause
 """
