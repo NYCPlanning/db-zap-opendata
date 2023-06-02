@@ -17,15 +17,15 @@ TestDataset = namedtuple(
     ],
 )
 test_datasets = [
-    TestDataset(
-        name="dcp_projects",
-        filter_clause="""
-            where dcp_name in (
-                'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
-                )
-            """,
-        expected_row_count=4,
-    ),
+    # TestDataset(
+    #     name="dcp_projects",
+    #     filter_clause="""
+    #         where dcp_name in (
+    #             'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
+    #             )
+    #         """,
+    #     expected_row_count=4,
+    # ),
     TestDataset(
         name="dcp_projectbbls",
         filter_clause="""
@@ -46,38 +46,49 @@ def test_validate_expected_test_data(test_dataset):
         "dataset_name": test_dataset.name,
         "filter_clause": test_dataset.filter_clause,
     }
-    test_data = runner.pg.execute_select_query(
+    test_data_expected = runner.pg.execute_select_query(
         base_query=test_data_query,
         parameters=test_data_query_parameters,
     )
-    assert len(test_data) == test_dataset.expected_row_count
+    assert len(test_data_expected) == test_dataset.expected_row_count
 
 
-@pytest.mark.skip()
+# @pytest.mark.skip(reason="in-progress")
 @pytest.mark.integration()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_clean(test_dataset):
     runner = Runner(name=test_dataset.name, schema=test_data_actual_schema)
     runner.clean()
-    # TODO assert something
+    # TODO assert things
+    # if os.path.isdir(self.output_dir):
+    #   assert directory is empty
+    # if os.path.isdir(self.cahce_dir):
+    #   assert directory is empty
 
 
-@pytest.mark.skip()
+# @pytest.mark.skip(reason="in-progress")
 @pytest.mark.integration()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner(test_dataset):
     # TODO run the entire runner
     runner = Runner(name=test_dataset.name, schema=test_data_actual_schema)
-    # runner()
-
-
-    # TODO compare a subset of the final csv to known data
-    runner = Runner(name=test_dataset.name, schema=test_data_expected_schema)
-    test_data = runner.pg.execute_select_query(
+    runner()
+    test_data_actual = runner.pg.execute_select_query(
         base_query=test_data_query,
         parameters={
             "dataset_name": test_dataset.name,
             "filter_clause": test_dataset.filter_clause,
         },
     )
-    # TODO assert something
+
+    # TODO compare a subset of the final csv to known data
+    runner = Runner(name=test_dataset.name, schema=test_data_expected_schema)
+    test_data_expected = runner.pg.execute_select_query(
+        base_query=test_data_query,
+        parameters={
+            "dataset_name": test_dataset.name,
+            "filter_clause": test_dataset.filter_clause,
+        },
+    )
+    # TODO assert things
+    assert len(test_data_actual) == test_dataset.expected_row_count
