@@ -17,7 +17,7 @@ from .util import timestamp_to_date
 
 
 class Runner:
-    def __init__(self, name: str):
+    def __init__(self, name, schema: str = "public"):
         self.c = Client(
             zap_domain=ZAP_DOMAIN,
             tenant_id=TENANT_ID,
@@ -29,15 +29,16 @@ class Runner:
         self.cache_dir = f".cache/{name}"
         self.output_file = f"{self.output_dir}/{self.name}"
         self.headers = self.c.request_header
-        self.engine = PG(ZAP_ENGINE).engine
+        self.schema = schema
+        self.pg = PG(ZAP_ENGINE, self.schema)
+        self.engine = self.pg.engine
         self.open_dataset = self.name in OPEN_DATA
 
     def create_output_cache_dir(self):
         if not os.path.isdir(self.output_dir):
-            os.makedirs(self.output_dir, exist_ok=True) 
+            os.makedirs(self.output_dir, exist_ok=True)
         if not os.path.isdir(self.cache_dir):
             os.makedirs(self.cache_dir, exist_ok=True)
-         
 
     def download(self):
         print(f"downloading {self.name} from ZAP CRM ...")
@@ -66,7 +67,9 @@ class Runner:
             statement = """
                 select * from information_schema.tables 
                 where table_name='%(name)s'
-            """ % {"name": name}
+            """ % {
+                "name": name
+            }
             r = sql_conn.execute(statement=text(statement))
         return bool(r.rowcount)
 
@@ -78,7 +81,10 @@ class Runner:
                 statement = """
                     BEGIN; DROP TABLE IF EXISTS %(newname)s; 
                     ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
-                """ % {"name": self.name, "newname": self.name + "_"}
+                """ % {
+                    "name": self.name,
+                    "newname": self.name + "_",
+                }
                 sql_conn.execute(statement=text(statement))
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
@@ -167,8 +173,16 @@ class Runner:
                         "approval_date",
                     ],
                 )
-                df.loc[(~df.current_milestone.isnull()) & (df.current_milestone.str.contains("MM - Project Readiness")), "current_milestone_date"] = None
-                df.loc[(~df.current_milestone.isnull()) & (df.current_milestone.str.contains("MM - Project Readiness")), "current_milestone"] = None
+                df.loc[
+                    (~df.current_milestone.isnull())
+                    & (df.current_milestone.str.contains("MM - Project Readiness")),
+                    "current_milestone_date",
+                ] = None
+                df.loc[
+                    (~df.current_milestone.isnull())
+                    & (df.current_milestone.str.contains("MM - Project Readiness")),
+                    "current_milestone",
+                ] = None
         return df
 
     def __call__(self):
@@ -176,12 +190,12 @@ class Runner:
         self.clean()
         print("~~~ RUNNING download ~~~")
         self.download()
-        print("~~~ RUNNING combine ~~~")
-        self.combine()
-        print("~~~ RUNNING export ~~~")
-        self.export()
+        # print("~~~ RUNNING combine ~~~")
+        # self.combine()
+        # print("~~~ RUNNING export ~~~")
+        # self.export()
 
 
 if __name__ == "__main__":
     name = sys.argv[1]
-    Runner(name)()
+    runner = Runner(name)
