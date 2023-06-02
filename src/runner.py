@@ -90,7 +90,6 @@ class Runner:
                     "newname": self.name + "_",
                 }
                 sql_conn.execute(statement=text(statement))
-        # for _file in files[:2]: # DEV for testing
         for _file in files:
             with open(f"{self.output_dir}/{_file}") as f:
                 data = json.load(f)
