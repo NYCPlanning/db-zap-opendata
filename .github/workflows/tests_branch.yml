@@ -13,6 +13,7 @@ env:
   CLIENT_ID: ${{ secrets.CLIENT_ID }}
   SECRET: ${{ secrets.SECRET }}
   ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+  TEST_SCHEMA_SUFFIX: ${{ github.event.pull_request.number || 'workflow_dispatch' }}
 
 jobs:
   branch_unit_tests:

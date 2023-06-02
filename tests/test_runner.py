@@ -1,9 +1,15 @@
+import os
 import pytest
 from collections import namedtuple
 
 from src.runner import Runner
 
-test_data_expected_schema = "test_data_expected"
+TEST_SCHEMA_SUFFIX = os.environ.get("TEST_SCHEMA_SUFFIX", None)
+if not TEST_SCHEMA_SUFFIX:
+    test_data_expected_schema = "test_data_expected"
+else:
+    test_data_expected_schema = f"test_data_expected_{TEST_SCHEMA_SUFFIX}"
+
 test_data_actual_schema = "test_data_actual"
 test_data_query = """
     select * from :dataset_name :filter_clause
