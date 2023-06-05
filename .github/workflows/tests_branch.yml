@@ -48,7 +48,7 @@ jobs:
 
     - name: Run python integration tests
       run: |
-        echo "🚨 These tests may take ~10 minutes"
+        echo "🚨 These tests may take ~1 hour per open data dataset"
         python3 -m pytest -m "integration" -s --verbose --verbose --durations=0 --cov-config=pyproject.toml --cov .
 
   branch_build_mapzap_tests:
