@@ -30,4 +30,4 @@ zap_projects as (
             zap_projects_recoded.dcp_name = zap_project_ids.dcp_name
 )
 
-select * from zap_projects
+select * from zap_projects_recoded

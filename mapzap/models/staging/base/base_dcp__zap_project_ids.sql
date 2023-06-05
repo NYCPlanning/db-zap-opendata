@@ -1,14 +1,14 @@
 with source as (
 
-    select * from {{ source('zap_projects', '20230526') }}
+    select * from {{ source('zap_projects', '20230605_test_recoded') }}
 
 ),
 
 zap_project_ids as (
 
     select
-        dcp_name,
-        dcp_projectid as project_id
+        project_id as dcp_name,
+        crm_project_id as project_id
     from source
 )
 

@@ -1,6 +1,6 @@
 with source as (
 
-    select * from {{ source('zap_projects', '20230526_recoded') }}
+    select * from {{ source('zap_projects', '20230605_test_recoded') }}
 
 ),
 
@@ -8,6 +8,7 @@ zap_projects as (
 
     select
         project_id as dcp_name,
+        crm_project_id as project_id,
         project_name,
         certified_referred as project_certified_referred_date,
         applicant_type,
