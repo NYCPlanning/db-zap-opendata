@@ -103,7 +103,7 @@ class Runner:
                 if_exists="append",
                 method=psql_insert_copy,
             )
-            os.remove(f"{self.output_dir}/{_file}")
+            # os.remove(f"{self.output_dir}/{_file}")
 
         # fmt:off
         with self.engine.begin() as sql_conn:
@@ -156,7 +156,6 @@ class Runner:
         df.to_csv(f"{output_file}.csv", index=False)
 
     def export_cleaning(self, df, open_data):
-        # TODO add prints to see which parts take the longest (~1 hour)
         """Written because sql int to csv writes with decimal and big query wants int"""
         if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
             df["timezoneruleversionnumber"] = (
@@ -166,7 +165,6 @@ class Runner:
             )
         if open_data:
             print("open_data_recode ...")
-            # TODO make this faster!
             df = open_data_recode(self.name, df, self.headers)
             print("df.to_csv ...")
             df.to_csv(f"{self.cache_dir}/{self.name}_after_recode.csv", index=False)
