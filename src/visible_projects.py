@@ -11,6 +11,7 @@ PICKLIST_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/Enti
 STATUS_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet"
 RECODE_FIELDS = {
     "dcp_projects": [
+        ("dcp_visibility", "dcp_visibility"),
         ("statuscode", "project_status"),
         ("dcp_publicstatus", "public_status"),
         ("dcp_ulurp_nonulurp", "ulurp_non"),
@@ -27,16 +28,18 @@ RECODE_FIELDS = {
 CRM_CODE_PROJECT_IS_VISIBLE = "717170003"
 
 
-def make_open_data_table(sql_engine, dataset_name) -> None:
+def make_crm_table(sql_engine, dataset_name) -> None:
+    # TODO add missing MapZAP non-public here
     if dataset_name == "dcp_projects":
-        statement = """
+        statement_crm = """
             BEGIN;
-            DROP TABLE IF EXISTS dcp_projects_visible;
-            CREATE TABLE dcp_projects_visible as 
+            DROP TABLE IF EXISTS dcp_projects_crm;
+            CREATE TABLE dcp_projects_crm as 
             (SELECT dcp_name as project_id,
                     dcp_projectname as project_name,
                     dcp_projectid as crm_project_id,
                     dcp_projectbrief as project_brief,
+                    dcp_visibility,
                     statuscode as project_status,
                     dcp_publicstatus as public_status,
                     dcp_ulurp_nonulurp as ulurp_non,
@@ -44,7 +47,7 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
                     dcp_ulurpnumbers as ulurp_numbers,
                     dcp_ceqrtype as ceqr_type, 
                     dcp_ceqrnumber as ceqr_number,
-                    dcp_easeis as eas_eis, 
+                    dcp_eis as eas_eis, 
                     _dcp_leadagencyforenvreview_value as ceqr_leadagency,
                     _dcp_applicant_customer_value as primary_applicant, 
                     dcp_applicanttype as applicant_type, 
@@ -68,14 +71,16 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
                     dcp_createmodifymihareaworkforceoption as mih_workforce,
                     dcp_createmodifymihareadeepaffordabilityoptio as mih_deepaffordability, 
                     dcp_mihmappedbutnotproposed as mih_mapped_no_res
-                    from dcp_projects where dcp_visibility = '717170003');
+                    from dcp_projects);
                 COMMIT;
             """
+        with sql_engine.begin() as sql_conn:
+            sql_conn.execute(statement=text(statement_crm))
     elif dataset_name == "dcp_projectbbls":
         statement = """
             BEGIN;
-            DROP TABLE IF EXISTS dcp_projectbbls_visible;
-            CREATE TABLE dcp_projectbbls_visible as 
+            DROP TABLE IF EXISTS dcp_projectbbls_crm;
+            CREATE TABLE dcp_projectbbls_crm as 
             (SELECT dcp_projectbbls.dcp_name as project_id,
                     dcp_projectbbls.dcp_bblnumber as bbl,
                     dcp_projectbbls.dcp_validatedborough as validated_borough,
@@ -86,15 +91,86 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
                     dcp_projectbbls.dcp_userinputborough as unverified_borough,
                     dcp_projectbbls.dcp_userinputblock as unverified_block,
                     dcp_projectbbls.dcp_userinputlot as unverified_lot
-             from dcp_projectbbls INNER JOIN dcp_projects_visible 
-            on SUBSTRING(dcp_projectbbls.dcp_name, 0,10) = dcp_projects_visible.project_id);
+             from dcp_projectbbls INNER JOIN dcp_projects_crm 
+            on SUBSTRING(dcp_projectbbls.dcp_name, 0,10) = dcp_projects_crm.project_id);
             COMMIT;
         """
+        with sql_engine.begin() as sql_conn:
+            sql_conn.execute(statement=text(statement))
     else:
         raise NotImplementedError(f"Unimplemented open dataset: {dataset_name}")
 
-    with sql_engine.begin() as sql_conn:
-        sql_conn.execute(statement=text(statement))
+def make_open_data_table(sql_engine, dataset_name) -> None:
+    if dataset_name == "dcp_projects":
+        statement_visible = """
+            BEGIN;
+            DROP TABLE IF EXISTS dcp_projects_visible;
+            CREATE TABLE dcp_projects_visible as 
+            (SELECT project_id,
+                    project_name,
+                    crm_project_id,
+                    project_brief,
+                    dcp_visibility,
+                    project_status,
+                    public_status,
+                    ulurp_non,
+                    actions,
+                    ulurp_numbers,
+                    ceqr_type, 
+                    ceqr_number,
+                    eas_eis, 
+                    ceqr_leadagency,
+                    primary_applicant, 
+                    applicant_type, 
+                    borough, 
+                    community_district,
+                    cc_district, 
+                    flood_zone_a,
+                    flood_zone_shadedx, 
+                    current_milestone, 
+                    current_milestone_date,
+                    current_envmilestone, 
+                    current_envmilestone_date, 
+                    app_filed_date, 
+                    noticed_date, 
+                    certified_referred, 
+                    approval_date,
+                    completed_date,
+                    mih_flag,
+                    mih_option1,
+                    mih_option2, 
+                    mih_workforce,
+                    mih_deepaffordability, 
+                    mih_mapped_no_res
+                    from dcp_projects_crm where dcp_visibility = '717170003');
+                COMMIT;
+            """
+        with sql_engine.begin() as sql_conn:
+            sql_conn.execute(statement=text(statement_visible))
+    elif dataset_name == "dcp_projectbbls":
+        statement = """
+            BEGIN;
+            DROP TABLE IF EXISTS dcp_projectbbls_visible;
+            CREATE TABLE dcp_projectbbls_visible as 
+            (SELECT dcp_projectbbls_crm.project_id as project_id,
+                    dcp_projectbbls_crm.bbl as bbl,
+                    dcp_projectbbls_crm.validated_borough as validated_borough,
+                    dcp_projectbbls_crm.validated_block as validated_block,
+                    dcp_projectbbls_crm.validated_lot as validated_lot,
+                    dcp_projectbbls_crm.validated as validated,
+                    dcp_projectbbls_crm.validated_date as validated_date,
+                    dcp_projectbbls_crm.unverified_borough as unverified_borough,
+                    dcp_projectbbls_crm.unverified_block as unverified_block,
+                    dcp_projectbbls_crm.unverified_lot as unverified_lot
+             from dcp_projectbbls_crm INNER JOIN dcp_projects_visible 
+            on SUBSTRING(dcp_projectbbls_crm.project_id, 0,10) = dcp_projects_visible.project_id);
+            COMMIT;
+        """
+        with sql_engine.begin() as sql_conn:
+            sql_conn.execute(statement=text(statement))
+    else:
+        raise NotImplementedError(f"Unimplemented open dataset: {dataset_name}")
+
 
 
 def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFrame:
@@ -136,9 +212,6 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
 
     print("replace values using recoder ...")
     data.replace(to_replace=recoder, inplace=True)
-
-    if name == "dcp_projects":
-        data = recode_id(data)
 
     return data
 

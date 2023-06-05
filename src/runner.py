@@ -12,7 +12,13 @@ from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
 from .client import Client
 from .copy import psql_insert_copy
 from .pg import PG
-from .visible_projects import OPEN_DATA, make_open_data_table, open_data_recode
+from .visible_projects import (
+    OPEN_DATA,
+    make_crm_table,
+    make_open_data_table,
+    open_data_recode,
+    recode_id,
+)
 from .util import timestamp_to_date
 
 
@@ -34,6 +40,12 @@ class Runner:
         self.engine = self.pg.engine
         # self.open_dataset = False # DEV for testing
         self.open_dataset = self.name in OPEN_DATA
+
+    def clean(self):
+        if os.path.isdir(self.output_dir):
+            files = os.listdir(self.output_dir)
+            for _file in files:
+                os.remove(f"{self.output_dir}/{_file}")
 
     def create_output_cache_dir(self):
         if not os.path.isdir(self.output_dir):
@@ -59,9 +71,9 @@ class Runner:
 
     def write_to_json(self, content: str, filename: str) -> bool:
         print(f"writing {filename} ...")
-        with open(f"{self.output_dir}/{filename}", "w") as f:
+        with open(f"{self.cache_dir}/{filename}", "w") as f:
             f.write(content)
-        return os.path.isfile(f"{self.output_dir}/{filename}")
+        return os.path.isfile(f"{self.cache_dir}/{filename}")
 
     def check_table_existence(self, name):
         with self.engine.begin() as sql_conn:
@@ -72,15 +84,16 @@ class Runner:
                     and table_name='%(name)s'
             """ % {
                 "schema": self.pg.schema,
-                "name": name
+                "name": name,
             }
             r = sql_conn.execute(statement=text(statement))
         return bool(r.rowcount)
 
     def combine(self):
         print("running combine ...")
-        files = os.listdir(self.output_dir)
+        files = os.listdir(self.cache_dir)
         if self.check_table_existence(self.name):
+            print("check_table_existence ...")
             with self.engine.begin() as sql_conn:
                 statement = """
                     BEGIN; DROP TABLE IF EXISTS %(newname)s; 
@@ -90,12 +103,17 @@ class Runner:
                     "newname": self.name + "_",
                 }
                 sql_conn.execute(statement=text(statement))
+        else:
+            print("table does not exist")
         for _file in files:
-            with open(f"{self.output_dir}/{_file}") as f:
+            print(f"json.load {self.cache_dir}/{_file} ...")
+            with open(f"{self.cache_dir}/{_file}") as f:
                 data = json.load(f)
             df = pd.DataFrame(data["value"], dtype=str)
             if self.open_dataset:
+                print("open_data_cleaning ...")
                 df = self.open_data_cleaning(df)
+            print("df.to_sql ...")
             df.to_sql(
                 name=self.name,
                 con=self.engine,
@@ -111,18 +129,12 @@ class Runner:
             sql_conn.execute(statement=text(statement))
         # fmt:on
         if self.open_dataset:
-            make_open_data_table(self.engine, self.name)
+            make_crm_table(self.engine, self.name)
 
     def open_data_cleaning(self, df):
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
         return df
-
-    def clean(self):
-        if os.path.isdir(self.output_dir):
-            files = os.listdir(self.output_dir)
-            for _file in files:
-                os.remove(f"{self.output_dir}/{_file}")
 
     @property
     def columns(self):
@@ -130,48 +142,26 @@ class Runner:
             schema = json.load(f)
         return [s["name"] for s in schema]
 
-    def export(self):
-        print(f"self.sql_to_csv for {self.name} ...")
-        self.sql_to_csv(self.name, self.output_file, all_columns=False, open_data=False)
-        if self.open_dataset:
-            print(f"self.sql_to_csv for {self.name}_visible ...")
-            self.sql_to_csv(
-                f"{self.name}_visible",
-                f"{self.output_file}_visible",
-                all_columns=True,
-                open_data=True,
-            )
-
-    def sql_to_csv(self, table_name, output_file, all_columns, open_data):
+    def recode(self):
+        recode_table_name = f"{self.name}_recoded"
         print("pd.read_sql ...")
         df = pd.read_sql(
-            "select * from %(name)s" % {"name": table_name}, con=self.engine
+            "select * from %(name)s"
+            % {
+                "name": f"{self.name}_crm",
+            },
+            con=self.engine,
         )
-        print("self.export_cleaning ...")
-        df = self.export_cleaning(df, open_data)
-        if not all_columns:
-            df = df[self.columns]
-
-        print("df.to_csv ...")
-        df.to_csv(f"{output_file}.csv", index=False)
-
-    def export_cleaning(self, df, open_data):
-        """Written because sql int to csv writes with decimal and big query wants int"""
-        if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
-            df["timezoneruleversionnumber"] = (
-                df["timezoneruleversionnumber"]
-                .str.split(".", expand=True)[0]
-                .astype(int, errors="ignore")
-            )
-        if open_data:
+        if not self.open_dataset:
+            print("Nothing to recode in non-open dataset")
+        else:
             print("open_data_recode ...")
             df = open_data_recode(self.name, df, self.headers)
             print("df.to_csv ...")
-            df.to_csv(f"{self.cache_dir}/{self.name}_after_recode.csv", index=False)
-            if self.name == "dcp_projectbbls":
-                print("timestamp_to_date ...")
-                df = timestamp_to_date(df, date_columns=["validated_date"])
-                df["project_id"] = df["project_id"].str.split(" ").str[0]
+            df.to_csv(
+                f"{self.output_dir}/{recode_table_name}_before_recode_id.csv",
+                index=False,
+            )
             if self.name == "dcp_projects":
                 print("timestamp_to_date ...")
                 df = timestamp_to_date(
@@ -198,6 +188,57 @@ class Runner:
                     & (df.current_milestone.str.contains("MM - Project Readiness")),
                     "current_milestone",
                 ] = None
+
+                # print("recode_id ...")
+                # df = recode_id(df)
+
+            print("df.to_csv ...")
+            df.to_csv(f"{self.output_dir}/{recode_table_name}.csv", index=False)
+
+            df.to_sql(
+                name=recode_table_name,
+                con=self.engine,
+                index=False,
+                if_exists="replace",
+                method=psql_insert_copy,
+            )
+
+    def export(self):
+        print(f"self.sql_to_csv for {self.name} ...")
+        self.sql_to_csv(self.name, self.output_file, all_columns=False, open_data=False)
+        if self.open_dataset:
+            print(f"self.sql_to_csv for {self.name}_visible ...")
+            make_open_data_table(self.engine, self.name)
+
+            self.sql_to_csv(
+                f"{self.name}_visible",
+                f"{self.output_file}_visible",
+                all_columns=True,
+                open_data=True,
+            )
+
+    def sql_to_csv(self, table_name, output_file, all_columns, open_data):
+        print("pd.read_sql ...")
+        df = pd.read_sql(
+            "select * from %(name)s" % {"name": table_name}, con=self.engine
+        )
+        print("self.export_cleaning ...")
+        df = self.export_cleaning(df, open_data)
+
+        if not all_columns:
+            df = df[self.columns]
+
+        print("df.to_csv ...")
+        df.to_csv(f"{output_file}.csv", index=False)
+
+    def export_cleaning(self, df, open_data):
+        """Written because sql int to csv writes with decimal and big query wants int"""
+        if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
+            df["timezoneruleversionnumber"] = (
+                df["timezoneruleversionnumber"]
+                .str.split(".", expand=True)[0]
+                .astype(int, errors="ignore")
+            )
         return df
 
     def __call__(self):
@@ -207,6 +248,8 @@ class Runner:
         self.download()
         print("~~~ RUNNING combine ~~~")
         self.combine()
+        print("~~~ RUNNING recode ~~~")
+        self.recode()
         print("~~~ RUNNING export ~~~")
         self.export()
 
