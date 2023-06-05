@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from typing import List
 import pandas as pd
 import requests
@@ -22,22 +23,42 @@ RECODE_METADATA = {
             "dcp_applicant_customer_contact",
         ],
         "metadata_keys": {
-            "dcp_applicant_customer_account": ("name", "accountid"),
-            "dcp_applicant_customer_contact": ("fullname", "contactid"),
+            "dcp_applicant_customer_account": (
+                "name",
+                "accountid",
+            ),
+            "dcp_applicant_customer_contact": (
+                "fullname",
+                "contactid",
+            ),
         },
     },
     "ceqr_leadagency": {
-        "metadata_field_names": ["dcp_leadagencyforenvreview"],
-        "metadata_keys": {"dcp_leadagencyforenvreview": ("name", "accountid")},
+        "metadata_field_names": [
+            "dcp_leadagencyforenvreview",
+        ],
+        "metadata_keys": {
+            "dcp_leadagencyforenvreview": (
+                "name",
+                "accountid",
+            )
+        },
     },
     "current_milestone": {
-        "metadata_field_names": ["dcp_CurrentMilestone"],
+        "metadata_field_names": [
+            "dcp_CurrentMilestone",
+        ],
         "metadata_keys": {
-            "dcp_CurrentMilestone": ("dcp_name", "dcp_projectmilestoneid")
+            "dcp_CurrentMilestone": (
+                "dcp_name",
+                "dcp_projectmilestoneid",
+            )
         },
     },
     "current_envmilestone": {
-        "metadata_field_names": ["dcp_currentenvironmentmilestone"],
+        "metadata_field_names": [
+            "dcp_currentenvironmentmilestone",
+        ],
         "metadata_keys": {
             "dcp_currentenvironmentmilestone": (
                 "dcp_name",
@@ -133,12 +154,13 @@ def recode_single_project(
     recode_tracker: ReuseTracker,
     logger: logging.Logger,
 ):
-
+    # TODO make this faster!
+    start_time = time.time()
     additional_recode, row = recode_tracker.find_recode(row)
     if additional_recode:
-        logger.info(f"Hitting URL for row {row.name}")
+        logger.debug(f"Hitting URL for row {row.name}")
     else:
-        logger.info(f"No additional recode needed for row {row.name}")
+        logger.debug(f"No additional recode needed for row {row.name}")
     if additional_recode:
         url = expand_url(row.crm_project_id)
         res = requests.get(url, headers=auth.headers)
@@ -146,9 +168,21 @@ def recode_single_project(
             auth.refresh_headers()
             res = requests.get(url, headers=auth.headers)
             if res.status_code != 200:
-                print(f"broken url {url} produced {res.status_code=}")
+                request_text = f"""
+                    broken url
+                        {url}
+                    produced
+                        {res.status_code=}
+                        {res.text=}
+                        {res.json()=}
+                    """
+                print(request_text)
                 return row
+        else:  # DEV to debug
+            print(f"good {url}")
         expanded_project_data = res.json()
+        # expanded_project_data = row[""]
+
         for field_to_recode in RECODE_ID_FIELDS:
             row[field_to_recode] = convert_to_human_readable(
                 expanded=expanded_project_data,
@@ -157,6 +191,7 @@ def recode_single_project(
                 recode_tracker=recode_tracker,
                 logger=logger,
             )
+        # print(f"duration: {divmod(time.time() - start_time, 60)}")
 
     return row
 
@@ -170,6 +205,7 @@ def convert_to_human_readable(
     metadata_field_names: List[str] = None,
     metadata_keys: dict = None,
 ):
+    print(expanded)
     # Potential upgrade: return field instead of entire row
     id_val = row[local_fieldname]
     logger.info(
@@ -209,4 +245,5 @@ def convert_to_human_readable(
 
 
 def expand_url(project_id):
-    return f"https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/dcp_projects({project_id})?$select=_dcp_applicant_customer_value,_dcp_currentmilestone_value,dcp_name&$expand=dcp_CurrentMilestone($select=dcp_name),dcp_leadagencyforenvreview($select=name),dcp_applicant_customer_contact($select=fullname),dcp_currentenvironmentmilestone($select=dcp_name),dcp_applicant_customer_account($select=name)"
+    return f"{ZAP_DOMAIN}/api/data/v9.1/dcp_projects({project_id})?$select=_dcp_applicant_customer_value,_dcp_currentmilestone_value,dcp_name&$expand=dcp_CurrentMilestone($select=dcp_name),dcp_leadagencyforenvreview($select=name),dcp_applicant_customer_contact($select=fullname),dcp_currentenvironmentmilestone($select=dcp_name),dcp_applicant_customer_account($select=name)"
+    # return f"https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/dcp_projects({project_id})?$select=_dcp_applicant_customer_value,_dcp_currentmilestone_value,dcp_name&$expand=dcp_CurrentMilestone($select=dcp_name),dcp_leadagencyforenvreview($select=name),dcp_applicant_customer_contact($select=fullname),dcp_currentenvironmentmilestone($select=dcp_name),dcp_applicant_customer_account($select=name)"
