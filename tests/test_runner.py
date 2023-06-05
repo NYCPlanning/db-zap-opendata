@@ -1,6 +1,7 @@
 import os
 import pytest
 from collections import namedtuple
+import pandas as pd
 
 from src.runner import Runner
 
@@ -33,15 +34,15 @@ test_datasets = [
             """,
         expected_row_count=4,
     ),
-    # TestDataset(
-    #     name="dcp_projectbbls",
-    #     filter_clause="""
-    #         where SUBSTRING(dcp_projectbbls.dcp_name, 0,10) in (
-    #             'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
-    #             )
-    #         """,
-    #     expected_row_count=2210,
-    # ),
+    TestDataset(
+        name="dcp_projectbbls",
+        filter_clause="""
+            where SUBSTRING(dcp_projectbbls.dcp_name, 0,10) in (
+                'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
+                )
+            """,
+        expected_row_count=2210,
+    ),
 ]
 
 
@@ -49,18 +50,17 @@ test_datasets = [
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_validate_expected_test_data(test_dataset):
     runner = Runner(name=test_dataset.name, schema=test_data_expected_schema)
-    test_data_query_parameters = {
-        "dataset_name": test_dataset.name,
-        "filter_clause": test_dataset.filter_clause,
-    }
     test_data_expected = runner.pg.execute_select_query(
         base_query=test_data_query,
-        parameters=test_data_query_parameters,
+        parameters={
+            "dataset_name": test_dataset.name,
+            "filter_clause": test_dataset.filter_clause,
+        },
     )
     assert len(test_data_expected) == test_dataset.expected_row_count
 
 
-# @pytest.mark.skip(reason="in-progress")
+@pytest.mark.skip()
 @pytest.mark.integration()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_clean(test_dataset):
@@ -73,7 +73,54 @@ def test_runner_clean(test_dataset):
     #   assert directory is empty
 
 
+# @pytest.mark.skip()
+@pytest.mark.integration()
+@pytest.mark.parametrize("test_dataset", test_datasets)
+def test_runner_download(test_dataset):
+    runner = Runner(name=test_dataset.name, schema=test_data_actual_schema)
+    runner.download()
+
+
+# @pytest.mark.skip()
+@pytest.mark.integration()
+@pytest.mark.parametrize("test_dataset", test_datasets)
+def test_runner_combine(test_dataset):
+    runner = Runner(name=test_dataset.name, schema=test_data_actual_schema)
+    runner.combine()
+    # TODO assert things
+    # if os.path.isfile(self.cahce_dir):
+    #   assert directory is empty
+    test_data_query_parameters = {
+        "dataset_name": test_dataset.name,
+        "filter_clause": test_dataset.filter_clause,
+    }
+    test_data_actual = runner.pg.execute_select_query(
+        base_query=test_data_query,
+        parameters=test_data_query_parameters,
+    ).sort_index(axis=1).sort_values(by="@odata.etag").reset_index()
+
+    # runner_expected = Runner(name=test_dataset.name, schema=test_data_expected_schema)
+    # test_data_expected = runner_expected.pg.execute_select_query(
+    #     base_query=test_data_query,
+    #     parameters=test_data_query_parameters,
+    # ).sort_index(axis=1).sort_values(by="@odata.etag").reset_index()
+    # pd.testing.assert_frame_equal(test_data_actual, test_data_expected)
+
+@pytest.mark.integration()
+@pytest.mark.parametrize("test_dataset", test_datasets)
+def test_runner_recode(test_dataset):
+    runner = Runner(name=test_dataset.name, schema=test_data_actual_schema)
+    runner.recode()
+
 # @pytest.mark.skip(reason="in-progress")
+@pytest.mark.integration()
+@pytest.mark.parametrize("test_dataset", test_datasets)
+def test_runner_export(test_dataset):
+    runner = Runner(name=test_dataset.name, schema=test_data_actual_schema)
+    runner.export()
+
+
+@pytest.mark.skip(reason="in-progress")
 @pytest.mark.integration()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner(test_dataset):
