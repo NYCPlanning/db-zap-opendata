@@ -29,13 +29,14 @@ RECODE_FIELDS = {
 CRM_CODE_PROJECT_IS_VISIBLE = "717170003"
 
 
-def make_crm_table(sql_engine, dataset_name) -> None:
-    # TODO add missing MapZAP non-public here
+def make_staging_table(sql_engine, dataset_name) -> None:
+    source_table_name = f"{dataset_name}_crm"
+    staging_table_name = f"{dataset_name}_staging"
     if dataset_name == "dcp_projects":
-        statement_crm_table = """
+        statement_staging_table = """
             BEGIN;
-            DROP TABLE IF EXISTS dcp_projects_crm;
-            CREATE TABLE dcp_projects_crm as 
+            DROP TABLE IF EXISTS %(staging_table_name)s;
+            CREATE TABLE %(staging_table_name)s as 
             (SELECT dcp_name as project_id,
                     dcp_projectname as project_name,
                     dcp_projectid as crm_project_id,
@@ -78,32 +79,48 @@ def make_crm_table(sql_engine, dataset_name) -> None:
                     dcp_createmodifymihareaworkforceoption as mih_workforce,
                     dcp_createmodifymihareadeepaffordabilityoptio as mih_deepaffordability, 
                     dcp_mihmappedbutnotproposed as mih_mapped_no_res
-                    from dcp_projects);
+                from
+                    %(source_table_name)s);
                 COMMIT;
-            """
+            """ % {
+            "source_table_name": source_table_name,
+            "staging_table_name": staging_table_name,
+        }
     elif dataset_name == "dcp_projectbbls":
-        statement_crm_table = """
+        statement_staging_table = """
             BEGIN;
-            DROP TABLE IF EXISTS dcp_projectbbls_crm;
-            CREATE TABLE dcp_projectbbls_crm as 
-            (SELECT dcp_projectbbls.dcp_name as project_id,
-                    dcp_projectbbls.dcp_bblnumber as bbl,
-                    dcp_projectbbls.dcp_validatedborough as validated_borough,
-                    dcp_projectbbls.dcp_validatedblock as validated_block,
-                    dcp_projectbbls.dcp_validatedlot as validated_lot,
-                    dcp_projectbbls.dcp_bblvalidated as validated,
-                    dcp_projectbbls.dcp_bblvalidateddate as validated_date,
-                    dcp_projectbbls.dcp_userinputborough as unverified_borough,
-                    dcp_projectbbls.dcp_userinputblock as unverified_block,
-                    dcp_projectbbls.dcp_userinputlot as unverified_lot
-             from dcp_projectbbls INNER JOIN dcp_projects_recoded 
-            on SUBSTRING(dcp_projectbbls.dcp_name, 0,10) = dcp_projects_recoded.project_id);
+            DROP TABLE IF EXISTS %(staging_table_name)s;
+            CREATE TABLE %(staging_table_name)s as 
+            (SELECT %(source_table_name)s.dcp_name as project_id,
+                    %(source_table_name)s.dcp_bblnumber as bbl,
+                    %(source_table_name)s.dcp_validatedborough as validated_borough,
+                    %(source_table_name)s.dcp_validatedblock as validated_block,
+                    %(source_table_name)s.dcp_validatedlot as validated_lot,
+                    %(source_table_name)s.dcp_bblvalidated as validated,
+                    %(source_table_name)s.dcp_bblvalidateddate as validated_date,
+                    %(source_table_name)s.dcp_userinputborough as unverified_borough,
+                    %(source_table_name)s.dcp_userinputblock as unverified_block,
+                    %(source_table_name)s.dcp_userinputlot as unverified_lot
+             from %(source_table_name)s INNER JOIN dcp_projects_recoded
+            on SUBSTRING(%(source_table_name)s.dcp_name, 0,10) = dcp_projects_recoded.project_id);
             COMMIT;
-        """
+        """ % {
+            "source_table_name": source_table_name,
+            "staging_table_name": staging_table_name,
+        }
     else:
-        raise NotImplementedError(f"Unimplemented open dataset: {dataset_name}")
+        statement_staging_table = """
+            BEGIN;
+            DROP TABLE IF EXISTS %{staging_table_name}s;
+            CREATE TABLE %{staging_table_name}s as SELECT * FROM %{source_table_name}s
+            COMMIT;
+        """ % {
+            "source_table_name": source_table_name,
+            "staging_table_name": staging_table_name,
+        }
     with sql_engine.begin() as sql_conn:
-        sql_conn.execute(statement=text(statement_crm_table))
+        sql_conn.execute(statement=text(statement_staging_table))
+
 
 def make_open_data_table(sql_engine, dataset_name) -> None:
     if dataset_name == "dcp_projects":
@@ -147,7 +164,10 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
                     mih_workforce,
                     mih_deepaffordability, 
                     mih_mapped_no_res
-                    from dcp_projects_recoded where dcp_visibility = 'General Public');
+                from
+                    dcp_projects_recoded
+                where
+                    dcp_visibility = 'General Public');
                 COMMIT;
             """
         with sql_engine.begin() as sql_conn:
@@ -175,7 +195,6 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
             sql_conn.execute(statement=text(statement))
     else:
         raise NotImplementedError(f"Unimplemented open dataset: {dataset_name}")
-
 
 
 def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFrame:

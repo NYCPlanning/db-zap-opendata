@@ -14,7 +14,7 @@ from .copy import psql_insert_copy
 from .pg import PG
 from .visible_projects import (
     OPEN_DATA,
-    make_crm_table,
+    make_staging_table,
     make_open_data_table,
     open_data_recode,
     recode_id,
@@ -41,6 +41,12 @@ class Runner:
         self.engine = self.pg.engine
         # self.open_dataset = False # DEV for testing
         self.open_dataset = self.name in OPEN_DATA
+
+    @property
+    def columns(self):
+        with open(f"{Path(__file__).parent.parent}/schemas/{self.name}.json") as f:
+            schema = json.load(f)
+        return [s["name"] for s in schema]
 
     def create_output_cache_dir(self):
         if not os.path.isdir(self.output_dir):
@@ -72,74 +78,6 @@ class Runner:
         if self.name == "dcp_projects":  # To-do: figure out better design for this
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
         return df
-
-    @property
-    def columns(self):
-        with open(f"{Path(__file__).parent.parent}/schemas/{self.name}.json") as f:
-            schema = json.load(f)
-        return [s["name"] for s in schema]
-
-    def recode(self):
-        recode_table_name = f"{self.name}_recoded"
-        print("pd.read_sql ...")
-        df = pd.read_sql(
-            "select * from %(name)s"
-            % {
-                "name": f"{self.name}_crm",
-            },
-            con=self.engine,
-        )
-        if not self.open_dataset:
-            print("Nothing to recode in non-open dataset")
-        else:
-            print("open_data_recode ...")
-            df = open_data_recode(self.name, df, self.headers)
-            print("df.to_csv ...")
-            df.to_csv(
-                f"{self.output_dir}/{recode_table_name}_before_recode_id.csv",
-                index=False,
-            )
-            if self.name == "dcp_projects":
-                print("timestamp_to_date ...")
-                df = timestamp_to_date(
-                    df,
-                    date_columns=[
-                        "completed_date",
-                        "certified_referred",
-                        "current_milestone_date",
-                        "current_envmilestone_date",
-                        "app_filed_date",
-                        "noticed_date",
-                        "approval_date",
-                    ],
-                )
-                print("current_milestone_date ...")
-                df.loc[
-                    (~df.current_milestone.isnull())
-                    & (df.current_milestone.str.contains("MM - Project Readiness")),
-                    "current_milestone_date",
-                ] = None
-                print("current_milestone ...")
-                df.loc[
-                    (~df.current_milestone.isnull())
-                    & (df.current_milestone.str.contains("MM - Project Readiness")),
-                    "current_milestone",
-                ] = None
-
-                # TODO re-enable this
-                # print("recode_id ...")
-                # df = recode_id(df)
-
-            print("df.to_csv ...")
-            df.to_csv(f"{self.output_dir}/{recode_table_name}.csv", index=False)
-
-            df.to_sql(
-                name=recode_table_name,
-                con=self.engine,
-                index=False,
-                if_exists="replace",
-                method=psql_insert_copy,
-            )
 
     def sql_to_csv(self, table_name, output_file, all_columns, open_data):
         print("pd.read_sql ...")
@@ -188,7 +126,7 @@ class Runner:
             nextlink = response.json().get("@odata.nextLink", "")
 
     def combine(self):
-        print("running combine ...")
+        combine_table_name = f"{self.name}_crm"
         files = os.listdir(self.cache_dir)
         if self.check_table_existence(self.name):
             print("check_table_existence ...")
@@ -197,8 +135,8 @@ class Runner:
                     BEGIN; DROP TABLE IF EXISTS %(newname)s; 
                     ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
                 """ % {
-                    "name": self.name,
-                    "newname": self.name + "_",
+                    "name": combine_table_name,
+                    "newname": combine_table_name + "_",
                 }
                 sql_conn.execute(statement=text(statement))
         else:
@@ -213,29 +151,109 @@ class Runner:
                 df = self.open_data_cleaning(df)
             print("df.to_sql ...")
             df.to_sql(
-                name=self.name,
+                name=combine_table_name,
                 con=self.engine,
                 index=False,
                 if_exists="append",
                 method=psql_insert_copy,
             )
-            # os.remove(f"{self.output_dir}/{_file}")
 
-        # fmt:off
         with self.engine.begin() as sql_conn:
-            statement =  "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" % {"name": self.name + "_"}
+            statement = "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" % {
+                "name": combine_table_name + "_"
+            }
             sql_conn.execute(statement=text(statement))
-        # fmt:on
-        if self.open_dataset:
-            # TODO move to recode()
-            # TODO rename so that combine() output can be _crm
-            make_crm_table(self.engine, self.name)
+
+    def recode(self):
+        recode_table_name = f"{self.name}_recoded"
+
+        if not self.open_dataset:
+            source_table_name = f"{self.name}_crm"
+            print("Nothing to recode in non-open dataset")
+            print("pd.read_sql ...")
+            df = pd.read_sql(
+                "select * from %(name)s"
+                % {
+                    "name": source_table_name,
+                },
+                con=self.engine,
+            )
+        else:
+            make_staging_table(self.engine, self.name)
+
+            print("pd.read_sql ...")
+            source_table_name = f"{self.name}_staging"
+            df = pd.read_sql(
+                "select * from %(name)s"
+                % {
+                    "name": source_table_name,
+                },
+                con=self.engine,
+            )
+
+            print("open_data_recode ...")
+            df = open_data_recode(self.name, df, self.headers)
+            print("df.to_csv ...")
+            df.to_csv(
+                f"{self.output_dir}/{recode_table_name}_before_recode_id.csv",
+                index=False,
+            )
+            if self.name == "dcp_projects":
+                print("timestamp_to_date ...")
+                df = timestamp_to_date(
+                    df,
+                    date_columns=[
+                        "completed_date",
+                        "certified_referred",
+                        "current_milestone_date",
+                        "current_envmilestone_date",
+                        "app_filed_date",
+                        "noticed_date",
+                        "approval_date",
+                    ],
+                )
+                print("current_milestone_date ...")
+                df.loc[
+                    (~df.current_milestone.isnull())
+                    & (df.current_milestone.str.contains("MM - Project Readiness")),
+                    "current_milestone_date",
+                ] = None
+                print("current_milestone ...")
+                df.loc[
+                    (~df.current_milestone.isnull())
+                    & (df.current_milestone.str.contains("MM - Project Readiness")),
+                    "current_milestone",
+                ] = None
+
+                # TODO re-enable this
+                # print("recode_id ...")
+                # df = recode_id(df)
+
+                print("df.to_csv ...")
+                df.to_csv(f"{self.output_dir}/{recode_table_name}.csv", index=False)
+
+                df.to_sql(
+                    name=recode_table_name,
+                    con=self.engine,
+                    index=False,
+                    if_exists="replace",
+                    method=psql_insert_copy,
+                )
 
     def export(self):
-        print(f"self.sql_to_csv for {self.name} ...")
         # TODO ensure this outputs the last built table, not the combine() result
-        self.sql_to_csv(self.name, self.output_file, all_columns=False, open_data=False)
-        if self.open_dataset:
+        if not self.open_dataset:
+            source_table_name = f"{self.name}_crm"
+            print(f"self.sql_to_csv for {self.name} ...")
+            self.sql_to_csv(
+                self.name, self.output_file, all_columns=False, open_data=False
+            )
+        else:
+            source_table_name = f"{self.name}_recoded"
+            print(f"self.sql_to_csv for {self.name} ...")
+            self.sql_to_csv(
+                self.name, self.output_file, all_columns=False, open_data=False
+            )
             print(f"self.sql_to_csv for {self.name}_visible ...")
             make_open_data_table(self.engine, self.name)
 

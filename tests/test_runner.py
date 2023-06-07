@@ -11,6 +11,11 @@ test_data_expected_schema = "test_data_expected"
 test_data_actual_schema = "test_data_actual"
 if TEST_SCHEMA_SUFFIX:
     test_data_actual_schema = f"{test_data_actual_schema}_{TEST_SCHEMA_SUFFIX}"
+else:
+    # DEV temporary for local testing
+    DBT_USER = os.environ.get("DBT_USER", None)
+    if DBT_USER:
+        test_data_actual_schema = f"{test_data_actual_schema}_{DBT_USER}"
 
 test_data_query = """
     select * from :dataset_name :filter_clause
@@ -37,7 +42,7 @@ test_datasets = [
     TestDataset(
         name="dcp_projectbbls",
         filter_clause="""
-            where SUBSTRING(dcp_projectbbls.dcp_name, 0,10) in (
+            where SUBSTRING(dcp_name, 0,10) in (
                 'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
                 )
             """,
@@ -87,11 +92,14 @@ def test_runner_download(test_dataset):
 def test_runner_combine(test_dataset):
     runner = Runner(name=test_dataset.name, schema=test_data_actual_schema)
     runner.combine()
+
+    table_name = f"{test_dataset.name}_crm"
+
     # TODO assert things
     # if os.path.isfile(self.cahce_dir):
     #   assert directory is empty
     test_data_query_parameters = {
-        "dataset_name": test_dataset.name,
+        "dataset_name": table_name,
         "filter_clause": test_dataset.filter_clause,
     }
     test_data_actual = runner.pg.execute_select_query(
