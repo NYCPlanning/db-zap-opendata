@@ -13,6 +13,7 @@ RECODE_FIELDS = {
     "dcp_projects": [
         ("dcp_visibility", "dcp_visibility"),
         ("statuscode", "project_status"),
+        ("dcp_leaddivision", "lead_division"),
         ("dcp_publicstatus", "public_status"),
         ("dcp_ulurp_nonulurp", "ulurp_non"),
         ("dcp_ceqrtype", "ceqr_type"),
@@ -146,7 +147,7 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
                     mih_workforce,
                     mih_deepaffordability, 
                     mih_mapped_no_res
-                    from dcp_projects_recoded where dcp_visibility = '717170003');
+                    from dcp_projects_recoded where dcp_visibility = 'General Public');
                 COMMIT;
             """
         with sql_engine.begin() as sql_conn:
