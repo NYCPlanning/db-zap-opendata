@@ -23,6 +23,7 @@ from .util import timestamp_to_date
 
 
 class Runner:
+    # TODO reorder class methods for clarity
     def __init__(self, name, schema: str):
         self.c = Client(
             zap_domain=ZAP_DOMAIN,
@@ -41,33 +42,11 @@ class Runner:
         # self.open_dataset = False # DEV for testing
         self.open_dataset = self.name in OPEN_DATA
 
-    def clean(self):
-        if os.path.isdir(self.output_dir):
-            files = os.listdir(self.output_dir)
-            for _file in files:
-                os.remove(f"{self.output_dir}/{_file}")
-
     def create_output_cache_dir(self):
         if not os.path.isdir(self.output_dir):
             os.makedirs(self.output_dir, exist_ok=True)
         if not os.path.isdir(self.cache_dir):
             os.makedirs(self.cache_dir, exist_ok=True)
-
-    def download(self):
-        print(f"downloading {self.name} from ZAP CRM ...")
-        self.create_output_cache_dir()
-        nextlink = f"{ZAP_DOMAIN}/api/data/v9.1/{self.name}"
-        counter = 0
-        while nextlink != "":
-            response = requests.get(nextlink, headers=self.headers)
-            result = response.text
-            result_json = response.json()
-            if list(result_json.keys()) == ["error"]:
-                raise FileNotFoundError(result_json["error"])
-            filename = f"{self.name}_{counter}.json"
-            self.write_to_json(response.text, filename)
-            counter += 1
-            nextlink = response.json().get("@odata.nextLink", "")
 
     def write_to_json(self, content: str, filename: str) -> bool:
         print(f"writing {filename} ...")
@@ -88,49 +67,6 @@ class Runner:
             }
             r = sql_conn.execute(statement=text(statement))
         return bool(r.rowcount)
-
-    def combine(self):
-        print("running combine ...")
-        files = os.listdir(self.cache_dir)
-        if self.check_table_existence(self.name):
-            print("check_table_existence ...")
-            with self.engine.begin() as sql_conn:
-                statement = """
-                    BEGIN; DROP TABLE IF EXISTS %(newname)s; 
-                    ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
-                """ % {
-                    "name": self.name,
-                    "newname": self.name + "_",
-                }
-                sql_conn.execute(statement=text(statement))
-        else:
-            print("table does not exist")
-        for _file in files:
-            print(f"json.load {self.cache_dir}/{_file} ...")
-            with open(f"{self.cache_dir}/{_file}") as f:
-                data = json.load(f)
-            df = pd.DataFrame(data["value"], dtype=str)
-            if self.open_dataset:
-                print("open_data_cleaning ...")
-                df = self.open_data_cleaning(df)
-            print("df.to_sql ...")
-            df.to_sql(
-                name=self.name,
-                con=self.engine,
-                index=False,
-                if_exists="append",
-                method=psql_insert_copy,
-            )
-            # os.remove(f"{self.output_dir}/{_file}")
-
-        # fmt:off
-        with self.engine.begin() as sql_conn:
-            statement =  "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" % {"name": self.name + "_"}
-            sql_conn.execute(statement=text(statement))
-        # fmt:on
-        if self.open_dataset:
-            # TODO rename so that combine() output can be _crm
-            make_crm_table(self.engine, self.name)
 
     def open_data_cleaning(self, df):
         if self.name == "dcp_projects":  # To-do: figure out better design for this
@@ -205,21 +141,6 @@ class Runner:
                 method=psql_insert_copy,
             )
 
-    def export(self):
-        print(f"self.sql_to_csv for {self.name} ...")
-        # TODO ensure this outputs the last built table, not the combine() result
-        self.sql_to_csv(self.name, self.output_file, all_columns=False, open_data=False)
-        if self.open_dataset:
-            print(f"self.sql_to_csv for {self.name}_visible ...")
-            make_open_data_table(self.engine, self.name)
-
-            self.sql_to_csv(
-                f"{self.name}_visible",
-                f"{self.output_file}_visible",
-                all_columns=True,
-                open_data=True,
-            )
-
     def sql_to_csv(self, table_name, output_file, all_columns, open_data):
         print("pd.read_sql ...")
         df = pd.read_sql(
@@ -243,6 +164,87 @@ class Runner:
                 .astype(int, errors="ignore")
             )
         return df
+
+    def clean(self):
+        if os.path.isdir(self.output_dir):
+            files = os.listdir(self.output_dir)
+            for _file in files:
+                os.remove(f"{self.output_dir}/{_file}")
+
+    def download(self):
+        print(f"downloading {self.name} from ZAP CRM ...")
+        self.create_output_cache_dir()
+        nextlink = f"{ZAP_DOMAIN}/api/data/v9.1/{self.name}"
+        counter = 0
+        while nextlink != "":
+            response = requests.get(nextlink, headers=self.headers)
+            result = response.text
+            result_json = response.json()
+            if list(result_json.keys()) == ["error"]:
+                raise FileNotFoundError(result_json["error"])
+            filename = f"{self.name}_{counter}.json"
+            self.write_to_json(response.text, filename)
+            counter += 1
+            nextlink = response.json().get("@odata.nextLink", "")
+
+    def combine(self):
+        print("running combine ...")
+        files = os.listdir(self.cache_dir)
+        if self.check_table_existence(self.name):
+            print("check_table_existence ...")
+            with self.engine.begin() as sql_conn:
+                statement = """
+                    BEGIN; DROP TABLE IF EXISTS %(newname)s; 
+                    ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
+                """ % {
+                    "name": self.name,
+                    "newname": self.name + "_",
+                }
+                sql_conn.execute(statement=text(statement))
+        else:
+            print("table does not exist")
+        for _file in files:
+            print(f"json.load {self.cache_dir}/{_file} ...")
+            with open(f"{self.cache_dir}/{_file}") as f:
+                data = json.load(f)
+            df = pd.DataFrame(data["value"], dtype=str)
+            if self.open_dataset:
+                print("open_data_cleaning ...")
+                df = self.open_data_cleaning(df)
+            print("df.to_sql ...")
+            df.to_sql(
+                name=self.name,
+                con=self.engine,
+                index=False,
+                if_exists="append",
+                method=psql_insert_copy,
+            )
+            # os.remove(f"{self.output_dir}/{_file}")
+
+        # fmt:off
+        with self.engine.begin() as sql_conn:
+            statement =  "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" % {"name": self.name + "_"}
+            sql_conn.execute(statement=text(statement))
+        # fmt:on
+        if self.open_dataset:
+            # TODO move to recode()
+            # TODO rename so that combine() output can be _crm
+            make_crm_table(self.engine, self.name)
+
+    def export(self):
+        print(f"self.sql_to_csv for {self.name} ...")
+        # TODO ensure this outputs the last built table, not the combine() result
+        self.sql_to_csv(self.name, self.output_file, all_columns=False, open_data=False)
+        if self.open_dataset:
+            print(f"self.sql_to_csv for {self.name}_visible ...")
+            make_open_data_table(self.engine, self.name)
+
+            self.sql_to_csv(
+                f"{self.name}_visible",
+                f"{self.output_file}_visible",
+                all_columns=True,
+                open_data=True,
+            )
 
     def __call__(self):
         print("~~~ RUNNING clean ~~~")
