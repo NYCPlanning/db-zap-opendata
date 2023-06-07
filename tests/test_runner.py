@@ -113,6 +113,16 @@ def test_runner_recode(test_dataset):
         schema=test_schema_actual,
     )
     runner.recode()
+
+
+@pytest.mark.integration()
+# @pytest.mark.parametrize("test_dataset", test_datasets)
+def test_runner_recode_id(test_dataset=test_datasets[1]):
+    runner = Runner(
+        name=test_dataset.table_name,
+        schema=test_schema_actual,
+    )
+    runner.recode_id()
     # TODO assert things
 
 

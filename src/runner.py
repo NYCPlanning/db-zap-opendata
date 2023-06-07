@@ -196,10 +196,6 @@ class Runner:
                 "current_milestone",
             ] = None
 
-            # TODO re-enable this
-            # print("recode_id ...")
-            # df = recode_id(df)
-
             print("df.to_csv ...")
             df.to_csv(f"{self.output_dir}/{recode_table_name}.csv", index=False)
 
@@ -211,6 +207,13 @@ class Runner:
             if_exists="replace",
             method=psql_insert_copy,
         )
+
+    def recode_id(self):
+        if self.name == "dcp_projects":
+            print("recode_id ...")
+            df = recode_id(df)
+        else:
+            print(f"No IDs to recode in dataset {self.name}")
 
     def export(self):
         if not self.open_dataset:
@@ -240,12 +243,16 @@ class Runner:
             )
 
     def __call__(self):
+        print("~~~ RUNNING create_output_and_cache_directories ~~~")
+        self.create_output_and_cache_directories()
         print("~~~ RUNNING download ~~~")
         self.download()
         print("~~~ RUNNING combine ~~~")
         self.combine()
         print("~~~ RUNNING recode ~~~")
         self.recode()
+        print("~~~ RUNNING recode_id ~~~")
+        self.recode_id()
         print("~~~ RUNNING export ~~~")
         self.export()
 
