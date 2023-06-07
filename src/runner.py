@@ -23,7 +23,6 @@ from .util import timestamp_to_date
 
 
 class Runner:
-    # TODO reorder class methods for clarity
     def __init__(self, name, schema: str):
         self.c = Client(
             zap_domain=ZAP_DOMAIN,
@@ -38,14 +37,7 @@ class Runner:
         self.schema = schema
         self.pg = PG(ZAP_ENGINE, self.schema)
         self.engine = self.pg.engine
-        # self.open_dataset = False # DEV for testing
         self.open_dataset = self.name in OPEN_DATA
-
-    @property
-    def columns(self):
-        with open(f"{Path(__file__).parent.parent}/schemas/{self.name}.json") as f:
-            schema = json.load(f)
-        return [s["name"] for s in schema]
 
     def create_output_cache_dir(self):
         if not os.path.isdir(self.output_dir):
