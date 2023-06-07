@@ -4,7 +4,6 @@ sources:
   - name: zap_projects
     schema: dcp_projects
     tables:
-      # - name: "20230605_recoded"
       - name: "20230607_test_recoded"
 
   - name: zap_bbls

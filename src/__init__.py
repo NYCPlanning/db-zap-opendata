@@ -15,5 +15,3 @@ ZAP_ENGINE = os.environ["ZAP_ENGINE"]
 base_path = ".output"
 if not os.path.isdir(base_path):
     os.makedirs(base_path, exist_ok=True)
-else:
-    print(f"{base_path=} already exists")

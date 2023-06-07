@@ -11,11 +11,6 @@ test_data_expected_schema = "test_data_expected"
 test_data_actual_schema = "test_data_actual"
 if TEST_SCHEMA_SUFFIX:
     test_data_actual_schema = f"{test_data_actual_schema}_{TEST_SCHEMA_SUFFIX}"
-# else:
-#     # DEV temporary for local testing
-#     DBT_USER = os.environ.get("DBT_USER", None)
-#     if DBT_USER:
-#         test_data_actual_schema = f"{test_data_actual_schema}_{DBT_USER}"
 
 test_data_query = """
     select * from :dataset_name :filter_clause
