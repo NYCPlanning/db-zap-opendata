@@ -31,7 +31,7 @@ CRM_CODE_PROJECT_IS_VISIBLE = "717170003"
 def make_crm_table(sql_engine, dataset_name) -> None:
     # TODO add missing MapZAP non-public here
     if dataset_name == "dcp_projects":
-        statement_crm = """
+        statement_crm_table = """
             BEGIN;
             DROP TABLE IF EXISTS dcp_projects_crm;
             CREATE TABLE dcp_projects_crm as 
@@ -74,10 +74,8 @@ def make_crm_table(sql_engine, dataset_name) -> None:
                     from dcp_projects);
                 COMMIT;
             """
-        with sql_engine.begin() as sql_conn:
-            sql_conn.execute(statement=text(statement_crm))
     elif dataset_name == "dcp_projectbbls":
-        statement = """
+        statement_crm_table = """
             BEGIN;
             DROP TABLE IF EXISTS dcp_projectbbls_crm;
             CREATE TABLE dcp_projectbbls_crm as 
@@ -91,14 +89,14 @@ def make_crm_table(sql_engine, dataset_name) -> None:
                     dcp_projectbbls.dcp_userinputborough as unverified_borough,
                     dcp_projectbbls.dcp_userinputblock as unverified_block,
                     dcp_projectbbls.dcp_userinputlot as unverified_lot
-             from dcp_projectbbls INNER JOIN dcp_projects_crm 
-            on SUBSTRING(dcp_projectbbls.dcp_name, 0,10) = dcp_projects_crm.project_id);
+             from dcp_projectbbls INNER JOIN dcp_projects_recoded 
+            on SUBSTRING(dcp_projectbbls.dcp_name, 0,10) = dcp_projects_recoded.project_id);
             COMMIT;
         """
-        with sql_engine.begin() as sql_conn:
-            sql_conn.execute(statement=text(statement))
     else:
         raise NotImplementedError(f"Unimplemented open dataset: {dataset_name}")
+    with sql_engine.begin() as sql_conn:
+        sql_conn.execute(statement=text(statement_crm_table))
 
 def make_open_data_table(sql_engine, dataset_name) -> None:
     if dataset_name == "dcp_projects":
@@ -142,7 +140,7 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
                     mih_workforce,
                     mih_deepaffordability, 
                     mih_mapped_no_res
-                    from dcp_projects_crm where dcp_visibility = '717170003');
+                    from dcp_projects_recoded where dcp_visibility = '717170003');
                 COMMIT;
             """
         with sql_engine.begin() as sql_conn:
@@ -152,18 +150,18 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
             BEGIN;
             DROP TABLE IF EXISTS dcp_projectbbls_visible;
             CREATE TABLE dcp_projectbbls_visible as 
-            (SELECT dcp_projectbbls_crm.project_id as project_id,
-                    dcp_projectbbls_crm.bbl as bbl,
-                    dcp_projectbbls_crm.validated_borough as validated_borough,
-                    dcp_projectbbls_crm.validated_block as validated_block,
-                    dcp_projectbbls_crm.validated_lot as validated_lot,
-                    dcp_projectbbls_crm.validated as validated,
-                    dcp_projectbbls_crm.validated_date as validated_date,
-                    dcp_projectbbls_crm.unverified_borough as unverified_borough,
-                    dcp_projectbbls_crm.unverified_block as unverified_block,
-                    dcp_projectbbls_crm.unverified_lot as unverified_lot
-             from dcp_projectbbls_crm INNER JOIN dcp_projects_visible 
-            on SUBSTRING(dcp_projectbbls_crm.project_id, 0,10) = dcp_projects_visible.project_id);
+            (SELECT dcp_projectbbls_recoded.project_id as project_id,
+                    dcp_projectbbls_recoded.bbl as bbl,
+                    dcp_projectbbls_recoded.validated_borough as validated_borough,
+                    dcp_projectbbls_recoded.validated_block as validated_block,
+                    dcp_projectbbls_recoded.validated_lot as validated_lot,
+                    dcp_projectbbls_recoded.validated as validated,
+                    dcp_projectbbls_recoded.validated_date as validated_date,
+                    dcp_projectbbls_recoded.unverified_borough as unverified_borough,
+                    dcp_projectbbls_recoded.unverified_block as unverified_block,
+                    dcp_projectbbls_recoded.unverified_lot as unverified_lot
+             from dcp_projectbbls_recoded INNER JOIN dcp_projects_visible 
+            on SUBSTRING(dcp_projectbbls_recoded.project_id, 0,10) = dcp_projects_visible.project_id);
             COMMIT;
         """
         with sql_engine.begin() as sql_conn:

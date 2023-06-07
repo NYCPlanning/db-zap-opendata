@@ -189,6 +189,7 @@ class Runner:
                     "current_milestone",
                 ] = None
 
+                # TODO re-enable this
                 # print("recode_id ...")
                 # df = recode_id(df)
 
