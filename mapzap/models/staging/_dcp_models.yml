@@ -1,42 +1,6 @@
 version: 2
 
 models:
-  # - name: base_dcp__zap_project_ids
-  #   description: "ZAP project IDs"
-  #   columns:
-  #     - name: project_id
-  #       description: '{{ doc("project_id") }}'
-  #       tests:
-  #         - not_null
-  #         - unique
-  #     - name: dcp_name
-  #       tests:
-  #         - not_null
-  #         - unique
-
-  - name: base_dcp__zap_projects_recoded
-    description: "ZAP projects with recoded values"
-    columns:
-      - name: project_id
-        tests:
-          - not_null
-          - unique
-      - name: dcp_name
-      - name: project_name
-        description: '{{ doc("project_name") }}'
-      - name: project_certified_referred_date
-        description: '{{ doc("project_certified_referred_date") }}'
-      - name: project_certified_referred_year
-        description: '{{ doc("project_certified_referred_year") }}'
-      - name: applicant_type
-      - name: ulurp_type
-      - name: ulurp_numbers
-      - name: ceqr_number
-      - name: ceqr_type
-      - name: project_status
-      - name: public_status
-      - name: action_codes
-
   - name: stg_dcp__zap_projects
     description: "ZAP projects"
     columns:
