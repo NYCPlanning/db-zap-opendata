@@ -34,7 +34,6 @@ class Runner:
         self.name = name
         self.output_dir = f".output/{name}"
         self.cache_dir = f".cache/{name}"
-        self.output_file = f"{self.output_dir}/{self.name}"
         self.headers = self.c.request_header
         self.schema = schema
         self.pg = PG(ZAP_ENGINE, self.schema)
@@ -79,26 +78,22 @@ class Runner:
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
         return df
 
-    def sql_to_csv(self, table_name, output_file, open_data):
+    def sql_to_csv(self, table_name, output_file):
         print("pd.read_sql ...")
         df = pd.read_sql(
             "select * from %(name)s" % {"name": table_name}, con=self.engine
         )
-        print("self.export_cleaning ...")
-        df = self.export_cleaning(df, open_data)
-
-        print("df.to_csv ...")
-        df.to_csv(f"{output_file}.csv", index=False)
-
-    def export_cleaning(self, df):
-        """Written because sql int to csv writes with decimal and big query wants int"""
         if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
+            # written because sql int to csv writes with decimal and big query wants int
+            print("export cleaning ...")
             df["timezoneruleversionnumber"] = (
                 df["timezoneruleversionnumber"]
                 .str.split(".", expand=True)[0]
                 .astype(int, errors="ignore")
             )
-        return df
+
+        print("df.to_csv ...")
+        df.to_csv(f"{output_file}.csv", index=False)
 
     def clean(self):
         if os.path.isdir(self.output_dir):
@@ -138,6 +133,7 @@ class Runner:
                 sql_conn.execute(statement=text(statement))
         else:
             print("table does not exist")
+
         for _file in files:
             print(f"json.load {self.cache_dir}/{_file} ...")
             with open(f"{self.cache_dir}/{_file}") as f:
@@ -234,29 +230,28 @@ class Runner:
     def export(self):
         if not self.open_dataset:
             source_table_name = f"{self.name}_crm"
+            output_file = f"{self.output_dir}/{self.name}"
             print(f"self.sql_to_csv for {source_table_name} ...")
             self.sql_to_csv(
                 source_table_name,
-                self.output_file,
-                open_data=False,
+                output_file,
             )
         else:
             source_table_name = f"{self.name}_recoded"
+            output_file = f"{self.output_dir}/{self.name}"
             print(f"self.sql_to_csv for {source_table_name} ...")
             self.sql_to_csv(
                 source_table_name,
-                self.output_file,
-                open_data=False,
+                output_file,
             )
 
             source_table_name = f"{self.name}_visible"
+            output_file = f"{self.output_dir}/{self.name}_visible"
             print(f"self.sql_to_csv for  {source_table_name}...")
             make_open_data_table(self.engine, self.name)
-
             self.sql_to_csv(
                 source_table_name,
-                f"{self.output_file}_visible",
-                open_data=True,
+                output_file,
             )
 
     def __call__(self):
