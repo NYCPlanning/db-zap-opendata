@@ -79,7 +79,7 @@ class Runner:
             df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
         return df
 
-    def sql_to_csv(self, table_name, output_file, all_columns, open_data):
+    def sql_to_csv(self, table_name, output_file, open_data):
         print("pd.read_sql ...")
         df = pd.read_sql(
             "select * from %(name)s" % {"name": table_name}, con=self.engine
@@ -87,13 +87,10 @@ class Runner:
         print("self.export_cleaning ...")
         df = self.export_cleaning(df, open_data)
 
-        if not all_columns:
-            df = df[self.columns]
-
         print("df.to_csv ...")
         df.to_csv(f"{output_file}.csv", index=False)
 
-    def export_cleaning(self, df, open_data):
+    def export_cleaning(self, df):
         """Written because sql int to csv writes with decimal and big query wants int"""
         if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
             df["timezoneruleversionnumber"] = (
@@ -168,99 +165,97 @@ class Runner:
         recode_table_name = f"{self.name}_recoded"
 
         if not self.open_dataset:
-            source_table_name = f"{self.name}_crm"
-            print("Nothing to recode in non-open dataset")
-            print("pd.read_sql ...")
-            df = pd.read_sql(
-                "select * from %(name)s"
-                % {
-                    "name": source_table_name,
-                },
-                con=self.engine,
-            )
-        else:
-            make_staging_table(self.engine, self.name)
+            print(f"Nothing to recode in non-open dataset {self.name}")
+            return
 
-            print("pd.read_sql ...")
-            source_table_name = f"{self.name}_staging"
-            df = pd.read_sql(
-                "select * from %(name)s"
-                % {
-                    "name": source_table_name,
-                },
-                con=self.engine,
-            )
+        make_staging_table(self.engine, self.name)
 
-            print("open_data_recode ...")
-            df = open_data_recode(self.name, df, self.headers)
-            print("df.to_csv ...")
-            df.to_csv(
-                f"{self.output_dir}/{recode_table_name}_before_recode_id.csv",
-                index=False,
-            )
-            if self.name == "dcp_projects":
-                print("timestamp_to_date ...")
-                df = timestamp_to_date(
-                    df,
-                    date_columns=[
-                        "completed_date",
-                        "certified_referred",
-                        "current_milestone_date",
-                        "current_envmilestone_date",
-                        "app_filed_date",
-                        "noticed_date",
-                        "approval_date",
-                    ],
-                )
-                print("current_milestone_date ...")
-                df.loc[
-                    (~df.current_milestone.isnull())
-                    & (df.current_milestone.str.contains("MM - Project Readiness")),
+        print("pd.read_sql ...")
+        source_table_name = f"{self.name}_staging"
+        df = pd.read_sql(
+            "select * from %(name)s"
+            % {
+                "name": source_table_name,
+            },
+            con=self.engine,
+        )
+
+        print("open_data_recode ...")
+        df = open_data_recode(self.name, df, self.headers)
+        print("df.to_csv ...")
+        df.to_csv(
+            f"{self.output_dir}/{recode_table_name}_before_recode_id.csv",
+            index=False,
+        )
+
+        if self.name == "dcp_projects":
+            print("timestamp_to_date ...")
+            df = timestamp_to_date(
+                df,
+                date_columns=[
+                    "completed_date",
+                    "certified_referred",
                     "current_milestone_date",
-                ] = None
-                print("current_milestone ...")
-                df.loc[
-                    (~df.current_milestone.isnull())
-                    & (df.current_milestone.str.contains("MM - Project Readiness")),
-                    "current_milestone",
-                ] = None
+                    "current_envmilestone_date",
+                    "app_filed_date",
+                    "noticed_date",
+                    "approval_date",
+                ],
+            )
+            print("current_milestone_date ...")
+            df.loc[
+                (~df.current_milestone.isnull())
+                & (df.current_milestone.str.contains("MM - Project Readiness")),
+                "current_milestone_date",
+            ] = None
+            print("current_milestone ...")
+            df.loc[
+                (~df.current_milestone.isnull())
+                & (df.current_milestone.str.contains("MM - Project Readiness")),
+                "current_milestone",
+            ] = None
 
-                # TODO re-enable this
-                # print("recode_id ...")
-                # df = recode_id(df)
+            # TODO re-enable this
+            # print("recode_id ...")
+            # df = recode_id(df)
 
-                print("df.to_csv ...")
-                df.to_csv(f"{self.output_dir}/{recode_table_name}.csv", index=False)
+            print("df.to_csv ...")
+            df.to_csv(f"{self.output_dir}/{recode_table_name}.csv", index=False)
 
-                df.to_sql(
-                    name=recode_table_name,
-                    con=self.engine,
-                    index=False,
-                    if_exists="replace",
-                    method=psql_insert_copy,
-                )
+        print("df.to_sql ...")
+        df.to_sql(
+            name=recode_table_name,
+            con=self.engine,
+            index=False,
+            if_exists="replace",
+            method=psql_insert_copy,
+        )
 
     def export(self):
-        # TODO ensure this outputs the last built table, not the combine() result
         if not self.open_dataset:
             source_table_name = f"{self.name}_crm"
-            print(f"self.sql_to_csv for {self.name} ...")
+            print(f"self.sql_to_csv for {source_table_name} ...")
             self.sql_to_csv(
-                self.name, self.output_file, all_columns=False, open_data=False
+                source_table_name,
+                self.output_file,
+                open_data=False,
             )
         else:
             source_table_name = f"{self.name}_recoded"
-            print(f"self.sql_to_csv for {self.name} ...")
+            print(f"self.sql_to_csv for {source_table_name} ...")
             self.sql_to_csv(
-                self.name, self.output_file, all_columns=False, open_data=False
+                source_table_name,
+                self.output_file,
+                open_data=False,
             )
-            print(f"self.sql_to_csv for {self.name}_visible ...")
+
+            source_table_name = f"{self.name}_visible"
+            print(f"self.sql_to_csv for  {source_table_name}...")
             make_open_data_table(self.engine, self.name)
 
             self.sql_to_csv(
-                f"{self.name}_visible",
+                source_table_name,
                 f"{self.output_file}_visible",
-                all_columns=True,
                 open_data=True,
             )
 
