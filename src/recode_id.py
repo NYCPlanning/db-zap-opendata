@@ -155,7 +155,7 @@ def recode_single_project(
     logger: logging.Logger,
 ):
     # TODO make this faster!
-    start_time = time.time()
+    # start_time = time.time()
     additional_recode, row = recode_tracker.find_recode(row)
     if additional_recode:
         logger.debug(f"Hitting URL for row {row.name}")
@@ -178,10 +178,7 @@ def recode_single_project(
                     """
                 print(request_text)
                 return row
-        else:  # DEV to debug
-            print(f"good {url}")
         expanded_project_data = res.json()
-        # expanded_project_data = row[""]
 
         for field_to_recode in RECODE_ID_FIELDS:
             row[field_to_recode] = convert_to_human_readable(
@@ -205,7 +202,6 @@ def convert_to_human_readable(
     metadata_field_names: List[str] = None,
     metadata_keys: dict = None,
 ):
-    print(expanded)
     # Potential upgrade: return field instead of entire row
     id_val = row[local_fieldname]
     logger.info(
@@ -246,4 +242,3 @@ def convert_to_human_readable(
 
 def expand_url(project_id):
     return f"{ZAP_DOMAIN}/api/data/v9.1/dcp_projects({project_id})?$select=_dcp_applicant_customer_value,_dcp_currentmilestone_value,dcp_name&$expand=dcp_CurrentMilestone($select=dcp_name),dcp_leadagencyforenvreview($select=name),dcp_applicant_customer_contact($select=fullname),dcp_currentenvironmentmilestone($select=dcp_name),dcp_applicant_customer_account($select=name)"
-    # return f"https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/dcp_projects({project_id})?$select=_dcp_applicant_customer_value,_dcp_currentmilestone_value,dcp_name&$expand=dcp_CurrentMilestone($select=dcp_name),dcp_leadagencyforenvreview($select=name),dcp_applicant_customer_contact($select=fullname),dcp_currentenvironmentmilestone($select=dcp_name),dcp_applicant_customer_account($select=name)"
