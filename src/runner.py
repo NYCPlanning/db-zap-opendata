@@ -129,6 +129,7 @@ class Runner:
             sql_conn.execute(statement=text(statement))
         # fmt:on
         if self.open_dataset:
+            # TODO rename so that combine() output can be _crm
             make_crm_table(self.engine, self.name)
 
     def open_data_cleaning(self, df):
@@ -206,6 +207,7 @@ class Runner:
 
     def export(self):
         print(f"self.sql_to_csv for {self.name} ...")
+        # TODO ensure this outputs the last built table, not the combine() result
         self.sql_to_csv(self.name, self.output_file, all_columns=False, open_data=False)
         if self.open_dataset:
             print(f"self.sql_to_csv for {self.name}_visible ...")
