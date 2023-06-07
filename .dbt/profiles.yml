@@ -8,12 +8,12 @@ dbt_mapzap:
       type: bigquery
       method: service-account
       project: eng-interface-309819
-      dataset: dbt_mapzap_dev_{{ env_var('DBT_USER') }}
+      dataset: dbt_mapzap_dev_{{ env_var('TEST_SCHEMA_SUFFIX') }}
       threads: 2
       keyfile: .dbt/bigquery-dbt-dev-keyfile.json
     ci_test:
       type: bigquery
       method: service-account
       project: eng-interface-309819
-      dataset: dbt_mapzap_dev_{{ env_var('GITHUB_PR_NUMBER') }}
+      dataset: dbt_mapzap_ci_{{ env_var('TEST_SCHEMA_SUFFIX') }}
       threads: 2
