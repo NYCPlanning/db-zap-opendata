@@ -60,13 +60,12 @@ models:
       - name: project_status
       - name: public_status
       - name: action_codes
-      # columns not in new recoded source data, but desired in output
-      # - name: lead_division
-      # - name: current_zoning_district
-      # - name: proposed_zoning_district
-      # - name: wrp_review_required
-      # - name: fema_flood_zone_coastal
-      # - name: fema_flood_zone_v
+      - name: lead_division
+      - name: fema_flood_zone_v
+      - name: fema_flood_zone_coastal
+      - name: wrp_review_required
+      - name: current_zoning_district
+      - name: proposed_zoning_district
       # columns without a source
       # - name: rezoning_action
     tests:
