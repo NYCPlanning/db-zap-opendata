@@ -47,7 +47,7 @@ def make_crm_table(sql_engine, dataset_name) -> None:
                     dcp_ulurpnumbers as ulurp_numbers,
                     dcp_ceqrtype as ceqr_type, 
                     dcp_ceqrnumber as ceqr_number,
-                    dcp_eis as eas_eis, 
+                    dcp_easeis as eas_eis, 
                     _dcp_leadagencyforenvreview_value as ceqr_leadagency,
                     _dcp_applicant_customer_value as primary_applicant, 
                     dcp_applicanttype as applicant_type, 
