@@ -39,11 +39,11 @@ class Runner:
         self.engine = self.pg.engine
         self.open_dataset = self.name in OPEN_DATA
 
-    def create_output_cache_dir(self):
-        if not os.path.isdir(self.output_dir):
-            os.makedirs(self.output_dir, exist_ok=True)
-        if not os.path.isdir(self.cache_dir):
-            os.makedirs(self.cache_dir, exist_ok=True)
+    def create_output_and_cache_directories(self):
+        # TODO call this earlier than download
+        for directory in [self.cache_dir, self.output_dir]:
+            if not os.path.isdir(directory):
+                os.makedirs(directory)
 
     def write_to_json(self, content: str, filename: str) -> bool:
         print(f"writing {filename} ...")
@@ -87,15 +87,8 @@ class Runner:
         print("df.to_csv ...")
         df.to_csv(f"{output_file}.csv", index=False)
 
-    def clean(self):
-        if os.path.isdir(self.output_dir):
-            files = os.listdir(self.output_dir)
-            for _file in files:
-                os.remove(f"{self.output_dir}/{_file}")
-
     def download(self):
         print(f"downloading {self.name} from ZAP CRM ...")
-        self.create_output_cache_dir()
         nextlink = f"{ZAP_DOMAIN}/api/data/v9.1/{self.name}"
         counter = 0
         while nextlink != "":
@@ -247,8 +240,6 @@ class Runner:
             )
 
     def __call__(self):
-        print("~~~ RUNNING clean ~~~")
-        self.clean()
         print("~~~ RUNNING download ~~~")
         self.download()
         print("~~~ RUNNING combine ~~~")
