@@ -24,11 +24,11 @@ jobs:
       max-parallel: 1
       matrix:
         entity:
-          # - dcp_projectactions
-          # - dcp_projectmilestones
-          # - dcp_projectactionbbls
+          - dcp_projectactions
+          - dcp_projectmilestones
+          - dcp_projectactionbbls
           - dcp_communityboarddispositions
-          # - dcp_dcpprojectteams
+          - dcp_dcpprojectteams
         open:
           - false
         include:

@@ -266,8 +266,8 @@ class Runner:
         self.combine()
         print("~~~ RUNNING recode ~~~")
         self.recode()
-        # print("~~~ RUNNING recode_id ~~~")
-        # self.recode_id()
+        print("~~~ RUNNING recode_id ~~~")
+        self.recode_id()
         print("~~~ RUNNING export ~~~")
         self.export()
 
