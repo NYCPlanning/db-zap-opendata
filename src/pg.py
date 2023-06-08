@@ -29,8 +29,8 @@ class PG:
                 "CREATE SCHEMA :schema", {"schema": AsIs(self.schema)}
             )
             print(f"Schema '{self.schema}' created")
-        except ProgrammingError:
-            print(f"Schema '{self.schema}' already exists")
+        except ProgrammingError as e:
+            print(f"ProgrammingError: {e}")
 
     def execute_select_query(self, base_query: str, parameters: dict) -> pd.DataFrame:
         with self.engine.begin() as sql_connection:
