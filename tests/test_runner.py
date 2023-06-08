@@ -146,19 +146,4 @@ def test_runner_main(test_dataset):
         schema=test_schema_actual,
     )
     runner()
-    test_data_actual = runner.pg.execute_select_query(
-        base_query=test_data_query,
-        parameters={
-            "dataset_name": test_dataset.table_name,
-            "filter_clause": test_dataset.filter_clause,
-        },
-    )
     # TODO assert things for all output tables
-    # assert len(test_data_actual) == test_dataset.expected_row_count
-    # test_data_expected = runner.pg.execute_select_query(
-    #     base_query=test_data_query,
-    #     parameters={
-    #         "dataset_name": test_dataset.table_name,
-    #         "filter_clause": test_dataset.filter_clause,
-    #     },
-    # )
