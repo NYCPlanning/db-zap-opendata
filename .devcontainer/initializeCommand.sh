@@ -14,6 +14,7 @@ touch $SCRIPT_DIRECTORY/.env
 if [[ ${CI} != "true" ]]; then
 	# Avoiding git issues due to dubious ownership 
 	echo "Setting directiory as safe for git ..."
+	ssh-add
 	git config --global --add safe.directory $PWD
 fi
 
