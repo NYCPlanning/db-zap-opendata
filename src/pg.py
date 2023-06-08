@@ -24,13 +24,10 @@ class PG:
         self.create_schema()
 
     def create_schema(self) -> None:
-        try:
-            self.execute_sql_query(
-                "CREATE SCHEMA :schema", {"schema": AsIs(self.schema)}
-            )
-            print(f"Schema '{self.schema}' created")
-        except ProgrammingError as e:
-            print(f"ProgrammingError: {e}")
+        self.execute_sql_query(
+            "CREATE SCHEMA IF NOT EXISTS :schema", {"schema": AsIs(self.schema)}
+        )
+        print(f"Schema '{self.schema}' created or already exists")
 
     def execute_select_query(self, base_query: str, parameters: dict) -> pd.DataFrame:
         with self.engine.begin() as sql_connection:
