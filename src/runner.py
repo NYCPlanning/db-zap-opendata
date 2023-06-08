@@ -260,3 +260,4 @@ if __name__ == "__main__":
     name = sys.argv[1]
     schema = sys.argv[2]
     runner = Runner(name, schema)
+    runner()
