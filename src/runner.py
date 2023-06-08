@@ -230,6 +230,11 @@ class Runner:
                 source_table_name,
                 output_file_internal,
             )
+            print(f"self.sql_to_csv from {source_table_name} to {output_file_data_library} ...")
+            self.sql_to_csv(
+                source_table_name,
+                output_file_data_library,
+            )
         else:
             source_table_name = f"{self.name}_recoded"
 
