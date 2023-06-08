@@ -83,6 +83,7 @@ class Runner:
 
     def download(self):
         print(f"downloading {self.name} from ZAP CRM ...")
+        self.create_output_and_cache_directories()
         nextlink = f"{ZAP_DOMAIN}/api/data/v9.1/{self.name}"
         counter = 0
         while nextlink != "":
@@ -243,8 +244,6 @@ class Runner:
             )
 
     def __call__(self):
-        print("~~~ RUNNING create_output_and_cache_directories ~~~")
-        self.create_output_and_cache_directories()
         print("~~~ RUNNING download ~~~")
         self.download()
         print("~~~ RUNNING combine ~~~")
