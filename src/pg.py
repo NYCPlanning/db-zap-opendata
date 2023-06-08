@@ -15,7 +15,7 @@ def format_sql_query_parameters(parameters: dict) -> dict:
 class PG:
     def __init__(self, url: str, schema: str):
         self.url = url
-        self.schema = schema
+        self.schema = schema.replace("-", "_")  # no dashes in postgres schema names
         self.engine = create_engine(
             url,
             isolation_level="AUTOCOMMIT",
