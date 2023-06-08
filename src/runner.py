@@ -209,7 +209,17 @@ class Runner:
     def recode_id(self):
         if self.name == "dcp_projects":
             print("recode_id ...")
+            recode_table_name = f"{self.name}_recoded"
             df = recode_id(df)
+
+            print("df.to_sql ...")
+            df.to_sql(
+                name=recode_table_name,
+                con=self.engine,
+                index=False,
+                if_exists="replace",
+                method=psql_insert_copy,
+            )
         else:
             print(f"No IDs to recode in dataset {self.name}")
 
