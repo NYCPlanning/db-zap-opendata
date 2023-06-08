@@ -205,6 +205,15 @@ class Runner:
         if self.name == "dcp_projects":
             print("recode_id ...")
             recode_table_name = f"{self.name}_recoded"
+            
+            print("pd.read_sql ...")
+            df = pd.read_sql(
+                "select * from %(name)s"
+                % {
+                    "name": recode_table_name,
+                },
+                con=self.engine,
+            )
             df = recode_id(df)
 
             print("df.to_sql ...")
