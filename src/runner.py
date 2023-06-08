@@ -23,7 +23,7 @@ from .util import timestamp_to_date
 
 
 class Runner:
-    def __init__(self, name, schema: str):
+    def __init__(self, name: str, schema: str):
         self.c = Client(
             zap_domain=ZAP_DOMAIN,
             tenant_id=TENANT_ID,
@@ -258,4 +258,5 @@ class Runner:
 
 if __name__ == "__main__":
     name = sys.argv[1]
-    runner = Runner(name)
+    schema = sys.argv[2]
+    runner = Runner(name, schema)
