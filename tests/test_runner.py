@@ -24,7 +24,6 @@ TestDataset = namedtuple(
     ],
 )
 # TODO add all output table names to these test datasets
-# TODO compare a stable subset of records
 test_datasets = [
     TestDataset(
         table_name="dcp_projects",
@@ -116,6 +115,7 @@ def test_runner_recode(test_dataset):
 
 
 @pytest.mark.integration()
+# HACK skipping dcp_projects because Runner.recode_id() takes ~1 hour
 # @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_recode_id(test_dataset=test_datasets[1]):
     runner = Runner(
@@ -137,7 +137,7 @@ def test_runner_export(test_dataset):
     # TODO assert things
 
 
-@pytest.mark.skip(reason="in-progress")
+@pytest.mark.skip(reason="Runner.recode_id() takes ~1 hour")
 @pytest.mark.integration()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_main(test_dataset):
