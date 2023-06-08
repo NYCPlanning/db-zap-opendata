@@ -161,11 +161,6 @@ class Runner:
 
         print("open_data_recode ...")
         df = open_data_recode(self.name, df, self.headers)
-        print("df.to_csv ...")
-        df.to_csv(
-            f"{self.output_dir}/{recode_table_name}_before_recode_id.csv",
-            index=False,
-        )
 
         if self.name == "dcp_projects":
             print("timestamp_to_date ...")
@@ -224,7 +219,8 @@ class Runner:
             print(f"No IDs to recode in dataset {self.name}")
 
     def export(self):
-        output_file = f"{self.output_dir}/{self.name}_internal"
+        output_file_internal = f"{self.output_dir}/{self.name}_internal"
+        output_file_data_library = f"{self.output_dir}/{self.name}"
 
         if not self.open_dataset:
             source_table_name = f"{self.name}_crm"
@@ -232,25 +228,30 @@ class Runner:
             print(f"self.sql_to_csv for {source_table_name} ...")
             self.sql_to_csv(
                 source_table_name,
-                output_file,
+                output_file_internal,
             )
         else:
             source_table_name = f"{self.name}_recoded"
 
-            print(f"self.sql_to_csv for {source_table_name} ...")
+            print(f"self.sql_to_csv from {source_table_name} to {output_file_internal} ...")
             self.sql_to_csv(
                 source_table_name,
-                output_file,
+                output_file_internal,
+            )
+            print(f"self.sql_to_csv from {source_table_name} to {output_file_data_library} ...")
+            self.sql_to_csv(
+                source_table_name,
+                output_file_data_library,
             )
 
             source_table_name = f"{self.name}_visible"
-            output_file = f"{self.output_dir}/{self.name}_visible"
+            output_file_visible = f"{self.output_dir}/{self.name}_visible"
 
-            print(f"self.sql_to_csv for  {source_table_name}...")
+            print(f"self.sql_to_csv from {source_table_name} to {output_file_visible} ...")
             make_open_data_table(self.engine, self.name)
             self.sql_to_csv(
                 source_table_name,
-                output_file,
+                output_file_visible,
             )
 
     def __call__(self):
