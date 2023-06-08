@@ -31,6 +31,10 @@ test_data_input = pd.DataFrame.from_dict(
 
 recoded_data_expected = pd.DataFrame.from_dict(
     {
+        "crm_project_id": [
+            "046f7ed3-6197-e911-a98a-001dd83080ab",
+            "046f7ed3-24-more-text",
+        ],
         "primary_applicant": [
             "624 Morris B, LLC",
             "applicant_2",

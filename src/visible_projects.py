@@ -130,7 +130,6 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
             CREATE TABLE dcp_projects_visible as 
             (SELECT project_id,
                     project_name,
-                    crm_project_id,
                     project_brief,
                     dcp_visibility,
                     project_status,

@@ -144,7 +144,6 @@ def recode_id(data: pd.DataFrame, debug_rows: int = False) -> pd.DataFrame:
     recode_tracker.logger.info(
         f"Number of records with new ID for which URL had to be hit {recode_tracker.count_unseen_ID}"
     )
-    cleaned.drop(columns=["crm_project_id"], inplace=True)
     return cleaned
 
 
