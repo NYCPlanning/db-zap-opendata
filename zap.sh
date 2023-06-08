@@ -7,7 +7,7 @@ function upload_to_big_query {
     version=${1}
     output_suffix=${3}
 
-    output_filepath=.output/$dataset/$dataset.csv
+    output_filepath=.output/$dataset/$dataset_${output_suffix}.csv
     google_storage_filepath=gs://zap-crm-export/datasets/$dataset/$version/${dataset}_${output_suffix}.csv
 
     version_specific="${version}_${output_suffix}"
@@ -57,9 +57,9 @@ case $1 in
         dataset=$2
         VERSION=$3
         SPACES="spaces/edm-publishing/db-zap"
-        visible_filename="${dataset}_visible.csv"
-        mc cp .output/$dataset/$visible_filename $SPACES/$VERSION/$dataset/$dataset.csv
-        mc cp .output/$dataset/$visible_filename $SPACES/latest/$dataset/$dataset.csv
+        output_filepath=".output/$dataset/${dataset}_visible.csv"
+        mc cp output_filepath $SPACES/$VERSION/$dataset/$dataset.csv
+        mc cp output_filepath $SPACES/latest/$dataset/$dataset.csv
 
 
 esac
