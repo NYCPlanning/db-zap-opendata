@@ -58,8 +58,8 @@ case $1 in
         VERSION=$3
         SPACES="spaces/edm-publishing/db-zap"
         output_filepath=".output/$dataset/${dataset}_visible.csv"
-        mc cp output_filepath $SPACES/$VERSION/$dataset/$dataset.csv
-        mc cp output_filepath $SPACES/latest/$dataset/$dataset.csv
+        mc cp ${output_filepath} $SPACES/$VERSION/$dataset/$dataset.csv
+        mc cp ${output_filepath} $SPACES/latest/$dataset/$dataset.csv
 
 
 esac
