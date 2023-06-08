@@ -40,7 +40,6 @@ class Runner:
         self.open_dataset = self.name in OPEN_DATA
 
     def create_output_and_cache_directories(self):
-        # TODO call this earlier than download
         for directory in [self.cache_dir, self.output_dir]:
             if not os.path.isdir(directory):
                 os.makedirs(directory)
@@ -64,11 +63,6 @@ class Runner:
             }
             r = sql_conn.execute(statement=text(statement))
         return bool(r.rowcount)
-
-    def open_data_cleaning(self, df):
-        if self.name == "dcp_projects":  # To-do: figure out better design for this
-            df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[0]
-        return df
 
     def sql_to_csv(self, table_name, output_file):
         print("pd.read_sql ...")
@@ -122,11 +116,14 @@ class Runner:
         for _file in files:
             print(f"json.load {self.cache_dir}/{_file} ...")
             with open(f"{self.cache_dir}/{_file}") as f:
-                data = json.load(f)
-            df = pd.DataFrame(data["value"], dtype=str)
-            if self.open_dataset:
-                print("open_data_cleaning ...")
-                df = self.open_data_cleaning(df)
+                json_data = json.load(f)
+
+            df = pd.DataFrame(json_data["value"], dtype=str)
+            if self.name == "dcp_projects":
+                df["dcp_visibility"] = df["dcp_visibility"].str.split(".", expand=True)[
+                    0
+                ]
+
             print("df.to_sql ...")
             df.to_sql(
                 name=combine_table_name,

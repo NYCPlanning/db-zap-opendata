@@ -19,7 +19,7 @@ class PG:
         self.engine = create_engine(
             url,
             isolation_level="AUTOCOMMIT",
-            connect_args={"options": "-csearch_path={}".format(self.schema)},
+            connect_args={"options": f"-csearch_path={self.schema}"},
         )
         self.create_schema()
 
