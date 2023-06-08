@@ -213,9 +213,11 @@ class Runner:
             print(f"No IDs to recode in dataset {self.name}")
 
     def export(self):
+        output_file = f"{self.output_dir}/{self.name}_internal"
+
         if not self.open_dataset:
             source_table_name = f"{self.name}_crm"
-            output_file = f"{self.output_dir}/{self.name}"
+
             print(f"self.sql_to_csv for {source_table_name} ...")
             self.sql_to_csv(
                 source_table_name,
@@ -223,7 +225,7 @@ class Runner:
             )
         else:
             source_table_name = f"{self.name}_recoded"
-            output_file = f"{self.output_dir}/{self.name}"
+
             print(f"self.sql_to_csv for {source_table_name} ...")
             self.sql_to_csv(
                 source_table_name,
@@ -232,6 +234,7 @@ class Runner:
 
             source_table_name = f"{self.name}_visible"
             output_file = f"{self.output_dir}/{self.name}_visible"
+
             print(f"self.sql_to_csv for  {source_table_name}...")
             make_open_data_table(self.engine, self.name)
             self.sql_to_csv(
