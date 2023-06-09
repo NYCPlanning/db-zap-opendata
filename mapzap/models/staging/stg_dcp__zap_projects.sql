@@ -1,33 +1,37 @@
-with zap_projects_recoded as (
-    select * from {{ ref('base_dcp__zap_projects_recoded') }}
-),
+with source as (
 
-zap_project_ids as (
-    select * from {{ ref('base_dcp__zap_project_ids') }}
-),
+    select * from {{ source('zap_projects', '20230607_test_recoded') }}
 
+),
 
 zap_projects as (
+
     select
-        zap_projects_recoded.dcp_name,
-        zap_projects_recoded.project_name,
-        zap_projects_recoded.project_certified_referred_date,
-        zap_projects_recoded.project_certified_referred_year,
-        zap_projects_recoded.applicant_type,
-        zap_projects_recoded.ulurp_numbers,
-        zap_projects_recoded.ulurp_type,
-        zap_projects_recoded.ceqr_number,
-        zap_projects_recoded.ceqr_type,
-        zap_projects_recoded.project_status,
-        zap_projects_recoded.public_status,
-        zap_projects_recoded.action_codes,
-        zap_project_ids.project_id
-    from
-        zap_projects_recoded
-    left join
-        zap_project_ids
-        on
-            zap_projects_recoded.dcp_name = zap_project_ids.dcp_name
+        project_id as dcp_name,
+        crm_project_id as project_id,
+        project_name,
+        certified_referred as project_certified_referred_date,
+        applicant_type,
+        ulurp_numbers,
+        ulurp_non as ulurp_type,
+        ceqr_number,
+        ceqr_type,
+        project_status,
+        public_status,
+        actions as action_codes,
+        lead_division,
+        fema_flood_zone_v,
+        fema_flood_zone_coastal,
+        wrp_review_required,
+        current_zoning_district,
+        proposed_zoning_district,
+        EXTRACT(
+            isoyear
+            from
+            certified_referred
+        ) as project_certified_referred_year
+
+    from source
 )
 
 select * from zap_projects

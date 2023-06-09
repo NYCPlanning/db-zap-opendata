@@ -24,6 +24,10 @@ dependencies = [
 [tool.pytest.ini_options]
 xfail_strict = true
 addopts = "--strict-markers"
+# marks tests (select with 'pytest -m "marker_good and not marker_bad"')
+markers = [
+    "integration"
+]
 
 [tool.coverage.run]
 # Measure branch coverage (https://coverage.readthedocs.io/en/latest/branch.html)

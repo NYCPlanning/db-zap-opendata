@@ -26,6 +26,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
       AWS_S3_LIBRARY_BUCKET: edm-recipes
+      EDM_DATA_ZAP_SCHEMA: export_single_${{ github.event_name }}_${{ github.ref_name }}
 
     steps:
       - uses: actions/checkout@v3
@@ -50,7 +51,7 @@ jobs:
           mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
 
       - name: Get ${{ github.event.inputs.dataset }}
-        run: python3 -m src.runner ${{ github.event.inputs.dataset }}
+        run: python3 -m src.runner ${{ github.event.inputs.dataset }} $EDM_DATA_ZAP_SCHEMA
 
       - name: Export open data to edm-publishing
         env:

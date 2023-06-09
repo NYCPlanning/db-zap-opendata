@@ -18,6 +18,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
       AWS_S3_LIBRARY_BUCKET: edm-recipes
+      EDM_DATA_ZAP_SCHEMA: export_${{ github.event_name }}_${{ github.ref_name }}
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -46,7 +47,7 @@ jobs:
         run: ./bash/setup_build_env.sh
 
       - name: Get ${{ matrix.entity }}
-        run: python3 -m src.runner ${{ matrix.entity }}
+        run: python3 -m src.runner ${{ matrix.entity }} $EDM_DATA_ZAP_SCHEMA
 
       - name: Set Version info
         id: version

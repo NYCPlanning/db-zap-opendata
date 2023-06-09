@@ -1,66 +1,65 @@
 #!/bin/bash
 VERSION=$(date +%Y%m%d)
+location=US
+
+function upload_to_big_query {
+    dataset=${2}
+    version=${1}
+    output_suffix=${3}
+
+    output_filepath=.output/$dataset/$dataset_${output_suffix}.csv
+    google_storage_filepath=gs://zap-crm-export/datasets/$dataset/$version/${dataset}_${output_suffix}.csv
+
+    version_specific="${version}_${output_suffix}"
+    tablename=$dataset.$version_specific
+    echo "Archving output version ${dataset} ${version_specific} to ${tablename}..."
+
+    gsutil cp $output_filepath $google_storage_filepath
+
+    bq show $dataset || bq mk --location=$location --dataset $dataset
+    bq show $tablename || bq mk $tablename
+    bq load \
+        --location=$location \
+        --source_format=CSV \
+        --autodetect \
+        --quote '"' \
+        --replace \
+        --allow_quoted_newlines \
+        $tablename \
+        $google_storage_filepath
+}
+
 case $1 in
     download ) 
         python3 -m src.runner $2
     ;;
-    upload_bq )
-        # only archives CRM and recoded versions, not the subest for Open Data
-        dataset=$2
-        VERSION=${3:-$VERSION}
-        location=US
+    upload_crm_bq )
         # crm version
-        FILEPATH=gs://zap-crm-export/datasets/$dataset/$VERSION/$dataset.csv
-        tablename=$dataset.$VERSION
-        echo "Archving non-visible version ${dataset} ${VERSION} to ${tablename}..."
-
-        gsutil cp .output/$dataset/$dataset.csv $FILEPATH
-        bq show $dataset || bq mk --location=$location --dataset $dataset
-        bq show $tablename || bq mk $tablename
-        bq load \
-            --location=$location\
-            --source_format=CSV\
-            --quote '"' \
-            --skip_leading_rows 1\
-            --replace\
-            --allow_quoted_newlines\
-            $tablename \
-            $FILEPATH \
-            schemas/$dataset.json
+        dataset=$2
+        version=${3:-$VERSION}
+        upload_to_big_query ${dataset} ${version} "crm"
     ;;
-    upload_recoded_bq )
-        # only archives CRM and recoded versions, not the subest for Open Data
+    upload_internal_bq )
+        # internal version
         dataset=$2
         VERSION=${3:-$VERSION}
-        location=US
-        # recoded version
-        recoded_filename="${dataset}_after_recode.csv"
-        FILEPATH=gs://zap-crm-export/datasets/$dataset/$VERSION/${dataset}_recoded.csv
-        VERSION_RECODED="${VERSION}_recoded"
-        tablename=$dataset.$VERSION_RECODED
-        echo "Archving recoded version ${dataset} ${VERSION_RECODED} to ${tablename}..."
+        upload_to_big_query ${dataset} ${version} "internal"
+    ;;
+    upload_visible_bq )
+        # visible version
+        dataset=$2
+        VERSION=${3:-$VERSION}
+        # internal version
+        upload_to_big_query ${dataset} ${version} "visible"
 
-        gsutil cp .cache/$dataset/$recoded_filename $FILEPATH
-        bq show $dataset || bq mk --location=$location --dataset $dataset
-        bq show $tablename || bq mk $tablename
-        bq load \
-            --location=$location\
-            --source_format=CSV\
-            --quote '"' \
-            --skip_leading_rows 1\
-            --replace\
-            --allow_quoted_newlines\
-            --autodetect\
-            $tablename \
-            $FILEPATH
     ;;
     upload_do )
         dataset=$2
         VERSION=$3
         SPACES="spaces/edm-publishing/db-zap"
-        visible_filename="${dataset}_visible.csv"
-        mc cp .output/$dataset/$visible_filename $SPACES/$VERSION/$dataset/$dataset.csv
-        mc cp .output/$dataset/$visible_filename $SPACES/latest/$dataset/$dataset.csv
+        output_filepath=".output/$dataset/${dataset}_visible.csv"
+        mc cp ${output_filepath} $SPACES/$VERSION/$dataset/$dataset.csv
+        mc cp ${output_filepath} $SPACES/latest/$dataset/$dataset.csv
 
 
 esac

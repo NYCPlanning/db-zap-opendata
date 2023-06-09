@@ -62,6 +62,7 @@ project_geometries as (
 project_geometries_resolved as (
     select
         project_details.dcp_name,
+        project_details.project_id,
         project_details.project_name,
         project_details.project_certified_referred_date,
         project_details.project_certified_referred_year,
@@ -73,7 +74,12 @@ project_geometries_resolved as (
         project_details.project_status,
         project_details.public_status,
         project_details.action_codes,
-        project_details.project_id,
+        project_details.lead_division,
+        project_details.fema_flood_zone_v,
+        project_details.fema_flood_zone_coastal,
+        project_details.wrp_review_required,
+        project_details.current_zoning_district,
+        project_details.proposed_zoning_district,
         project_geometries.map_amendment_ulurp_numner,
         project_geometries.map_amendment_project_name,
         project_geometries.pluto_version,

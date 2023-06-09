@@ -12,8 +12,9 @@ touch $SCRIPT_DIRECTORY/.env
 
 # only do this when running locally (rather than in a github action)
 if [[ ${CI} != "true" ]]; then
+	# Adding local keys in order to push to remote repo on github from dev containter
+	ssh-add
 	# Avoiding git issues due to dubious ownership 
-	echo "Setting directiory as safe for git ..."
 	git config --global --add safe.directory $PWD
 fi
 

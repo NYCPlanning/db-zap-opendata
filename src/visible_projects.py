@@ -11,7 +11,9 @@ PICKLIST_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/Enti
 STATUS_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet"
 RECODE_FIELDS = {
     "dcp_projects": [
+        ("dcp_visibility", "dcp_visibility"),
         ("statuscode", "project_status"),
+        ("dcp_leaddivision", "lead_division"),
         ("dcp_publicstatus", "public_status"),
         ("dcp_ulurp_nonulurp", "ulurp_non"),
         ("dcp_ceqrtype", "ceqr_type"),
@@ -24,17 +26,28 @@ RECODE_FIELDS = {
     "dcp_projectbbls": ["validated_borough", "unverified_borough"],
 }
 
+CRM_CODE_PROJECT_IS_VISIBLE = "717170003"
 
-def make_open_data_table(sql_engine, dataset_name) -> None:
+
+def make_staging_table(sql_engine, dataset_name) -> None:
+    source_table_name = f"{dataset_name}_crm"
+    staging_table_name = f"{dataset_name}_staging"
     if dataset_name == "dcp_projects":
-        statement = """
+        statement_staging_table = """
             BEGIN;
-            DROP TABLE IF EXISTS dcp_projects_visible;
-            CREATE TABLE dcp_projects_visible as 
+            DROP TABLE IF EXISTS %(staging_table_name)s;
+            CREATE TABLE %(staging_table_name)s as 
             (SELECT dcp_name as project_id,
                     dcp_projectname as project_name,
                     dcp_projectid as crm_project_id,
                     dcp_projectbrief as project_brief,
+                    dcp_visibility,
+                    dcp_leaddivision as lead_division,
+                    dcp_femafloodzonev as fema_flood_zone_v,
+                    dcp_femafloodzonecoastala as fema_flood_zone_coastal,
+                    dcp_wrpreviewrequired as wrp_review_required,
+                    dcp_currentzoningdistrict as current_zoning_district,
+                    dcp_proposedzoningdistrict as proposed_zoning_district,
                     statuscode as project_status,
                     dcp_publicstatus as public_status,
                     dcp_ulurp_nonulurp as ulurp_non,
@@ -66,59 +79,150 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
                     dcp_createmodifymihareaworkforceoption as mih_workforce,
                     dcp_createmodifymihareadeepaffordabilityoptio as mih_deepaffordability, 
                     dcp_mihmappedbutnotproposed as mih_mapped_no_res
-                    from dcp_projects where dcp_visibility = '717170003');
+                from
+                    %(source_table_name)s);
+                COMMIT;
+            """ % {
+            "source_table_name": source_table_name,
+            "staging_table_name": staging_table_name,
+        }
+    elif dataset_name == "dcp_projectbbls":
+        statement_staging_table = """
+            BEGIN;
+            DROP TABLE IF EXISTS %(staging_table_name)s;
+            CREATE TABLE %(staging_table_name)s as 
+            (SELECT %(source_table_name)s.dcp_name as project_id,
+                    %(source_table_name)s.dcp_bblnumber as bbl,
+                    %(source_table_name)s.dcp_validatedborough as validated_borough,
+                    %(source_table_name)s.dcp_validatedblock as validated_block,
+                    %(source_table_name)s.dcp_validatedlot as validated_lot,
+                    %(source_table_name)s.dcp_bblvalidated as validated,
+                    %(source_table_name)s.dcp_bblvalidateddate as validated_date,
+                    %(source_table_name)s.dcp_userinputborough as unverified_borough,
+                    %(source_table_name)s.dcp_userinputblock as unverified_block,
+                    %(source_table_name)s.dcp_userinputlot as unverified_lot
+             from %(source_table_name)s INNER JOIN dcp_projects_recoded
+            on SUBSTRING(%(source_table_name)s.dcp_name, 0,10) = dcp_projects_recoded.project_id);
+            COMMIT;
+        """ % {
+            "source_table_name": source_table_name,
+            "staging_table_name": staging_table_name,
+        }
+    else:
+        statement_staging_table = """
+            BEGIN;
+            DROP TABLE IF EXISTS %{staging_table_name}s;
+            CREATE TABLE %{staging_table_name}s as SELECT * FROM %{source_table_name}s
+            COMMIT;
+        """ % {
+            "source_table_name": source_table_name,
+            "staging_table_name": staging_table_name,
+        }
+    with sql_engine.begin() as sql_conn:
+        sql_conn.execute(statement=text(statement_staging_table))
+
+
+def make_open_data_table(sql_engine, dataset_name) -> None:
+    if dataset_name == "dcp_projects":
+        statement_visible = """
+            BEGIN;
+            DROP TABLE IF EXISTS dcp_projects_visible;
+            CREATE TABLE dcp_projects_visible as 
+            (SELECT project_id,
+                    project_name,
+                    project_brief,
+                    dcp_visibility,
+                    project_status,
+                    public_status,
+                    ulurp_non,
+                    actions,
+                    ulurp_numbers,
+                    ceqr_type, 
+                    ceqr_number,
+                    eas_eis, 
+                    ceqr_leadagency,
+                    primary_applicant, 
+                    applicant_type, 
+                    borough, 
+                    community_district,
+                    cc_district, 
+                    flood_zone_a,
+                    flood_zone_shadedx, 
+                    current_milestone, 
+                    current_milestone_date,
+                    current_envmilestone, 
+                    current_envmilestone_date, 
+                    app_filed_date, 
+                    noticed_date, 
+                    certified_referred, 
+                    approval_date,
+                    completed_date,
+                    mih_flag,
+                    mih_option1,
+                    mih_option2, 
+                    mih_workforce,
+                    mih_deepaffordability, 
+                    mih_mapped_no_res
+                from
+                    dcp_projects_recoded
+                where
+                    dcp_visibility = 'General Public');
                 COMMIT;
             """
+        with sql_engine.begin() as sql_conn:
+            sql_conn.execute(statement=text(statement_visible))
     elif dataset_name == "dcp_projectbbls":
         statement = """
             BEGIN;
             DROP TABLE IF EXISTS dcp_projectbbls_visible;
             CREATE TABLE dcp_projectbbls_visible as 
-            (SELECT dcp_projectbbls.dcp_name as project_id,
-                    dcp_projectbbls.dcp_bblnumber as bbl,
-                    dcp_projectbbls.dcp_validatedborough as validated_borough,
-                    dcp_projectbbls.dcp_validatedblock as validated_block,
-                    dcp_projectbbls.dcp_validatedlot as validated_lot,
-                    dcp_projectbbls.dcp_bblvalidated as validated,
-                    dcp_projectbbls.dcp_bblvalidateddate as validated_date,
-                    dcp_projectbbls.dcp_userinputborough as unverified_borough,
-                    dcp_projectbbls.dcp_userinputblock as unverified_block,
-                    dcp_projectbbls.dcp_userinputlot as unverified_lot
-             from dcp_projectbbls INNER JOIN dcp_projects_visible 
-            on SUBSTRING(dcp_projectbbls.dcp_name, 0,10) = dcp_projects_visible.project_id);
+            (SELECT dcp_projectbbls_recoded.project_id as project_id,
+                    dcp_projectbbls_recoded.bbl as bbl,
+                    dcp_projectbbls_recoded.validated_borough as validated_borough,
+                    dcp_projectbbls_recoded.validated_block as validated_block,
+                    dcp_projectbbls_recoded.validated_lot as validated_lot,
+                    dcp_projectbbls_recoded.validated as validated,
+                    dcp_projectbbls_recoded.validated_date as validated_date,
+                    dcp_projectbbls_recoded.unverified_borough as unverified_borough,
+                    dcp_projectbbls_recoded.unverified_block as unverified_block,
+                    dcp_projectbbls_recoded.unverified_lot as unverified_lot
+             from dcp_projectbbls_recoded INNER JOIN dcp_projects_visible 
+            on SUBSTRING(dcp_projectbbls_recoded.project_id, 0,10) = dcp_projects_visible.project_id);
             COMMIT;
         """
+        with sql_engine.begin() as sql_conn:
+            sql_conn.execute(statement=text(statement))
     else:
         raise NotImplementedError(f"Unimplemented open dataset: {dataset_name}")
-    
-    with sql_engine.begin() as sql_conn:
-        sql_conn.execute(statement=text(statement))
 
 
 def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFrame:
-
     recoder = {}
 
     fields_to_lookup, fields_to_rename = get_fields(name)
 
     # Standardize integer representation
+    print("standardize integer representation ...")
     data[fields_to_rename] = data[fields_to_rename].apply(
         func=lambda x: x.str.split(".").str[0], axis=1
     )
 
     # Get metadata
-
+    print("get_metadata ...")
     metadata_values = get_metadata(headers)
 
     # Construct list of just fields we want to recode
+    print("Construct list of fields to recode ...")
     fields_to_recode = {}
     for field in metadata_values:
         if field["LogicalName"] in fields_to_lookup:
             fields_to_recode[field["LogicalName"]] = field
 
+    print("populate recoder ...")
     for crm_name, local_name in zip(fields_to_lookup, fields_to_rename):
         field_metadata = fields_to_recode[crm_name]
         field_recodes = {}
+        print(f"for {crm_name}, {local_name} ...")
         for category in field_metadata["OptionSet"]["Options"]:
             field_recodes[str(category["Value"])] = category["Label"][
                 "LocalizedLabels"
@@ -128,10 +232,9 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
             recoder["unverified_borough"] = field_recodes
         elif name == "dcp_projects":
             recoder[local_name] = field_recodes
-    data.replace(to_replace=recoder, inplace=True)
 
-    if name == "dcp_projects":
-        data = recode_id(data)
+    print("replace values using recoder ...")
+    data.replace(to_replace=recoder, inplace=True)
 
     return data
 
