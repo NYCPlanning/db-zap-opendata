@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-from typing import List
+from pathlib import Path
 
 import pandas as pd
 from pathlib import Path
@@ -99,7 +99,11 @@ class Runner:
 
     def combine(self):
         combine_table_name = f"{self.name}_crm"
-        files = os.listdir(self.cache_dir)
+        # sort file paths by file modification
+        file_paths = sorted(
+            Path(self.cache_dir).iterdir(),
+            key=os.path.getmtime,
+        )
         if self.check_table_existence(self.name):
             print("check_table_existence ...")
             with self.engine.begin() as sql_conn:
@@ -114,9 +118,9 @@ class Runner:
         else:
             print("table does not exist")
 
-        for _file in files:
-            print(f"json.load {self.cache_dir}/{_file} ...")
-            with open(f"{self.cache_dir}/{_file}") as f:
+        for file_path in file_paths:
+            print(f"json.load {file_path} ...")
+            with open(file_path) as f:
                 json_data = json.load(f)
 
             df = pd.DataFrame(json_data["value"], dtype=str)
