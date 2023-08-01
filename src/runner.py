@@ -130,6 +130,7 @@ class Runner:
                 ]
 
             print("df.to_sql ...")
+            print(df.columns)
             df.to_sql(
                 name=combine_table_name,
                 con=self.engine,
@@ -197,6 +198,7 @@ class Runner:
             df.to_csv(f"{self.output_dir}/{recode_table_name}.csv", index=False)
 
         print("df.to_sql ...")
+        print(df.columns)
         df.to_sql(
             name=recode_table_name,
             con=self.engine,
@@ -221,6 +223,7 @@ class Runner:
             df = recode_id(df)
 
             print("df.to_sql ...")
+            print(df.columns)
             df.to_sql(
                 name=recode_table_name,
                 con=self.engine,
