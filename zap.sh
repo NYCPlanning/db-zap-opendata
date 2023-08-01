@@ -56,7 +56,7 @@ case $1 in
     upload_do )
         dataset=$2
         VERSION=$3
-        SPACES="spaces/edm-publishing/db-zap"
+        SPACES="spaces/edm-publishing/db-zap/staging"
         output_filepath=".output/$dataset/${dataset}_visible.csv"
         mc cp ${output_filepath} $SPACES/$VERSION/$dataset/$dataset.csv
         mc cp ${output_filepath} $SPACES/latest/$dataset/$dataset.csv
